@@ -409,7 +409,7 @@ export function ServiceOrderPublicShare() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                {serviceOrder.formatted_id}
+                {serviceOrder.formatted_id || `OS: ${serviceOrder.sequential_number?.toString().padStart(4, '0') || serviceOrder.id.slice(-8)}`}
               </h1>
               <p className="text-muted-foreground">
                 Ordem de Serviço

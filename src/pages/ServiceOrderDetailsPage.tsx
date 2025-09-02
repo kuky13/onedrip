@@ -273,7 +273,7 @@ export const ServiceOrderDetailsPage = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold">Ordem #{serviceOrder.id.slice(-8)}</h1>
+              <h1 className="text-xl font-bold">{serviceOrder.formatted_id || `OS: ${serviceOrder.sequential_number?.toString().padStart(4, '0') || serviceOrder.id.slice(-8)}`}</h1>
               <p className="text-sm text-muted-foreground">
                 Criada em {format(new Date(serviceOrder.created_at), 'dd/MM/yyyy', { locale: ptBR })}
               </p>

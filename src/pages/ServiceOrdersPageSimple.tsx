@@ -111,7 +111,26 @@ const ServiceOrdersPageSimple: React.FC = () => {
   // Filter service orders
   const filteredServiceOrders = useMemo(() => {
     return serviceOrders.filter(order => {
-      const matchesSearch = searchTerm === '' || order.device_model?.toLowerCase().includes(searchTerm.toLowerCase()) || order.reported_issue?.toLowerCase().includes(searchTerm.toLowerCase()) || order.id.toLowerCase().includes(searchTerm.toLowerCase());
+      let matchesSearch = searchTerm === '';
+      
+      if (searchTerm !== '') {
+        // Check if search term is exactly 4 digits (sequential number search)
+        const isSequentialSearch = /^\d{4}$/.test(searchTerm);
+        
+        if (isSequentialSearch) {
+          // Exact match for sequential number only
+          matchesSearch = order.sequential_number && order.sequential_number.toString().padStart(4, '0') === searchTerm;
+        } else {
+          // Broad search in multiple fields
+          matchesSearch = 
+            order.device_model?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            order.reported_issue?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (order.sequential_number && order.sequential_number.toString().includes(searchTerm)) ||
+            (order.formatted_id && order.formatted_id.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+      }
+      
       const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
       const matchesPriority = priorityFilter === 'all' || order.priority === priorityFilter;
       return matchesSearch && matchesStatus && matchesPriority;
@@ -416,7 +435,7 @@ const ServiceOrdersPageSimple: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="font-bold text-lg">
-                          OS #{order.id.slice(-8)}
+                          {order.formatted_id || `OS: ${order.sequential_number?.toString().padStart(4, '0') || order.id.slice(-8)}`}
                         </h3>
                         <Badge variant="outline" className={`text-xs ${getPriorityColor(order.priority)}`}>
                           {getPriorityText(order.priority)}

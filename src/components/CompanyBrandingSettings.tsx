@@ -671,7 +671,7 @@ export function CompanyBrandingSettings() {
             
             {/* Sample Content */}
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold mb-2">Ordem de Serviço #OS-001</h3>
+              <h3 className="font-semibold mb-2">OS: 0001</h3>
               <p className="text-sm text-gray-600">Cliente: João Silva</p>
               <p className="text-sm text-gray-600">Serviço: Manutenção Preventiva</p>
               <div className="mt-3">

@@ -232,7 +232,7 @@ const ServiceOrderTrash: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <CardTitle className="text-lg">
-                      Ordem #{order.id.slice(0, 8)}
+                      {order.formatted_id || `Ordem #${order.id.slice(0, 8)}`}
                     </CardTitle>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
@@ -344,7 +344,7 @@ const ServiceOrderTrash: React.FC = () => {
                             Excluir Permanentemente
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Esta ação irá excluir permanentemente a ordem de serviço #{order.id.slice(0, 8)}.
+                            Esta ação irá excluir permanentemente a ordem de serviço {order.formatted_id || `#${order.id.slice(0, 8)}`}.
                             Esta ação não pode ser desfeita.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
