@@ -54,7 +54,7 @@ INSERT INTO service_types (name, description, color, icon, sort_order) VALUES
 
 -- Inserir configuração padrão do WhatsApp
 INSERT INTO whatsapp_settings (phone_number, welcome_message) VALUES
-('+5511999999999', 'Olá! Aqui está o status da sua ordem de serviço:');
+('+5564996028022', 'Olá! Aqui está o status da sua ordem de serviço:');
 
 -- Habilitar RLS (Row Level Security)
 ALTER TABLE service_types ENABLE ROW LEVEL SECURITY;

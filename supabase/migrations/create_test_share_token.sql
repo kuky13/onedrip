@@ -86,7 +86,7 @@ INSERT INTO company_info (
     'Oliver Blueberry - Assistência Técnica',
     NULL,
     'Rua das Flores, 123 - Centro',
-    '+5511999999999',
+    '+5564996028022',
     NOW(),
     NOW()
 ) ON CONFLICT (id) DO NOTHING;

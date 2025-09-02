@@ -39,8 +39,8 @@ export const DashboardLiteLicenseStatus = ({
   };
 
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do OneDrip.');
-    const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
+    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença.');
+    const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
 

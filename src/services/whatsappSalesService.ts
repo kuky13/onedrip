@@ -18,7 +18,7 @@ import { generateWhatsAppMessage } from '../utils/whatsappUtils';
 
 class WhatsAppSalesService {
   private config: WhatsAppSalesConfig = {
-    businessPhone: '+5511999999999',
+    businessPhone: '+5564996028022',
     businessName: 'OneDrip',
     welcomeMessage: 'Olá! Obrigado pelo interesse em nossos planos. Como posso ajudá-lo?',
     autoResponseEnabled: true,
