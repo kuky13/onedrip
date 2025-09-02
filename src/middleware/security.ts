@@ -5,7 +5,6 @@
 
 import { supabase } from '@/integrations/supabase/client'
 import { SECURITY_CONFIG, SecurityValidator } from '../utils/security-config'
-import { toast } from 'sonner'
 
 interface SecurityContext {
   userId?: string
@@ -484,7 +483,8 @@ export function useSecurityMiddleware() {
     const result = await validateRequest(endpoint, method, {}, payload)
     
     if (!result.allowed && showToast) {
-      toast.error(result.reason || 'Request blocked by security policy')
+      // Note: Toast should be handled by the calling component using useToast hook
+      console.warn('Security policy violation:', result.reason || 'Request blocked by security policy')
     }
     
     return result

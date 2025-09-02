@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface NotificationIndicatorProps {
   className?: string;
@@ -16,6 +17,7 @@ export const NotificationIndicator: React.FC<NotificationIndicatorProps> = ({
   iconOnly = true,
 }) => {
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
   const buttonSizes = {
     sm: 'h-8 w-8',
@@ -54,6 +56,13 @@ export const NotificationIndicator: React.FC<NotificationIndicatorProps> = ({
         'group-hover:scale-110'
       )} />
       
+      {/* Indicador de notificações não lidas */}
+      {unreadCount > 0 && (
+        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-pulse shadow-lg">
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </div>
+      )}
+      
       {!iconOnly && (
         <span className="ml-2 font-medium">
           Mensagens
@@ -69,6 +78,7 @@ export const NotificationIndicatorMobile: React.FC<{
   className?: string;
 }> = ({ onClick, className }) => {
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
   const handleClick = () => {
     if (onClick) {
@@ -90,6 +100,13 @@ export const NotificationIndicatorMobile: React.FC<{
       onClick={handleClick}
     >
       <Bell className="h-5 w-5" />
+      
+      {/* Indicador de notificações não lidas para mobile */}
+      {unreadCount > 0 && (
+        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-pulse shadow-lg">
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </div>
+      )}
     </Button>
   );
 };

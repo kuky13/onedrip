@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/useToast';
 import { MercadoPagoPlan, PaymentFlowState } from '../../shared/types/mercadoPago';
 import { mercadoPagoService } from '../services/mercadoPagoService';
 import MercadoPagoPlanCard from './MercadoPagoPlanCard';
@@ -10,6 +10,7 @@ interface MercadoPagoCheckoutProps {
 }
 
 const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({ className = '' }) => {
+  const { showSuccess, showError } = useToast();
   const [plans, setPlans] = useState<MercadoPagoPlan[]>([]);
   const [paymentFlow, setPaymentFlow] = useState<PaymentFlowState>({
     selectedPlan: null,
@@ -38,14 +39,16 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({ className = '
     }));
 
     // Feedback visual
-    toast.success(`${plan.name} selecionado!`, {
+    showSuccess({
+      title: `${plan.name} selecionado!`,
       description: `Valor: ${mercadoPagoService.formatPrice(plan.price)}`
     });
   };
 
   const handlePaymentClick = (plan: MercadoPagoPlan) => {
     if (!plan) {
-      toast.error('Erro', {
+      showError({
+        title: 'Erro',
         description: 'Nenhum plano selecionado. Tente novamente.'
       });
       return;

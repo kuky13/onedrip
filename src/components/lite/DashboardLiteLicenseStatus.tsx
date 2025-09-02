@@ -3,6 +3,7 @@ import { HeartCrack, AlertTriangle, MessageCircle, Key, Calendar, Clock, Shield,
 import { useNavigate } from 'react-router-dom';
 import { useLicense } from '@/hooks/useLicense';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 interface DashboardLiteLicenseStatusProps {
   profile: any;
 }
@@ -30,11 +31,21 @@ export const DashboardLiteLicenseStatus = ({
   // Calculate remaining days using the new hook data
   const remainingDays = daysUntilExpiry || 0;
   const expirationDate = licenseStatus?.expires_at ? new Date(licenseStatus.expires_at) : null;
+  const { showSuccess, showError } = useToast();
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
+      showSuccess({
+        title: 'Código copiado!',
+        description: 'O código da licença foi copiado para a área de transferência.'
+      });
     } catch (err) {
       console.error('Falha ao copiar:', err);
+      showError({
+        title: 'Erro ao copiar',
+        description: 'Não foi possível copiar o código. Tente novamente.'
+      });
     }
   };
 

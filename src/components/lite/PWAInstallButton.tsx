@@ -9,12 +9,12 @@ export const PWAInstallButton: React.FC = () => {
   const { isDesktop } = useDeviceDetection();
   const { isInstalled, isInstallable, installApp } = usePWA();
   const device = useDeviceDetection();
-  const { toast } = useToast();
+  const { showInfo, showSuccess } = useToast();
 
   const handleInstall = async () => {
     if (device.isIOS) {
       // Instruções para iOS
-      toast({
+      showInfo({
         title: "Instalar OneDrip no iPhone/iPad",
         description: (
           <div className="space-y-2">
@@ -38,7 +38,7 @@ export const PWAInstallButton: React.FC = () => {
       // Tentar instalação automática primeiro, senão mostrar instruções
       const success = await installApp();
       if (!success) {
-        toast({
+        showInfo({
           title: "Instalar OneDrip no Android",
           description: (
             <div className="space-y-2">
@@ -59,7 +59,7 @@ export const PWAInstallButton: React.FC = () => {
           duration: 10000,
         });
       } else {
-        toast({
+        showSuccess({
           title: "App Instalado!",
           description: "OneDrip foi instalado com sucesso no seu Android.",
         });
@@ -68,7 +68,7 @@ export const PWAInstallButton: React.FC = () => {
       // Desktop ou outros dispositivos
       const success = await installApp();
       if (!success) {
-        toast({
+        showInfo({
           title: "Instalar OneDrip",
           description: (
             <div className="space-y-2">
@@ -86,7 +86,7 @@ export const PWAInstallButton: React.FC = () => {
           duration: 8000,
         });
       } else {
-        toast({
+        showSuccess({
           title: "App Instalado!",
           description: "OneDrip foi instalado com sucesso.",
         });
