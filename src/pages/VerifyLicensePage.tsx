@@ -9,27 +9,29 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/useToast';
-
 export default function VerifyLicensePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { showSuccess } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    showSuccess
+  } = useToast();
   const [copiedLicense, setCopiedLicense] = useState(false);
-  
+
   // Usar o hook otimizado para verificação de licença
-  const { 
-    data: licenseData, 
-    isLoading, 
-    error, 
-    refetch 
+  const {
+    data: licenseData,
+    isLoading,
+    error,
+    refetch
   } = useLicenseVerificationOptimized(user?.id || null, {
-    skipCache: true, // Sempre buscar dados frescos na página de verificação
+    skipCache: true,
+    // Sempre buscar dados frescos na página de verificação
     enableRealtime: false // Desabilitar WebSocket na página de verificação
   });
-
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'Não informado';
-    
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('pt-BR', {
@@ -41,53 +43,39 @@ export default function VerifyLicensePage() {
       return 'Data inválida';
     }
   };
-
   const getStatusIcon = () => {
     if (isLoading) return <Loader2 className="h-8 w-8 animate-spin text-blue-600" />;
-    
     if (!licenseData?.has_license) {
       return <XCircle className="h-8 w-8 text-red-600" />;
     }
-    
     if (licenseData.is_valid) {
       return <CheckCircle className="h-8 w-8 text-green-600" />;
     }
-    
-    return <AlertTriangle className="h-8 w-8 text-orange-600" />;
+    return;
   };
-
   const getStatusText = () => {
     if (isLoading) return 'Verificando licença...';
-    
     if (!licenseData?.has_license) {
       return 'Sem licença';
     }
-    
     if (licenseData.is_valid) {
       return 'Licença Ativa';
     }
-    
     if (licenseData.expired_at) {
       return 'Licença Expirada';
     }
-    
     return 'Licença Desativada';
   };
-
   const getStatusColor = () => {
     if (isLoading) return 'text-blue-600';
-    
     if (!licenseData?.has_license) {
       return 'text-red-600';
     }
-    
     if (licenseData.is_valid) {
       return 'text-green-600';
     }
-    
     return 'text-orange-600';
   };
-
   const handleCopyLicense = () => {
     if (licenseData?.license_code) {
       navigator.clipboard.writeText(licenseData.license_code);
@@ -99,35 +87,27 @@ export default function VerifyLicensePage() {
       setTimeout(() => setCopiedLicense(false), 2000);
     }
   };
-
   const handleWhatsAppContact = () => {
     const licenseCode = licenseData?.license_code || 'Não informado';
     let message = `Olá! Preciso de ajuda com minha licença do OneDrip.\n\nMeu email: ${user?.email || 'Não informado'}`;
-    
     if (licenseData?.license_code) {
       message += `\n\nCódigo da licença atual: ${licenseCode}`;
     }
-    
     const whatsappUrl = `https://wa.me/5564996028022?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
-
   const handleEmailContact = () => {
     const licenseCode = licenseData?.license_code || 'Não informado';
     const subject = 'Suporte - Licença OneDrip';
     let body = `Olá!\n\nPreciso de ajuda com minha licença do OneDrip.\n\nMeu email: ${user?.email || 'Não informado'}`;
-    
     if (licenseData?.license_code) {
       body += `\n\nCódigo da licença atual: ${licenseCode}`;
     }
-    
     const mailtoUrl = `mailto:suporte@onedrip.email?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailtoUrl, '_blank');
   };
-
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+    return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardContent className="p-6 text-center">
             <AlertTriangle className="h-12 w-12 text-orange-600 mx-auto mb-4" />
@@ -137,22 +117,15 @@ export default function VerifyLicensePage() {
               <Button onClick={() => navigate('/auth')} className="w-full">
                 Fazer Login
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/')} 
-                className="w-full"
-              >
+              <Button variant="outline" onClick={() => navigate('/')} className="w-full">
                 Voltar ao Início
               </Button>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Header */}
@@ -185,11 +158,9 @@ export default function VerifyLicensePage() {
             </div>
 
             {/* Detalhes da Licença */}
-            {licenseData?.has_license && (
-              <div className="space-y-4 mb-6">
+            {licenseData?.has_license && <div className="space-y-4 mb-6">
                 {/* Código da Licença */}
-                {licenseData.license_code && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                {licenseData.license_code && <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
                     <div className="flex items-center space-x-3">
                       <Shield className="h-5 w-5 text-primary" />
                       <span className="font-medium text-foreground">Licença:</span>
@@ -198,25 +169,14 @@ export default function VerifyLicensePage() {
                       <span className="font-mono text-sm text-foreground bg-muted px-3 py-1 rounded border">
                         {licenseData.license_code}
                       </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyLicense}
-                        className="h-8 w-8 p-0"
-                      >
-                        {copiedLicense ? (
-                          <Check className="h-3 w-3" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
+                      <Button variant="outline" size="sm" onClick={handleCopyLicense} className="h-8 w-8 p-0">
+                        {copiedLicense ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                       </Button>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Data de Ativação */}
-                {licenseData.activated_at && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                {licenseData.activated_at && <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="h-5 w-5 text-green-600" />
                       <span className="font-medium text-foreground">Ativada em:</span>
@@ -224,12 +184,10 @@ export default function VerifyLicensePage() {
                     <span className="text-foreground">
                       {formatDate(licenseData.activated_at)}
                     </span>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Data de Expiração */}
-                {licenseData.expires_at && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                {licenseData.expires_at && <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
                     <div className="flex items-center space-x-3">
                       <Calendar className="h-5 w-5 text-orange-600" />
                       <span className="font-medium text-foreground">Expira em:</span>
@@ -237,24 +195,18 @@ export default function VerifyLicensePage() {
                     <span className="text-foreground">
                       {formatDate(licenseData.expires_at)}
                     </span>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Dias Restantes */}
-                {licenseData.days_remaining !== null && licenseData.days_remaining !== undefined && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                {licenseData.days_remaining !== null && licenseData.days_remaining !== undefined && <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
                     <div className="flex items-center space-x-3">
                       <Clock className="h-5 w-5 text-primary" />
                       <span className="font-medium text-foreground">Dias restantes:</span>
                     </div>
-                    <span className={`font-semibold ${
-                      licenseData.days_remaining > 30 ? 'text-green-600' :
-                      licenseData.days_remaining > 7 ? 'text-orange-600' : 'text-red-600'
-                    }`}>
+                    <span className={`font-semibold ${licenseData.days_remaining > 30 ? 'text-green-600' : licenseData.days_remaining > 7 ? 'text-orange-600' : 'text-red-600'}`}>
                       {licenseData.days_remaining}
                     </span>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Status da Validação */}
                 <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
@@ -262,36 +214,25 @@ export default function VerifyLicensePage() {
                     <Shield className="h-5 w-5 text-muted-foreground" />
                     <span className="font-medium text-foreground">Status:</span>
                   </div>
-                  <span className={`font-semibold px-3 py-1 rounded text-sm ${
-                    licenseData.is_valid 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span className={`font-semibold px-3 py-1 rounded text-sm ${licenseData.is_valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {licenseData.is_valid ? 'Válida' : 'Inválida'}
                   </span>
                 </div>
-              </div>
-            )}
+              </div>}
 
             {/* Alerta para licenças inativas */}
-            {licenseData?.has_license && !licenseData?.is_valid && (
-              <Alert className="border-orange-200 bg-orange-50">
+            {licenseData?.has_license && !licenseData?.is_valid && <Alert className="border-orange-200 bg-orange-50">
                 <AlertTriangle className="h-4 w-4 text-orange-600" />
                 <AlertDescription>
                   <strong className="text-orange-800">Licença Inativa</strong>
                   <p className="text-sm text-orange-700 mt-1">
-                    {licenseData.requires_renewal
-                      ? 'Sua licença expirou e precisa ser renovada.' 
-                      : 'Sua licença está desativada. Entre em contato com o suporte para reativá-la.'
-                    }
+                    {licenseData.requires_renewal ? 'Sua licença expirou e precisa ser renovada.' : 'Sua licença está desativada. Entre em contato com o suporte para reativá-la.'}
                   </p>
                 </AlertDescription>
-              </Alert>
-            )}
+              </Alert>}
 
             {/* Alerta para usuários sem licença */}
-            {!licenseData?.has_license && !isLoading && (
-              <Alert className="border-red-200 bg-red-50">
+            {!licenseData?.has_license && !isLoading && <Alert className="border-red-200 bg-red-50">
                 <XCircle className="h-4 w-4 text-red-600" />
                 <AlertDescription>
                   <strong className="text-red-800">Nenhuma Licença Encontrada</strong>
@@ -299,30 +240,17 @@ export default function VerifyLicensePage() {
                     Você não possui uma licença ativa. Entre em contato com o suporte para adquirir uma licença.
                   </p>
                 </AlertDescription>
-              </Alert>
-            )}
+              </Alert>}
 
             {/* Botões de Ação */}
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/painel')}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={() => navigate('/painel')} className="flex-1">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar ao Painel
               </Button>
               
-              <Button
-                onClick={refetch}
-                disabled={isLoading}
-                className="flex-1"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  'Verificar Novamente'
-                )}
+              <Button onClick={refetch} disabled={isLoading} className="flex-1">
+                {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 'Verificar Novamente'}
               </Button>
             </div>
           </CardContent>
@@ -394,6 +322,5 @@ export default function VerifyLicensePage() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 }
