@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
 import { generateBudgetPDF, saveBudgetPDF, type CompanyData } from '@/utils/pdfUtils';
-import { MessageCircle, FileText, Edit, Trash2, Eye, Share, X } from 'lucide-react';
+import { MessageCircle, FileText, Edit, Trash2, Eye, Share, X, Mail, Download } from 'lucide-react';
 import { BudgetLiteStatusBadge } from './BudgetLiteStatusBadge';
 import { BudgetEditFormIOS } from './BudgetEditFormIOS';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -451,22 +451,23 @@ export const BudgetLiteCardiOS = ({
             
             {/* Opções de Compartilhamento */}
             <div className="space-y-3">
-              {/* Web Share API Nativa (se disponível) */}
-              {navigator.share && <button onClick={() => handleSharePDF('native')} className="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors">
-                  <Share className="h-6 w-6 text-blue-600" />
-                  <div className="text-left">
-                    <p className="font-medium text-gray-900">Compartilhar</p>
-                    <p className="text-sm text-gray-600">Usar opções do sistema</p>
-                  </div>
-                </button>}
-              
-              {/* WhatsApp */}
-              
-              
-              {/* Email */}
-              
+              {/* Compartilhar - Genérico para qualquer app */}
+              <button onClick={() => handleSharePDF('native')} className="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors">
+                <Share className="h-6 w-6 text-blue-600" />
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Compartilhar</p>
+                  <p className="text-sm text-gray-600">Escolher aplicativo</p>
+                </div>
+              </button>
               
               {/* Download */}
+              <button onClick={() => handleSharePDF('download')} className="w-full flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                <Download className="h-6 w-6 text-gray-600" />
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Download</p>
+                  <p className="text-sm text-gray-600">Baixar PDF</p>
+                </div>
+              </button>
               
             </div>
           </div>

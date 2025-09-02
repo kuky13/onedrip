@@ -188,25 +188,7 @@ function StatusTimeline({
       })}
       </div>
 
-      {/* Status Details */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-1">Tempo Decorrido</p>
-          <p className="font-semibold text-foreground">{getTimeElapsed()}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-1">Previsão</p>
-          <p className="font-semibold text-foreground">{getEstimatedCompletion()}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-1">Última Atualização</p>
-          <p className="font-semibold text-foreground">
-            {format(new Date(updatedAt), 'dd/MM HH:mm', {
-            locale: ptBR
-          })}
-          </p>
-        </div>
-      </div>
+
     </div>;
 }
 function getStatusInfo(status: string) {
@@ -498,13 +480,23 @@ export function ServiceOrderPublicShare() {
                   <div className="p-2 rounded-lg" style={{
                   backgroundColor: `${themeColor}20`
                 }}>
-                    <Clock className="w-5 h-5" style={{
+                    <Calendar className="w-5 h-5" style={{
                     color: themeColor
                   }} />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Última Atualização</p>
-                    <p className="font-semibold text-foreground">{formatDateTime(serviceOrder.updated_at)}</p>
+                    <p className="text-sm text-muted-foreground">Previsão de Entrega</p>
+                    <p className="font-semibold text-foreground">{(() => {
+                      const createdDate = new Date(serviceOrder.created_at);
+                      const deliveryDate = new Date(createdDate);
+                      deliveryDate.setDate(createdDate.getDate() + 7);
+                      const formattedDate = deliveryDate.toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      });
+                      return formattedDate;
+                    })()}</p>
                   </div>
                 </div>
               </CardContent>

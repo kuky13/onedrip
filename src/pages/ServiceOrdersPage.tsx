@@ -449,15 +449,12 @@ const ServiceOrdersPage: React.FC = () => {
 
                   {/* Info Grid - Mobile Optimized */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    {/* Client Info */}
                     <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                       <p className="text-xs text-muted-foreground mb-1 font-medium">Cliente:</p>
                       <p className="font-medium text-primary text-sm">
                         {order.client_id ? `ID: ${order.client_id}` : 'Cliente não informado'}
                       </p>
                     </div>
-
-                    {/* Device Info */}
                     <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                       <p className="text-xs text-muted-foreground mb-1 font-medium">Dispositivo:</p>
                       <p className="font-medium text-sm">
@@ -467,49 +464,55 @@ const ServiceOrdersPage: React.FC = () => {
                   </div>
 
                   {/* Problem Description */}
-                  <div className="mb-4">
-                    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-                      <p className="text-xs text-muted-foreground mb-2 font-medium">Problema:</p>
-                      <p className="text-sm leading-relaxed">
-                        {order.reported_issue && order.reported_issue.length > 100 ? `${order.reported_issue.substring(0, 100)}...` : order.reported_issue || 'Descrição não informada'}
-                      </p>
-                    </div>
+                  <div className="bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-white/20 mb-4">
+                    <p className="text-xs text-muted-foreground mb-2 font-medium">Problema:</p>
+                    <p className="text-sm leading-relaxed">
+                      {order.reported_issue && order.reported_issue.length > 100 ? `${order.reported_issue.substring(0, 100)}...` : order.reported_issue || 'Descrição não informada'}
+                    </p>
                   </div>
 
                   {/* Status Badge */}
-                  <div className="mb-4">
-                    <Badge variant="outline" className={`${getStatusColor(order.status as any)} px-3 py-1 rounded-full flex items-center gap-1 w-fit`}>
-                      {getStatusIconComponent(order.status as any)}
-                      {getStatusText(order.status as any)}
-                    </Badge>
-                  </div>
+                  <Badge variant="outline" className={`${getStatusColor(order.status as any)} px-3 py-1 rounded-full flex items-center gap-1 w-fit mb-4`}>
+                    {getStatusIconComponent(order.status as any)}
+                    {getStatusText(order.status as any)}
+                  </Badge>
 
                   {/* Status Actions - Only for owners */}
                   {user?.id === order.owner_id && (
-                    <div className="mb-6 p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                      <div className="mb-3">
-                        <p className="text-sm font-medium text-muted-foreground">Ações de Status:</p>
-                      </div>
-                      <ServiceOrderStatusActions 
-                        serviceOrder={order} 
-                        onStatusUpdate={async (newStatus) => {
-                          await handleStatusUpdate(order.id, newStatus as ServiceOrderStatus);
-                        }} 
-                      />
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleStatusUpdate(order.id, 'in_progress')} 
+                        disabled={isUpdatingStatus} 
+                        className="flex flex-row sm:flex-col items-center gap-2 sm:gap-1 p-3 sm:p-2 h-auto text-orange-600 hover:text-orange-700 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-xl transition-all flex-1 sm:flex-none justify-center"
+                      >
+                        <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-sm sm:text-xs font-medium">Em Andamento</span>
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleStatusUpdate(order.id, 'completed')} 
+                        disabled={isUpdatingStatus} 
+                        className="flex flex-row sm:flex-col items-center gap-2 sm:gap-1 p-3 sm:p-2 h-auto text-green-600 hover:text-green-700 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-xl transition-all flex-1 sm:flex-none justify-center"
+                      >
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-sm sm:text-xs font-medium">Concluído</span>
+                      </Button>
                     </div>
                   )}
 
                   {/* Price */}
                   {order.total_price && (
-                    <div className="mb-4">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-sm rounded-xl p-4 border border-green-200/50">
-                        <p className="text-2xl sm:text-3xl font-bold text-green-700">
-                          {formatCurrency(Number(order.total_price))}
-                        </p>
-                        <p className="text-sm text-green-600">
-                          Valor total
-                        </p>
-                      </div>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-sm rounded-xl p-4 border border-green-200/50 mb-4">
+                      <p className="text-2xl sm:text-3xl font-bold text-green-700">
+                        {formatCurrency(Number(order.total_price))}
+                      </p>
+                      <p className="text-sm text-green-600">
+                        Valor total
+                      </p>
                     </div>
                   )}
 
@@ -536,25 +539,25 @@ const ServiceOrdersPage: React.FC = () => {
                           <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                           <span className="text-sm sm:text-xs font-medium">Editar</span>
                         </Button>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={async () => {
-                            const shareData = await generateShareToken(order.id);
-                            if (shareData) {
-                              const token = shareData.share_url.split('/').pop();
-                              navigate(`/share/service-order/${token}`);
-                            }
-                          }} 
-                          disabled={isGenerating} 
-                          className="flex flex-row sm:flex-col items-center gap-2 sm:gap-1 p-3 sm:p-2 h-auto text-blue-600 hover:text-blue-700 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-xl transition-all flex-1 sm:flex-none justify-center"
-                        >
-                          <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
-                          <span className="text-sm sm:text-xs font-medium">Compartilhar</span>
-                        </Button>
                       </>
                     )}
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={async () => {
+                        const shareData = await generateShareToken(order.id);
+                        if (shareData) {
+                          const token = shareData.share_url.split('/').pop();
+                          navigate(`/share/service-order/${token}`);
+                        }
+                      }} 
+                      disabled={isGenerating} 
+                      className="flex flex-row sm:flex-col items-center gap-2 sm:gap-1 p-3 sm:p-2 h-auto text-blue-600 hover:text-blue-700 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-xl transition-all flex-1 sm:flex-none justify-center"
+                    >
+                      <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="text-sm sm:text-xs font-medium">Compartilhar</span>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>)}

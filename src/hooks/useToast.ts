@@ -21,6 +21,32 @@ interface ToastOptions {
 }
 
 export const useToast = () => {
+  // Custom toast function that handles objects correctly
+  const customToast = (messageOrOptions: string | ToastOptions | EnhancedToastOptions, options?: any) => {
+    if (typeof messageOrOptions === 'string') {
+      // If it's a string, use the original toast function
+      return toast(messageOrOptions, options);
+    } else {
+      // If it's an object, handle it properly
+      const opts = messageOrOptions as ToastOptions | EnhancedToastOptions;
+      
+      if (opts.variant === 'destructive') {
+        return toast.error(opts.title, {
+          description: opts.description,
+          duration: (opts as EnhancedToastOptions).duration || 4000,
+          className: (opts as any).className,
+        });
+      } else {
+        // Default to info toast for non-destructive variants
+        return toast(opts.title, {
+          description: opts.description,
+          duration: (opts as EnhancedToastOptions).duration || 4000,
+          className: (opts as any).className,
+        });
+      }
+    }
+  };
+
   const showSuccess = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
     // Dismiss all existing toasts before showing new one
     toast.dismiss();
@@ -134,7 +160,7 @@ export const useToast = () => {
   };
 
   return {
-    toast,
+    toast: customToast,
     showSuccess,
     showError,
     showInfo,
