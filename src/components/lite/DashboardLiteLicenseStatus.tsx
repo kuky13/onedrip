@@ -1,5 +1,6 @@
-import React from 'react';
-import { HeartCrack, AlertTriangle, MessageCircle, Key, Calendar, Clock, Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { HeartCrack, AlertTriangle, MessageCircle, Key, Calendar, Clock, Shield, Copy, Eye, EyeOff, RefreshCw, LifeBuoy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLicense } from '@/hooks/useLicense';
 import { useAuth } from '@/hooks/useAuth';
 interface DashboardLiteLicenseStatusProps {
@@ -8,6 +9,8 @@ interface DashboardLiteLicenseStatusProps {
 export const DashboardLiteLicenseStatus = ({
   profile
 }: DashboardLiteLicenseStatusProps) => {
+  const [showLicenseCode, setShowLicenseCode] = useState(false);
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { 
     licenseStatus, 
@@ -27,10 +30,22 @@ export const DashboardLiteLicenseStatus = ({
   // Calculate remaining days using the new hook data
   const remainingDays = daysUntilExpiry || 0;
   const expirationDate = licenseStatus?.expires_at ? new Date(licenseStatus.expires_at) : null;
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Falha ao copiar:', err);
+    }
+  };
+
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do sistema.');
-    const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
+    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do OneDrip.');
+    const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleHelpClick = () => {
+    navigate('/central-de-ajuda');
   };
   const getStatus = () => {
     if (needsActivation) {
@@ -124,7 +139,36 @@ export const DashboardLiteLicenseStatus = ({
           {licenseStatus?.license_code && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground sm:col-span-2">
               <Key className="h-4 w-4" />
-              <span>Código: {licenseStatus.license_code}</span>
+              <span>Código:</span>
+              <div className="bg-muted/30 rounded-lg p-2 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <span className="text-xs font-mono text-card-foreground">
+                      {showLicenseCode ? licenseStatus.license_code : '••••••••••••'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setShowLicenseCode(!showLicenseCode)}
+                      className="ml-2 p-1 hover:bg-muted/50 rounded transition-colors"
+                      title={showLicenseCode ? 'Ocultar código' : 'Mostrar código'}
+                    >
+                      {showLicenseCode ? (
+                        <EyeOff className="h-3 w-3 text-primary" />
+                      ) : (
+                        <Eye className="h-3 w-3 text-primary" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => copyToClipboard(licenseStatus.license_code)}
+                      className="p-1 hover:bg-muted/50 rounded transition-colors"
+                      title="Copiar código"
+                    >
+                      <Copy className="h-3 w-3 text-primary" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -151,15 +195,22 @@ export const DashboardLiteLicenseStatus = ({
       </div>
       
       <div className="space-y-2">
-        {status.showRenew && (
-          <button 
-            onClick={handleWhatsAppContact} 
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md text-sm font-medium flex items-center justify-center gap-2"
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button
+            onClick={handleWhatsAppContact}
+            className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
           >
-            <MessageCircle className="h-4 w-4" />
-            Renovar via WhatsApp
+            <RefreshCw className="h-4 w-4" />
+            Renovar
           </button>
-        )}
+          <button
+            onClick={handleHelpClick}
+            className="w-full bg-muted/30 hover:bg-muted/50 active:bg-muted/70 border border-border text-primary py-3 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+          >
+            <LifeBuoy className="h-4 w-4" />
+            Ajuda
+          </button>
+        </div>
         
         {status.showActivate && (
           <button 
