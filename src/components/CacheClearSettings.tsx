@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/useToast';
 
 export const CacheClearSettings = () => {
   const [isClearing, setIsClearing] = useState(false);
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToast();
 
   const clearSiteCache = async (): Promise<void> => {
     setIsClearing(true);
@@ -101,7 +101,7 @@ export const CacheClearSettings = () => {
 
       console.log('🧹 LIMPEZA COMPLETA: Todos os dados locais removidos');
 
-      toast({
+      showSuccess({
         title: "Limpeza completa realizada! 🧹",
         description: "TODOS os dados locais foram removidos. Os dados do backend permanecem intactos.",
       });
@@ -112,10 +112,9 @@ export const CacheClearSettings = () => {
       }, 1500);
     } catch (error) {
       console.error('Error clearing cache:', error);
-      toast({
+      showError({
         title: "Erro ao limpar cache",
         description: "Ocorreu um erro ao tentar limpar o cache.",
-        variant: "destructive",
       });
     } finally {
       setIsClearing(false);

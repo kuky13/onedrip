@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useResponsive } from '@/hooks/useResponsive';
 import { cn } from '@/lib/utils';
-import { FileText, MessageCircle, Edit, X } from 'lucide-react';
+import { FileText, MessageCircle, Edit } from 'lucide-react';
 
 interface Budget {
   id: string;
@@ -51,7 +51,7 @@ export const BudgetViewModal = ({
   const { isDesktop } = useResponsive();
   
   if (!budget) return null;
-  const formatPrice = (price: number | null) => {
+  const formatPrice = (price: number | null | undefined) => {
     if (!price) return 'R$ 0,00';
     return `R$ ${(price / 100).toLocaleString('pt-BR', {
       minimumFractionDigits: 2

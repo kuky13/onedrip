@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,7 +116,7 @@ export const CompanySettings = () => {
         <div className="space-y-2">
           <Label>Logo da Empresa</Label>
           <LogoUploadZone
-            currentLogoUrl={shopProfile?.logo_url}
+            currentLogoUrl={shopProfile?.logo_url ?? ''}
             onUpload={handleLogoUpload}
             onRemove={handleRemoveLogo}
             isUploading={isUploadingLogo}

@@ -24,7 +24,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useCompanyBranding, CompanyInfo, CompanyShareSettings } from '@/hooks/useCompanyBranding';
+import { useCompanyBranding } from '@/hooks/useCompanyBranding';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
@@ -104,7 +104,7 @@ export function CompanyBrandingSettings() {
   const [companyData, setCompanyData] = useState<CompanyFormData>(initialCompanyData);
   const [shareData, setShareData] = useState<ShareSettingsFormData>(initialShareSettings);
   const [companyErrors, setCompanyErrors] = useState<Partial<CompanyFormData>>({});
-  const [shareErrors, setShareErrors] = useState<Partial<ShareSettingsFormData>>({});
+  const [, setShareErrors] = useState<Partial<ShareSettingsFormData>>({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -174,7 +174,7 @@ export function CompanyBrandingSettings() {
     try {
       const formattedData = {
         ...companyData,
-        whatsapp_phone: companyData.whatsapp_phone ? formatPhoneNumber(companyData.whatsapp_phone) : null
+        whatsapp_phone: companyData.whatsapp_phone ? formatPhoneNumber(companyData.whatsapp_phone) : ''
       };
 
       if (companyInfo) {

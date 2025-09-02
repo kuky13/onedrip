@@ -34,7 +34,7 @@ import {
   X, 
   Info, 
   Truck, 
-  Users,
+  
   Package,
   PlayCircle,
   PauseCircle
@@ -161,8 +161,7 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
   const {
     loading: globalLoading,
     getAvailableActions,
-    executeAction,
-    canExecuteAction
+    executeAction
   } = useContextualActions();
 
   // Estados locais

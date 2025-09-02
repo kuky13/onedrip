@@ -38,7 +38,7 @@ export const AdvancedClientsContent = () => {
     phone: '',
     email: '',
   });
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToast();
   const queryClient = useQueryClient();
 
   const { data: clients = [], isLoading } = useQuery({
@@ -69,7 +69,7 @@ export const AdvancedClientsContent = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({
+      showSuccess({
         title: 'Cliente criado!',
         description: 'O cliente foi adicionado com sucesso.',
       });
@@ -79,10 +79,9 @@ export const AdvancedClientsContent = () => {
     },
     onError: (error) => {
       console.error('Error creating client:', error);
-      toast({
+      showError({
         title: 'Erro ao criar cliente',
         description: 'Não foi possível criar o cliente. Tente novamente.',
-        variant: 'destructive',
       });
     },
   });
@@ -97,7 +96,7 @@ export const AdvancedClientsContent = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({
+      showSuccess({
         title: 'Cliente atualizado!',
         description: 'As informações do cliente foram atualizadas.',
       });
@@ -108,10 +107,9 @@ export const AdvancedClientsContent = () => {
     },
     onError: (error) => {
       console.error('Error updating client:', error);
-      toast({
+      showError({
         title: 'Erro ao atualizar cliente',
         description: 'Não foi possível atualizar o cliente. Tente novamente.',
-        variant: 'destructive',
       });
     },
   });
@@ -126,7 +124,7 @@ export const AdvancedClientsContent = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({
+      showSuccess({
         title: 'Cliente excluído!',
         description: 'O cliente foi removido com sucesso.',
       });
@@ -136,10 +134,9 @@ export const AdvancedClientsContent = () => {
     },
     onError: (error) => {
       console.error('Error deleting client:', error);
-      toast({
+      showError({
         title: 'Erro ao excluir cliente',
         description: 'Não foi possível excluir o cliente. Tente novamente.',
-        variant: 'destructive',
       });
     },
   });
@@ -152,10 +149,9 @@ export const AdvancedClientsContent = () => {
     e.preventDefault();
     
     if (!formData.name.trim() || !formData.phone.trim()) {
-      toast({
+      showError({
         title: 'Campos obrigatórios',
         description: 'Nome e telefone são obrigatórios.',
-        variant: 'destructive',
       });
       return;
     }

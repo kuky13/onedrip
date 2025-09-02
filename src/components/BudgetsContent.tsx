@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { MessageCircle } from '@/components/ui/icons';
 import { EmptyState } from '@/components/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +19,7 @@ import { BudgetsList } from './budgets/components/BudgetsList';
 import { BudgetsEmptyState } from './budgets/components/BudgetsEmptyState';
 import { BudgetsLoadingState } from './budgets/components/BudgetsLoadingState';
 import { useAdvancedBudgets } from '@/hooks/useAdvancedBudgets';
-import { PDFErrorBoundary } from '@/components/ErrorBoundaries';
+
 
 interface BudgetsContentProps {
   onTabChange?: (tab: string) => void;

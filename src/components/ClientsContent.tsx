@@ -24,15 +24,16 @@ interface Client {
   id: string;
   name: string;
   phone: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zip_code?: string;
-  notes?: string;
-  is_favorite?: boolean;
-  tags?: string[];
-  is_default?: boolean;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+  notes?: string | null;
+  is_favorite?: boolean | null;
+  tags?: string[] | null;
+  is_default?: boolean | null;
   created_at: string;
+  updated_at?: string | null;
 }
 
 export const ClientsContent = () => {

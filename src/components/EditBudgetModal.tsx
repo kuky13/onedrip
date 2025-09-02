@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,7 +61,7 @@ interface EditBudgetModalProps {
   onOpenChange: (open: boolean) => void;
 }
 export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalProps) => {
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToast();
   const { isDesktop } = useResponsive();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
@@ -85,20 +85,7 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
     enable_installment_price: false
   });
 
-  // Buscar tipos de dispositivo e períodos de garantia
-  const {
-    data: deviceTypes
-  } = useQuery({
-    queryKey: ['device-types'],
-    queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('device_types').select('*').order('name');
-      if (error) throw error;
-      return data;
-    }
-  });
+  // Removed unused device types query
   const {
     data: warrantyPeriods
   } = useQuery({
@@ -149,11 +136,11 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
   }, [budget, open]);
   const updateBudgetMutation = useMutation({
     mutationFn: async (data: UpdateBudgetData) => {
+      if (!budget) {
+        throw new Error('Budget not available');
+      }
       const createdAt = new Date(budget.created_at);
       const validUntilDate = new Date(createdAt);
-      const validityDays = parseInt(data.validity_period_days) || 15;
-      validUntilDate.setDate(validUntilDate.getDate() + validityDays);
-      const totalPrice = parseFloat(data.total_price) || 0;
       const cashPriceValue = parseFloat(data.cash_price) || totalPrice;
       const installmentPriceValue = parseFloat(data.installment_price) || 0;
       const updateData = {
@@ -184,7 +171,7 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
       queryClient.invalidateQueries({
         queryKey: ['budgets']
       });
-      toast({
+      showSuccess({
         title: "Orçamento atualizado",
         description: "As alterações foram salvas com sucesso."
       });
@@ -192,10 +179,9 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
     },
     onError: error => {
       console.error('Error updating budget:', error);
-      toast({
+      showError({
         title: "Erro ao atualizar",
-        description: "Ocorreu um erro ao salvar as alterações.",
-        variant: "destructive"
+        description: "Ocorreu um erro ao salvar as alterações."
       });
     }
   });
@@ -204,19 +190,17 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
 
     // Validação básica
     if (!formData.device_model || !formData.issue || !formData.total_price || !formData.part_type) {
-      toast({
+      showError({
         title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios (modelo, problema, valor e tipo de serviço).",
-        variant: "destructive"
+        description: "Preencha todos os campos obrigatórios (modelo, problema, valor e tipo de serviço)."
       });
       return;
     }
     const totalPrice = parseFloat(formData.total_price);
     if (isNaN(totalPrice) || totalPrice <= 0) {
-      toast({
+      showError({
         title: "Valor inválido",
-        description: "Digite um valor válido para o orçamento.",
-        variant: "destructive"
+        description: "Digite um valor válido para o orçamento."
       });
       return;
     }
