@@ -37,7 +37,7 @@ export const PWAUpdateNotification: React.FC = () => {
         }
       });
     }
-  }, []);
+  }, [showInfo]);
 
   const handleUpdate = () => {
     if (registration && registration.waiting) {
