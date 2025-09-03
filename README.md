@@ -65,14 +65,14 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 ### **Demo Online**
 ```bash
-🌐 URL: https://kuky.pro
-📧 Usuário: caipora@kuky.cloud
-🔑 Senha: caipora
+🌐 URL: https://onedrip.com.br
+📧 Usuário: layla@onedrip.email
+🔑 Senha: undergrounds
 ```
 
 ### **Página de Planos**
 ```bash
-💰 Planos: https://kuky.pro/plans
+💰 Planos: https://onedrip.com.br/plans
 📱 Suporte: WhatsApp (64) 99602-8022
 ```
 
@@ -99,7 +99,7 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 ## 🚀 **Roadmap de Desenvolvimento**
 
-### ✅ **Versão 2.0 - Blue Barry** - *Atual*
+### ✅ **Versão 2.0 - Blue berry** - *Atual*
 - [x] Sistema completo de orçamentos com workflow
 - [x] Dashboard analytics avançado
 - [x] Geração de PDF profissional
@@ -107,19 +107,6 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 - [x] Lixeira inteligente com recuperação
 - [x] Exportação/Importação de dados
 - [x] Otimizações para iOS/Android
-
-### 🔄 **Versão 3.0 - Ice Cream** - *Em Desenvolvimento*
-- [ ] **API WhatsApp Integrada**: Envio automático de orçamentos
-- [ ] **Alertas Inteligentes**: Notificações de vencimento
-- [ ] **Relatórios Avançados**: Business Intelligence
-- [ ] **Integração com Sistemas Externos**: ERP, E-commerce
-- [ ] **Métricas Avançadas**: Conversion tracking
-
-### 🎯 **Versão 4.0 - Pão de Queijo** - *Planejado*
-- [ ] **IA Assistant**: Diagnósticos automáticos com machine learning
-- [ ] **Marketplace**: Peças e fornecedores integrados
-- [ ] **Agenda Online**: Agendamento para clientes
-- [ ] **Sistema de Notas Fiscais**: Integração com SEFAZ
 
 ---
 
@@ -143,8 +130,8 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 **Junte-se a centenas de profissionais que já escolheram o OneDrip**
 
-[![Começar Agora](https://img.shields.io/badge/🚀_COMEÇAR_AGORA-4CAF50?style=for-the-badge&logoColor=white)](https://kuky.pro/plans)
-[![Demo Gratuita](https://img.shields.io/badge/🎯_DEMO_GRATUITA-2196F3?style=for-the-badge&logoColor=white)](https://kuky.pro)
+[![Começar Agora](https://img.shields.io/badge/🚀_COMEÇAR_AGORA-4CAF50?style=for-the-badge&logoColor=white)](https://onedrip.com.br/plans)
+[![Demo Gratuita](https://img.shields.io/badge/🎯_DEMO_GRATUITA-2196F3?style=for-the-badge&logoColor=white)](https://onedrip.com.br)
 
 ---
 
@@ -155,18 +142,6 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 - **Atualizações Constantes**: Sempre evoluindo com novas funcionalidades
 - **Preço Justo**: Valor acessível para assistências técnicas de todos os tamanhos
 - **Dados Seguros**: Seus dados protegidos com tecnologia de ponta
-
-## 🌟 **Depoimentos de Clientes**
-
-> *"O OneDrip transformou completamente nossa assistência técnica. Agora conseguimos organizar todos os orçamentos e ter controle total do negócio."*
-> 
-> **— Oliveira Imports, Cliente desde 2024**
-
-> *"A facilidade de usar no celular fez toda a diferença. Posso acessar tudo de qualquer lugar."*
-> 
-> **— TechFix Assistência, São Paulo**
-
----
 
 ---
 
@@ -189,3 +164,4 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 *Transformando assistências técnicas em negócios de sucesso* 🚀
 
 </div>
+
