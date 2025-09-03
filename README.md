@@ -66,13 +66,8 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 ### **Demo Online**
 ```bash
 🌐 URL: https://onedrip.com.br
-<<<<<<< HEAD
-📧 Usuário: caipora@kuky.cloud
-🔑 Senha: caipora
-=======
 📧 Usuário: layla@onedrip.email
 🔑 Senha: undergrounds
->>>>>>> c6e44e91e793182fb3b21229787e762079ee3c05
 ```
 
 ### **Página de Planos**
@@ -164,9 +159,10 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 ---
 
-**© 2024 OneDrip. Todos os direitos reservados.**
+**© 2025 KuktSolutions. Todos os direitos reservados.**
 
 *Transformando assistências técnicas em negócios de sucesso* 🚀
 
 </div>
+
 
