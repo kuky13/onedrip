@@ -31,9 +31,9 @@ export const APP_CONFIG = {
   
   // URLs importantes
   urls: {
-    main: 'https://kuky.pro',
-    plans: 'https://kuky.pro/plans',
-    demo: 'https://kuky.pro'
+    main: 'https://onedrip.com.br',
+    plans: 'https://onedrip.com.br/plans',
+    demo: 'https://onedrip.com.br'
   },
   
   // Informações para PWA e compartilhamento

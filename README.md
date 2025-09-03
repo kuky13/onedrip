@@ -65,14 +65,14 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 ### **Demo Online**
 ```bash
-🌐 URL: https://kuky.pro
+🌐 URL: https://onedrip.com.br
 📧 Usuário: caipora@kuky.cloud
 🔑 Senha: caipora
 ```
 
 ### **Página de Planos**
 ```bash
-💰 Planos: https://kuky.pro/plans
+💰 Planos: https://onedrip.com.br/plans
 📱 Suporte: WhatsApp (64) 99602-8022
 ```
 
@@ -143,8 +143,8 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 **Junte-se a centenas de profissionais que já escolheram o OneDrip**
 
-[![Começar Agora](https://img.shields.io/badge/🚀_COMEÇAR_AGORA-4CAF50?style=for-the-badge&logoColor=white)](https://kuky.pro/plans)
-[![Demo Gratuita](https://img.shields.io/badge/🎯_DEMO_GRATUITA-2196F3?style=for-the-badge&logoColor=white)](https://kuky.pro)
+[![Começar Agora](https://img.shields.io/badge/🚀_COMEÇAR_AGORA-4CAF50?style=for-the-badge&logoColor=white)](https://onedrip.com.br/plans)
+[![Demo Gratuita](https://img.shields.io/badge/🎯_DEMO_GRATUITA-2196F3?style=for-the-badge&logoColor=white)](https://onedrip.com.br)
 
 ---
 

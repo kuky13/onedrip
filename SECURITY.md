@@ -206,9 +206,9 @@ Para **vulnerabilidades críticas** que representem risco imediato:
 - 📈 **Monitoring**: Supabase Analytics + Custom Alerts
 
 ### **Políticas e Procedimentos**
-- 📋 [Política de Privacidade](https://kuky.pro/privacy)
-- 📄 [Termos de Uso](https://kuky.pro/terms)
-- 🔒 [Política de Cookies](https://kuky.pro/cookies)
+- 📋 [Política de Privacidade](https://onedrip.com.br/privacy)
+- 📄 [Termos de Uso](https://onedrip.com.br/terms)
+- 🔒 [Política de Cookies](https://onedrip.com.br/cookies)
 
 ### **Treinamento e Conscientização**
 - 🎓 **Security Awareness Training** para toda a equipe
@@ -246,7 +246,7 @@ Investimos constantemente em segurança porque sabemos que a confiança dos noss
 
 [![Report Vulnerability](https://img.shields.io/badge/🚨_REPORTAR_VULNERABILIDADE-red?style=for-the-badge)](mailto:kuky.png@gmail.com)
 [![Security Documentation](https://img.shields.io/badge/📚_DOCUMENTAÇÃO_SEGURANÇA-blue?style=for-the-badge)](https://docs.onedrip.com.br/security)
-[![Privacy Policy](https://img.shields.io/badge/🔒_POLÍTICA_PRIVACIDADE-green?style=for-the-badge)](https://kuky.pro/privacy)
+[![Privacy Policy](https://img.shields.io/badge/🔒_POLÍTICA_PRIVACIDADE-green?style=for-the-badge)](https://onedrip.com.br/privacy)
 
 ---
 

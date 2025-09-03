@@ -77,7 +77,7 @@ Example:
 ```json
 {
   "share_token": "5e77e3f3-a1b2-4c5d-8e9f-123456789abc",
-  "share_url": "https://kuky.pro/share/service-order/5e77e3f3-a1b2-4c5d-8e9f-123456789abc",
+  "share_url": "https://onedrip.com.br/share/service-order/5e77e3f3-a1b2-4c5d-8e9f-123456789abc",
   "expires_at": "2024-02-15T23:59:59Z"
 }
 ```
@@ -231,7 +231,7 @@ AS $$
 DECLARE
     v_token TEXT;
     v_expires_at TIMESTAMP WITH TIME ZONE;
-    v_base_url TEXT := 'https://kuky.pro';
+    v_base_url TEXT := 'https://onedrip.com.br';
 BEGIN
     -- Verificar se o usuário tem acesso à OS
     IF NOT EXISTS (
