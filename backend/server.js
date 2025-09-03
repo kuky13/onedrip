@@ -21,18 +21,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuração básica do servidor
-
-
-
-
-
-
-
-
-
-
-
 // Endpoint de health check
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -49,20 +37,6 @@ app.get('/api/config', (req, res) => {
     corsOrigins: ['http://localhost:8081', 'http://localhost:3000', 'http://localhost:5173']
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Middleware de tratamento de erros
 app.use((error, req, res, next) => {

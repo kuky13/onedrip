@@ -284,7 +284,7 @@ export const TrashManagement = () => {
     const types = [...new Set(deletedBudgets.map(item => item.budget_data.device_type).filter(Boolean))];
 
     // Aplicar filtros
-    let filtered = deletedBudgets.filter(item => {
+    const filtered = deletedBudgets.filter(item => {
       // Filtro de busca
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();

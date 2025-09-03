@@ -262,7 +262,7 @@ export const useNotifications = () => {
     mutationFn: async () => {
       const promises = notificationsArray.map((notification: any) => {
         // Garantir que o ID seja um UUID válido
-        let validUuid = notification.id;
+        const validUuid = notification.id;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(notification.id)) {
           // Invalid UUID
         }

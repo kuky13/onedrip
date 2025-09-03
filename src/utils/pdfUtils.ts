@@ -165,7 +165,7 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   // Adicionar dados da empresa no cabeçalho (lado direito) - usar dados validados
   doc.setFontSize(7);
   doc.setTextColor(...darkGray);
-  let rightX = pageWidth - margin;
+  const rightX = pageWidth - margin;
   let rightY = yPosition;
   
   if (validatedCompanyData.contact_phone && validatedCompanyData.contact_phone.trim() !== '') {

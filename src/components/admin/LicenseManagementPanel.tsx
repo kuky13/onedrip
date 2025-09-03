@@ -154,7 +154,7 @@ export const LicenseManagementPanel = () => {
   const filteredAndSortedLicenses = useMemo(() => {
     if (!licenses) return [];
     
-    let filtered = licenses.filter((license) => {
+    const filtered = licenses.filter((license) => {
       // Search filter
       const matchesSearch = 
         license.code.toLowerCase().includes(searchTerm.toLowerCase()) ||

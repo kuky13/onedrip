@@ -75,7 +75,7 @@ const AdminLiteEnhancedComponent = ({
   // Enhanced filtering and sorting
   const enhancedFilteredUsers = React.useMemo(() => {
     if (!users) return [];
-    let filtered = users.filter((user: any) => {
+    const filtered = users.filter((user: any) => {
       const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || user.email?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = filterRole === 'all' || user.role === filterRole;
       const matchesStatus = filterStatus === 'all' || filterStatus === 'active' && user.license_active && new Date(user.expiration_date) > new Date() || filterStatus === 'expired' && (!user.license_active || new Date(user.expiration_date) <= new Date());

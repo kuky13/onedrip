@@ -170,7 +170,7 @@ export class SecureStorage {
         ttl
       } = options;
 
-      let dataToStore = {
+      const dataToStore = {
         value,
         encrypted: encrypt,
         timestamp: Date.now(),

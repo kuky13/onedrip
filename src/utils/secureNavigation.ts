@@ -85,7 +85,7 @@ export const sanitizeUrl = (url: string): string => {
   }
 
   // Remove caracteres de controle e espaços
-  let sanitized = url.replace(/[\x00-\x1F\x7F]/g, '').trim();
+  const sanitized = url.replace(/[\x00-\x1F\x7F]/g, '').trim();
   
   // Remove javascript: e data: URLs
   if (/^(javascript|data|vbscript):/i.test(sanitized)) {

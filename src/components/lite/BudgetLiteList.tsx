@@ -26,7 +26,6 @@ export const BudgetLiteList = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBudgets, setFilteredBudgets] = useState(budgets);
   const [editingBudget, setEditingBudget] = useState<any>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   
   // Usar hooks do sistema principal
   const { handleSingleDeletion, isDeleting } = useBudgetDeletion();
@@ -229,7 +228,6 @@ export const BudgetLiteList = ({
               onEdit={handleEdit}
               onDelete={handleDelete}
               onRefresh={onRefresh}
-              isGenerating={isGenerating}
               isDeleting={isDeleting}
             />
           ))}

@@ -413,7 +413,7 @@ if (typeof window !== 'undefined') {
 // Detectar atividades suspeitas automaticamente
 if (typeof window !== 'undefined') {
   // Detectar tentativas de abertura de DevTools
-  let devtools = { open: false, orientation: null };
+  const devtools = { open: false, orientation: null };
   const threshold = 160;
   
   setInterval(() => {

@@ -37,7 +37,7 @@ function fuzzyIncludes(text: string, query: string) {
   }
   // Busca fuzzy simples: todas as letras do query aparecem na ordem
   let i = 0;
-  for (let c of normalizedText) {
+  for (const c of normalizedText) {
     if (c === normalizedQuery[i]) i++;
     if (i === normalizedQuery.length) return true;
   }
