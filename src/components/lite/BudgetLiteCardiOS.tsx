@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
 import { generateBudgetPDF, saveBudgetPDF, type CompanyData } from '@/utils/pdfUtils';
-import { MessageCircle, FileText, Edit, Trash2, Eye, Share, X, Mail, Download } from 'lucide-react';
+import { MessageCircle, FileText, Edit, Trash2, Eye, Share, X, Mail, Download, Zap, ExternalLink, Copy } from 'lucide-react';
 import { BudgetLiteStatusBadge } from './BudgetLiteStatusBadge';
 import { BudgetEditFormIOS } from './BudgetEditFormIOS';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useShopProfile } from '@/hooks/useShopProfile';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
@@ -44,11 +45,13 @@ export const BudgetLiteCardiOS = ({
   onDelete,
   onBudgetUpdate
 }: BudgetLiteCardiOSProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const {
     shopProfile
   } = useShopProfile();
@@ -61,6 +64,68 @@ export const BudgetLiteCardiOS = ({
     showErrorAction,
     showProgressAction
   } = useIOSFeedback();
+
+  // Verificar se o usuário é VIP
+  const isVipUser = profile?.service_orders_vip_enabled || false;
+  const serviceOrdersVipEnabled = profile?.service_orders_vip_enabled || false;
+  
+
+  
+
+
+  // Função para criar ordem de serviço automaticamente
+  const handleCreateServiceOrder = async () => {
+    if (!budget?.id || !profile?.id) return;
+    
+    setIsCreatingOrder(true);
+    try {
+      const { data, error } = await supabase
+        .from('service_orders')
+        .insert({
+          owner_id: profile.id,
+          device_model: budget.device_model || 'Dispositivo não informado',
+          device_type: budget.device_type || 'Smartphone',
+          reported_issue: budget.issue || 'Problema não informado',
+          total_price: (budget.total_price || 0) / 100, // Converter de centavos para reais
+          status: 'pending',
+          priority: 'medium'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setCreatedOrderId(data.id);
+      showSuccessAction('Ordem de serviço criada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao criar ordem de serviço:', error);
+      showErrorAction('Erro ao criar ordem de serviço');
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  // Função para editar ordem de serviço
+  const handleEditOrder = () => {
+    if (createdOrderId) {
+      window.open(`/service-orders/${createdOrderId}/edit`, '_blank');
+    }
+  };
+
+  // Função para copiar link de compartilhamento
+  const handleCopyShareLink = async () => {
+    if (createdOrderId) {
+      const shareLink = `${window.location.origin}/share/service-order/${createdOrderId}`;
+      try {
+        await navigator.clipboard.writeText(shareLink);
+        showSuccessAction('Link copiado para a área de transferência!');
+      } catch (error) {
+        console.error('Erro ao copiar link:', error);
+        showErrorAction('Erro ao copiar link');
+      }
+    }
+  };
+
   if (!budget || !budget.id) {
     return null;
   }
@@ -162,6 +227,17 @@ export const BudgetLiteCardiOS = ({
       hapticFeedback('light');
       showProgressAction('Gerando PDF...');
 
+      console.log('[PDF] Iniciando geração de PDF...');
+      console.log('[PDF] Dados do perfil da loja:', shopProfile);
+      console.log('[PDF] Dados da empresa:', companyInfo);
+
+      // Verificar se temos dados mínimos necessários
+      if (!shopProfile && !companyInfo) {
+        console.warn('[PDF] Nenhum dado da empresa disponível');
+        showErrorAction('Dados da empresa não carregados. Tente novamente.');
+        return;
+      }
+
       // Preparar dados do orçamento seguindo a interface BudgetData
       const pdfData = {
         id: budget.id,
@@ -176,21 +252,28 @@ export const BudgetLiteCardiOS = ({
         warranty_months: 12,
         notes: budget.issue
       };
-
-      // Preparar dados da empresa
+      
+      // Preparar dados da empresa com fallbacks robustos
       const companyData: CompanyData = {
-        shop_name: shopProfile?.shop_name || companyInfo?.name,
-        address: shopProfile?.address || companyInfo?.address,
-        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone,
-        logo_url: shopProfile?.logo_url || companyInfo?.logo_url,
-        email: companyInfo?.email,
-        cnpj: shopProfile?.cnpj
+        shop_name: shopProfile?.shop_name || companyInfo?.name || 'Minha Loja',
+        address: shopProfile?.address || companyInfo?.address || '',
+        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone || '',
+        logo_url: shopProfile?.logo_url || companyInfo?.logo_url || '',
+        email: companyInfo?.email || '',
+        cnpj: shopProfile?.cnpj || ''
       };
+      
+      console.log('[PDF] Dados da empresa preparados:', companyData);
+      
       await generateBudgetPDF(pdfData, companyData);
       showSuccessAction('PDF gerado com sucesso!');
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      showErrorAction('Não foi possível gerar o PDF');
+      console.error('[PDF] Erro ao gerar PDF:', error);
+      if (error instanceof Error) {
+        showErrorAction(`Erro: ${error.message}`);
+      } else {
+        showErrorAction('Não foi possível gerar o PDF');
+      }
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -206,6 +289,18 @@ export const BudgetLiteCardiOS = ({
       hapticFeedback('light');
       showProgressAction('Gerando PDF...');
 
+      console.log('[PDF] Iniciando compartilhamento de PDF...');
+      console.log('[PDF] Tipo de compartilhamento:', shareType);
+      console.log('[PDF] Dados do perfil da loja:', shopProfile);
+      console.log('[PDF] Dados da empresa:', companyInfo);
+
+      // Verificar se temos dados mínimos necessários
+      if (!shopProfile && !companyInfo) {
+        console.warn('[PDF] Nenhum dado da empresa disponível para compartilhamento');
+        showErrorAction('Dados da empresa não carregados. Tente novamente.');
+        return;
+      }
+
       // Preparar dados do orçamento
       const pdfData = {
         id: budget.id,
@@ -219,14 +314,18 @@ export const BudgetLiteCardiOS = ({
         warranty_months: 12,
         notes: budget.issue
       };
+      
+      // Preparar dados da empresa com fallbacks robustos
       const companyData: CompanyData = {
-        shop_name: shopProfile?.shop_name || companyInfo?.name,
-        address: shopProfile?.address || companyInfo?.address,
-        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone,
-        logo_url: shopProfile?.logo_url || companyInfo?.logo_url,
-        email: companyInfo?.email,
-        cnpj: shopProfile?.cnpj
+        shop_name: shopProfile?.shop_name || companyInfo?.name || 'Minha Loja',
+        address: shopProfile?.address || companyInfo?.address || '',
+        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone || '',
+        logo_url: shopProfile?.logo_url || companyInfo?.logo_url || '',
+        email: companyInfo?.email || '',
+        cnpj: shopProfile?.cnpj || ''
       };
+      
+      console.log('[PDF] Dados da empresa preparados para compartilhamento:', companyData);
       const pdfBlob = await generateBudgetPDF(pdfData, companyData);
       if (shareType === 'native' && navigator.share) {
         // Usar Web Share API nativa
@@ -270,8 +369,12 @@ export const BudgetLiteCardiOS = ({
         showSuccessAction('PDF baixado com sucesso!');
       }
     } catch (error) {
-      console.error('Erro ao compartilhar PDF:', error);
-      showErrorAction('Não foi possível compartilhar o PDF');
+      console.error('[PDF] Erro ao compartilhar PDF:', error);
+      if (error instanceof Error) {
+        showErrorAction(`Erro ao compartilhar: ${error.message}`);
+      } else {
+        showErrorAction('Não foi possível compartilhar o PDF');
+      }
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -369,7 +472,85 @@ export const BudgetLiteCardiOS = ({
         </div>
       </div>
 
+      {/* Seção VIP - Criar Ordem de Serviço */}
+      {isVipUser && !createdOrderId && (
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
+                VIP
+              </Badge>
+              <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                Criar Ordem de Serviço
+              </span>
+            </div>
+            <button
+              onClick={handleCreateServiceOrder}
+              disabled={isCreatingOrder}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-purple-400 disabled:to-indigo-400 text-white py-2 px-4 rounded-lg font-medium transition-all duration-200 active:scale-95"
+              style={{
+                minHeight: '40px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
+              }}
+            >
+              {isCreatingOrder ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  <span className="text-sm">Criando...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  <span className="text-sm">Criar</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
+      {/* Botões de ação após criação da ordem */}
+      {createdOrderId && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4 rounded-xl border border-green-200 dark:border-green-800 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0">
+                ✓ Ordem Criada
+              </Badge>
+              <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                ID: {createdOrderId.slice(0, 8)}...
+              </span>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={handleEditOrder}
+              className="flex items-center gap-2 border border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950/20 py-2 px-3 rounded-lg font-medium transition-all duration-200 active:scale-95"
+              style={{
+                minHeight: '36px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
+              }}
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="text-sm">Editar</span>
+            </button>
+            <button
+              onClick={handleCopyShareLink}
+              className="flex items-center gap-2 border border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950/20 py-2 px-3 rounded-lg font-medium transition-all duration-200 active:scale-95"
+              style={{
+                minHeight: '36px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
+              }}
+            >
+              <Copy className="h-4 w-4" />
+              <span className="text-sm">Copiar Link</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons - Diretas e intuitivas para iOS */}
       <div className="flex justify-center gap-3 pt-4">

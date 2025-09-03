@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useContextualActions } from '@/hooks/useContextualActions';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/useToast';
 import { 
   Play, 
   CheckCircle, 
@@ -39,6 +39,7 @@ export const ServiceOrderStatusActions: React.FC<ServiceOrderStatusActionsProps>
   onStatusUpdate
 }) => {
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const { showSuccess, showError } = useToast();
   
   const {
     getAvailableActions,
@@ -50,7 +51,10 @@ export const ServiceOrderStatusActions: React.FC<ServiceOrderStatusActionsProps>
 
   const handleActionClick = async (action: any) => {
     if (!serviceOrder.id) {
-      toast.error('ID da ordem de serviço não encontrado');
+      showError({
+        title: 'Erro',
+        description: 'ID da ordem de serviço não encontrado'
+      });
       return;
     }
 
@@ -60,18 +64,27 @@ export const ServiceOrderStatusActions: React.FC<ServiceOrderStatusActionsProps>
       const success = await executeAction(serviceOrder.id, action);
       
       if (success) {
-        toast.success(`Status atualizado para: ${getStatusText(action.nextStatus)}`);
+        showSuccess({
+          title: 'Status atualizado',
+          description: `Status atualizado para: ${getStatusText(action.nextStatus)}`
+        });
         
         // Atualizar status localmente se callback fornecido
         if (onStatusUpdate) {
           await onStatusUpdate(action.nextStatus);
         }
       } else {
-        toast.error('Erro ao atualizar status');
+        showError({
+          title: 'Erro',
+          description: 'Erro ao atualizar status'
+        });
       }
     } catch (error) {
       console.error('Erro ao executar ação:', error);
-      toast.error('Erro inesperado ao executar ação');
+      showError({
+        title: 'Erro',
+        description: 'Erro inesperado ao executar ação'
+      });
     } finally {
       setLoadingAction(null);
     }

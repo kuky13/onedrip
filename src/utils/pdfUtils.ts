@@ -22,31 +22,91 @@ export interface CompanyData {
   cnpj?: string;
 }
 
-// Função auxiliar para carregar imagem de forma assíncrona
-const loadImage = (url: string): Promise<string> => {
+// Função auxiliar para carregar imagem com retry e timeout
+const loadImage = (url: string, retries: number = 3, timeout: number = 10000): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
+    let attempts = 0;
     
-    img.crossOrigin = 'anonymous';
-    img.onload = function() {
-      canvas.width = 72;
-      canvas.height = 72;
-      ctx?.drawImage(img, 0, 0, 72, 72);
-      const dataURL = canvas.toDataURL('image/jpeg', 1.0);
-      resolve(dataURL);
+    const tryLoad = () => {
+      attempts++;
+      console.log(`[PDF] Tentativa ${attempts}/${retries} de carregar logo: ${url}`);
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      // Timeout para evitar travamento
+      const timeoutId = setTimeout(() => {
+        console.warn(`[PDF] Timeout ao carregar logo (tentativa ${attempts})`);
+        img.src = ''; // Cancela o carregamento
+        if (attempts < retries) {
+          setTimeout(tryLoad, 1000); // Retry após 1 segundo
+        } else {
+          reject(new Error(`Timeout ao carregar imagem após ${retries} tentativas`));
+        }
+      }, timeout);
+      
+      img.crossOrigin = 'anonymous';
+      img.onload = function() {
+        clearTimeout(timeoutId);
+        try {
+          canvas.width = 72;
+          canvas.height = 72;
+          ctx?.drawImage(img, 0, 0, 72, 72);
+          const dataURL = canvas.toDataURL('image/jpeg', 1.0);
+          console.log(`[PDF] Logo carregada com sucesso na tentativa ${attempts}`);
+          resolve(dataURL);
+        } catch (error) {
+          console.error(`[PDF] Erro ao processar imagem:`, error);
+          if (attempts < retries) {
+            setTimeout(tryLoad, 1000);
+          } else {
+            reject(error);
+          }
+        }
+      };
+      
+      img.onerror = function() {
+        clearTimeout(timeoutId);
+        console.warn(`[PDF] Erro ao carregar logo (tentativa ${attempts}):`, url);
+        if (attempts < retries) {
+          setTimeout(tryLoad, 1000); // Retry após 1 segundo
+        } else {
+          reject(new Error(`Falha ao carregar imagem após ${retries} tentativas`));
+        }
+      };
+      
+      img.src = url;
     };
     
-    img.onerror = function() {
-      reject(new Error('Falha ao carregar imagem'));
-    };
-    
-    img.src = url;
+    tryLoad();
   });
 };
 
+// Função para validar e normalizar dados da empresa
+const validateCompanyData = (companyData?: CompanyData): CompanyData => {
+  console.log('[PDF] Dados da empresa recebidos:', companyData);
+  
+  const validated: CompanyData = {
+    shop_name: companyData?.shop_name || 'Minha Loja',
+    address: companyData?.address || '',
+    contact_phone: companyData?.contact_phone || '',
+    logo_url: companyData?.logo_url || '',
+    email: companyData?.email || '',
+    cnpj: companyData?.cnpj || ''
+  };
+  
+  console.log('[PDF] Dados da empresa validados:', validated);
+  return validated;
+};
+
 export const generateBudgetPDF = async (budget: BudgetData, companyData?: CompanyData): Promise<Blob> => {
+  console.log('[PDF] Iniciando geração de PDF...');
+  console.log('[PDF] Dados do orçamento:', budget);
+  
+  // Validar e normalizar dados da empresa
+  const validatedCompanyData = validateCompanyData(companyData);
+  
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
@@ -62,23 +122,24 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   const black = [0, 0, 0];
   
   // Header simples e compacto
-  // Logo - usar imagem real se disponível
-  if (companyData?.logo_url) {
+  // Logo - usar imagem real se disponível com retry
+  let logoLoaded = false;
+  if (validatedCompanyData.logo_url && validatedCompanyData.logo_url.trim() !== '') {
     try {
-      const logoDataURL = await loadImage(companyData.logo_url);
+      console.log('[PDF] Tentando carregar logo:', validatedCompanyData.logo_url);
+      const logoDataURL = await loadImage(validatedCompanyData.logo_url, 3, 8000);
       doc.addImage(logoDataURL, 'JPEG', margin, yPosition - 5, 18, 18);
+      logoLoaded = true;
+      console.log('[PDF] Logo carregada e adicionada ao PDF');
     } catch (error) {
-      // Se falhar, usar placeholder elegante
-      doc.setDrawColor(...mediumGray);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition - 5, 18, 18, 2, 2, 'S');
-      doc.setTextColor(...mediumGray);
-      doc.setFontSize(6);
-      doc.setFont('helvetica', 'normal');
-      doc.text('LOGO', margin + 6, yPosition + 3);
+      console.warn('[PDF] Falha ao carregar logo, usando placeholder:', error);
+      logoLoaded = false;
     }
-  } else {
-    // Placeholder elegante quando não há logo
+  }
+  
+  // Placeholder elegante quando não há logo ou falha no carregamento
+  if (!logoLoaded) {
+    console.log('[PDF] Usando placeholder para logo');
     doc.setDrawColor(...mediumGray);
     doc.setLineWidth(0.5);
     doc.roundedRect(margin, yPosition - 5, 18, 18, 2, 2, 'S');
@@ -88,12 +149,12 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     doc.text('LOGO', margin + 6, yPosition + 3);
   }
   
-  // Nome da empresa (usar dados reais)
+  // Nome da empresa (usar dados validados)
   doc.setTextColor(...black);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  const companyName = companyData?.shop_name || 'Minha Loja';
-  doc.text(companyName, margin + 25, yPosition + 3);
+  doc.text(validatedCompanyData.shop_name, margin + 25, yPosition + 3);
+  console.log('[PDF] Nome da empresa adicionado:', validatedCompanyData.shop_name);
   
   // Subtítulo
   doc.setTextColor(...darkGray);
@@ -101,26 +162,27 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   doc.setFont('helvetica', 'normal');
   doc.text('Assistência Técnica Especializada', margin + 25, yPosition + 10);
   
-  // Adicionar dados da empresa no cabeçalho (lado direito)
-  if (companyData) {
-    doc.setFontSize(7);
-    doc.setTextColor(...darkGray);
-    let rightX = pageWidth - margin;
-    let rightY = yPosition;
-    
-    if (companyData.contact_phone) {
-      doc.text(`Tel: ${companyData.contact_phone}`, rightX, rightY, { align: 'right' });
-      rightY += 4;
-    }
-    
-    if (companyData.cnpj) {
-      doc.text(`CNPJ: ${companyData.cnpj}`, rightX, rightY, { align: 'right' });
-      rightY += 4;
-    }
-    
-    if (companyData.address) {
-      doc.text(`Endereço: ${companyData.address}`, rightX, rightY, { align: 'right' });
-    }
+  // Adicionar dados da empresa no cabeçalho (lado direito) - usar dados validados
+  doc.setFontSize(7);
+  doc.setTextColor(...darkGray);
+  let rightX = pageWidth - margin;
+  let rightY = yPosition;
+  
+  if (validatedCompanyData.contact_phone && validatedCompanyData.contact_phone.trim() !== '') {
+    doc.text(`Tel: ${validatedCompanyData.contact_phone}`, rightX, rightY, { align: 'right' });
+    rightY += 4;
+    console.log('[PDF] Telefone adicionado:', validatedCompanyData.contact_phone);
+  }
+  
+  if (validatedCompanyData.cnpj && validatedCompanyData.cnpj.trim() !== '') {
+    doc.text(`CNPJ: ${validatedCompanyData.cnpj}`, rightX, rightY, { align: 'right' });
+    rightY += 4;
+    console.log('[PDF] CNPJ adicionado:', validatedCompanyData.cnpj);
+  }
+  
+  if (validatedCompanyData.address && validatedCompanyData.address.trim() !== '') {
+    doc.text(`Endereço: ${validatedCompanyData.address}`, rightX, rightY, { align: 'right' });
+    console.log('[PDF] Endereço adicionado:', validatedCompanyData.address);
   }
   
   yPosition += 30;
@@ -307,7 +369,7 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   
   // Lista de serviços inclusos com bordas
   const includedServices = [
-    '● Busca e entrega do aparelho',
+    'Busca e entrega do aparelho',
     'Película de proteção de brinde'
   ];
   
@@ -321,31 +383,43 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     
-    // Bullet point
-    doc.circle(margin + 5, yPosition + 5 + (index * 10), 1, 'F');
-    
-    // Texto do serviço
-    doc.text(service, margin + 10, yPosition + 7 + (index * 10));
+    // Texto do serviço sem bullet point
+    doc.text(service, margin + 5, yPosition + 7 + (index * 10));
   });
   
   // Rodapé com endereço da empresa (se disponível)
-  if (companyData?.address) {
+  if (validatedCompanyData.address && validatedCompanyData.address.trim() !== '') {
     yPosition = pageHeight - 20;
     doc.setFontSize(7);
     doc.setTextColor(...darkGray);
     doc.setFont('helvetica', 'normal');
+    doc.text(validatedCompanyData.address, margin, yPosition);
+    console.log('[PDF] Rodapé com endereço adicionado:', validatedCompanyData.address);
   }
   
   // Retornar o PDF como Blob para compartilhamento
   const pdfBlob = doc.output('blob');
+  console.log('[PDF] PDF gerado com sucesso! Tamanho:', pdfBlob.size, 'bytes');
+  console.log('[PDF] Dados da empresa utilizados:', {
+    shop_name: validatedCompanyData.shop_name,
+    address: validatedCompanyData.address,
+    contact_phone: validatedCompanyData.contact_phone,
+    cnpj: validatedCompanyData.cnpj,
+    logo_url: validatedCompanyData.logo_url
+  });
   return pdfBlob;
 };
 
 // Função auxiliar para salvar o PDF localmente
 export const saveBudgetPDF = async (budget: BudgetData, companyData?: CompanyData) => {
+  console.log('[PDF] Iniciando salvamento de PDF...');
+  console.log('[PDF] Dados da empresa recebidos:', companyData);
+  
   const pdfBlob = await generateBudgetPDF(budget, companyData);
-  const companyName = companyData?.shop_name || 'Minha Loja';
-  const fileName = `orcamento-${companyName.replace(/\s+/g, '-').toLowerCase()}-${budget.device_model.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
+  const validatedCompanyData = validateCompanyData(companyData);
+  const fileName = `orcamento-${validatedCompanyData.shop_name.replace(/\s+/g, '-').toLowerCase()}-${budget.device_model.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
+  
+  console.log('[PDF] Nome do arquivo gerado:', fileName);
   
   // Criar link para download
   const url = URL.createObjectURL(pdfBlob);
@@ -356,6 +430,8 @@ export const saveBudgetPDF = async (budget: BudgetData, companyData?: CompanyDat
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+  
+  console.log('[PDF] Download iniciado com sucesso!');
 };
 
 export default generateBudgetPDF;

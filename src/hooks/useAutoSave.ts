@@ -5,7 +5,7 @@
 
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/useToast';
 
 interface AutoSaveData {
   [key: string]: any;
@@ -42,6 +42,8 @@ export const useAutoSave = <T extends AutoSaveData>(
     onRestore,
     onError
   } = options;
+
+  const { showError, showSuccess, showInfo } = useToast();
 
   const [state, setState] = useState<AutoSaveState>({
     lastSaved: null,
@@ -122,10 +124,7 @@ export const useAutoSave = <T extends AutoSaveData>(
       onSave?.(savedData);
       
       // Toast discreto de confirmação
-      toast.success('Rascunho salvo automaticamente', {
-        duration: 2000,
-        position: 'bottom-right'
-      });
+      showSuccess('Rascunho salvo automaticamente');
     },
     onError: (error: Error) => {
       setState(prev => ({
@@ -136,10 +135,7 @@ export const useAutoSave = <T extends AutoSaveData>(
       
       onError?.(error);
       
-      toast.error('Erro ao salvar rascunho', {
-        description: 'Suas alterações podem ser perdidas',
-        duration: 4000
-      });
+      showError('Erro ao salvar rascunho - Suas alterações podem ser perdidas');
     }
   });
 
@@ -177,14 +173,7 @@ export const useAutoSave = <T extends AutoSaveData>(
       const savedData = loadFromStorage();
       if (savedData) {
         // Notificar que há dados salvos disponíveis
-        toast.info('Rascunho encontrado', {
-          description: 'Deseja restaurar os dados salvos?',
-          duration: 10000,
-          action: {
-            label: 'Restaurar',
-            onClick: () => restoreSavedData()
-          }
-        });
+        showInfo('Rascunho encontrado - Deseja restaurar os dados salvos?');
       }
       isInitialLoad.current = false;
     }

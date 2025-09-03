@@ -50,49 +50,63 @@ export const GameSettingsPanel: React.FC = () => {
       setIsSaving(true);
 
       // Validações - não permite campos vazios ou valores inválidos
+      const validationErrors: string[] = [];
+      
       if (!formData.speed_bug_spawn_rate && formData.speed_bug_spawn_rate !== 0) {
-        toast.error('Taxa de spawn é obrigatória');
-        return;
+        validationErrors.push('Taxa de spawn é obrigatória');
       }
       if (!formData.speed_bug_speed_multiplier) {
-        toast.error('Multiplicador de velocidade é obrigatório');
-        return;
+        validationErrors.push('Multiplicador de velocidade é obrigatório');
       }
       if (!formData.bug_spawn_percentage && formData.bug_spawn_percentage !== 0) {
-        toast.error('Porcentagem de aparição é obrigatória');
-        return;
+        validationErrors.push('Porcentagem de aparição é obrigatória');
       }
       if (!formData.bug_damage) {
-        toast.error('Dano dos bugs é obrigatório');
-        return;
+        validationErrors.push('Dano dos bugs é obrigatório');
       }
       if (formData.speed_bug_spawn_rate < 0 || formData.speed_bug_spawn_rate > 1) {
-        toast.error('Taxa de spawn deve estar entre 0 e 1');
-        return;
+        validationErrors.push('Taxa de spawn deve estar entre 0 e 1');
       }
       if (formData.speed_bug_speed_multiplier < 1 || formData.speed_bug_speed_multiplier > 10) {
-        toast.error('Multiplicador de velocidade deve estar entre 1 e 10');
-        return;
+        validationErrors.push('Multiplicador de velocidade deve estar entre 1 e 10');
       }
       if (formData.bug_spawn_percentage < 0 || formData.bug_spawn_percentage > 100) {
-        toast.error('Porcentagem de aparição deve estar entre 0 e 100');
-        return;
+        validationErrors.push('Porcentagem de aparição deve estar entre 0 e 100');
       }
       if (formData.bug_damage < 1) {
-        toast.error('Dano dos bugs deve ser maior que 0');
-        return;
+        validationErrors.push('Dano dos bugs deve ser maior que 0');
       }
       if (formData.hit_sound_volume < 0 || formData.hit_sound_volume > 1) {
-        toast.error('Volume do som deve estar entre 0 e 1');
+        validationErrors.push('Volume do som deve estar entre 0 e 1');
+      }
+
+      // Se há erros de validação, mostrar o primeiro erro e retornar
+      if (validationErrors.length > 0) {
+        // Usar setTimeout para garantir que o toast seja chamado fora do ciclo de render
+        setTimeout(() => {
+          toast.error(validationErrors[0]);
+        }, 0);
         return;
       }
-      const success = await updateSettings(formData);
-      if (success) {
-        toast.success('Configurações salvas com sucesso!');
+
+      const result = await updateSettings(formData);
+      if (result.success) {
+        // Usar setTimeout para garantir que o toast seja chamado fora do ciclo de render
+        setTimeout(() => {
+          toast.success('Configurações salvas com sucesso!');
+        }, 0);
+      } else {
+        // Usar setTimeout para garantir que o toast seja chamado fora do ciclo de render
+        setTimeout(() => {
+          toast.error(result.error || 'Erro ao salvar configurações');
+        }, 0);
       }
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      toast.error('Erro ao salvar configurações');
+      // Usar setTimeout para garantir que o toast seja chamado fora do ciclo de render
+      setTimeout(() => {
+        toast.error('Erro ao salvar configurações');
+      }, 0);
     } finally {
       setIsSaving(false);
     }

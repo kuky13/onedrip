@@ -239,10 +239,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ? 'Email ou senha incorretos'
           : signInError.message;
         
-        showError({
-          title: 'Erro no login',
-          description: errorMessage,
-        });
+        // Use setTimeout to avoid setState during render
+        setTimeout(() => {
+          showError({
+            title: 'Erro no login',
+            description: errorMessage,
+          });
+        }, 0);
         return { error: signInError };
       }
 
@@ -259,17 +262,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (profileError || !profileData) {
           console.error('❌ Perfil não encontrado');
           await supabase.auth.signOut();
-          showError({
-            title: 'Erro no login',
-            description: 'Perfil de usuário não encontrado. Contate o suporte.',
-          });
+          // Use setTimeout to avoid setState during render
+          setTimeout(() => {
+            showError({
+              title: 'Erro no login',
+              description: 'Perfil de usuário não encontrado. Contate o suporte.',
+            });
+          }, 0);
           return { error: profileError || new Error('Profile not found') };
         }
 
-        showSuccess({
-          title: 'Login realizado!',
-          description: 'Bem-vindo de volta!'
-        });
+        // Use setTimeout to avoid setState during render
+        setTimeout(() => {
+          showSuccess({
+            title: 'Login realizado!',
+            description: 'Bem-vindo de volta!'
+          });
+        }, 0);
         
         // Force page reload para garantir estado limpo
         forceReload(1000);
@@ -278,10 +287,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error: null };
     } catch (error) {
       console.error('❌ Erro inesperado no login:', error);
-      showError({
-        title: 'Erro inesperado',
-        description: 'Ocorreu um erro durante o login. Tente novamente.'
-      });
+      // Use setTimeout to avoid setState during render
+      setTimeout(() => {
+        showError({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro durante o login. Tente novamente.'
+        });
+      }, 0);
       return { error };
     }
   };
@@ -317,24 +329,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ? 'Usuário já cadastrado'
           : error.message;
           
-        showError({
-          title: 'Erro no cadastro',
-          description: errorMessage,
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showError({
+            title: 'Erro no cadastro',
+            description: errorMessage,
+          });
+        }, 0);
       } else {
-        showSuccess({
-          title: 'Cadastro realizado!',
-          description: 'Verifique seu email para confirmar a conta.',
-          duration: 6000
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showSuccess({
+            title: 'Cadastro realizado!',
+            description: 'Verifique seu email para confirmar a conta.',
+            duration: 6000
+          });
+        }, 0);
       }
       
       return { error };
     } catch (error) {
-      showError({
-        title: 'Erro inesperado',
-        description: 'Ocorreu um erro durante o cadastro. Tente novamente.'
-      });
+      // Use setTimeout to avoid calling toast during render
+      setTimeout(() => {
+        showError({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro durante o cadastro. Tente novamente.'
+        });
+      }, 0);
       return { error };
     }
   };
@@ -347,22 +368,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (error) {
-        showError({
-          title: 'Erro ao solicitar',
-          description: "Não foi possível enviar o link. Verifique o e-mail e tente novamente.",
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showError({
+            title: 'Erro ao solicitar',
+            description: "Não foi possível enviar o link. Verifique o e-mail e tente novamente.",
+          });
+        }, 0);
       } else {
-        showSuccess({
-          title: 'Link enviado!',
-          description: 'Se o e-mail estiver cadastrado, um link de redefinição foi enviado.',
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showSuccess({
+            title: 'Link enviado!',
+            description: 'Se o e-mail estiver cadastrado, um link de redefinição foi enviado.',
+          });
+        }, 0);
       }
       return { error };
     } catch (error) {
-      showError({
-        title: 'Erro inesperado',
-        description: 'Ocorreu um erro ao solicitar a redefinição. Tente novamente.',
-      });
+      // Use setTimeout to avoid calling toast during render
+      setTimeout(() => {
+        showError({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro ao solicitar a redefinição. Tente novamente.',
+        });
+      }, 0);
       return { error };
     }
   };
@@ -372,22 +402,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
-        showError({
-          title: 'Erro ao atualizar senha',
-          description: error.message,
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showError({
+            title: 'Erro ao atualizar senha',
+            description: error.message,
+          });
+        }, 0);
       } else {
-        showSuccess({
-          title: 'Senha atualizada!',
-          description: 'Sua senha foi alterada com sucesso.',
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showSuccess({
+            title: 'Senha atualizada!',
+            description: 'Sua senha foi alterada com sucesso.',
+          });
+        }, 0);
       }
       return { error };
     } catch (error) {
-      showError({
-        title: 'Erro inesperado',
-        description: 'Ocorreu um erro ao atualizar sua senha. Tente novamente.',
-      });
+      // Use setTimeout to avoid calling toast during render
+      setTimeout(() => {
+        showError({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro ao atualizar sua senha. Tente novamente.',
+        });
+      }, 0);
       return { error };
     }
   };
@@ -404,22 +443,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const errorMessage = error.message === 'New email address should be different from the current one.'
           ? 'O novo email deve ser diferente do atual.'
           : error.message;
-        showError({
-          title: 'Erro ao atualizar email',
-          description: errorMessage,
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showError({
+            title: 'Erro ao atualizar email',
+            description: errorMessage,
+          });
+        }, 0);
       } else {
-        showSuccess({
-          title: 'Confirmação enviada!',
-          description: 'Verifique seu novo email para confirmar a alteração.',
-        });
+        // Use setTimeout to avoid calling toast during render
+        setTimeout(() => {
+          showSuccess({
+            title: 'Confirmação enviada!',
+            description: 'Verifique seu novo email para confirmar a alteração.',
+          });
+        }, 0);
       }
       return { error };
     } catch (error) {
-      showError({
-        title: 'Erro inesperado',
-        description: 'Ocorreu um erro ao atualizar seu email. Tente novamente.',
-      });
+      // Use setTimeout to avoid calling toast during render
+      setTimeout(() => {
+        showError({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro ao atualizar seu email. Tente novamente.',
+        });
+      }, 0);
       return { error };
     }
   };

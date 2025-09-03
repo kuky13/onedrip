@@ -317,18 +317,7 @@ export const OptimizedNotificationPanel: React.FC<OptimizedNotificationPanelProp
                 </>
               )}
 
-              {notifications.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={deleteAllNotifications}
-                  disabled={isDeletingAllNotifications}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Archive className="h-4 w-4 mr-2" />
-                  Limpar todas
-                </Button>
-              )}
+
             </div>
           </div>
         </div>

@@ -94,7 +94,8 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({ className = '
       }
 
       // Feedback para o usuário
-      toast.success('Redirecionando para o pagamento...', {
+      showSuccess({
+        title: 'Redirecionando para o pagamento...',
         description: 'Você será direcionado para o Mercado Pago em instantes.'
       });
 
@@ -112,7 +113,8 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({ className = '
         error: 'Erro ao processar pagamento. Tente novamente.'
       }));
       
-      toast.error('Erro no pagamento', {
+      showError({
+        title: 'Erro no pagamento',
         description: 'Não foi possível redirecionar para o Mercado Pago. Tente novamente.'
       });
     }

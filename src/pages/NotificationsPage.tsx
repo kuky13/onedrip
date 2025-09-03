@@ -1,8 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OptimizedNotificationPanel } from '@/components/notifications/OptimizedNotificationPanel';
-import { Bell, Settings } from 'lucide-react';
+import { Bell, ArrowLeft } from 'lucide-react';
 
 const NotificationsPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       {/* Header com design consistente */}
@@ -10,6 +17,15 @@ const NotificationsPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              {/* Botão de voltar */}
+              <button
+                onClick={handleGoBack}
+                className="p-3 bg-gradient-to-br from-muted/10 to-muted/5 rounded-xl shadow-soft border border-muted/20 hover:from-muted/20 hover:to-muted/10 transition-all duration-200 hover:shadow-md"
+                aria-label="Voltar"
+              >
+                <ArrowLeft className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+              </button>
+              
               <div className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl shadow-soft border border-primary/20">
                 <Bell className="h-8 w-8 text-primary" />
               </div>
@@ -22,9 +38,6 @@ const NotificationsPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            <button className="p-2 glass rounded-lg hover:bg-muted/30 transition-all duration-200 shadow-soft">
-              <Settings className="h-6 w-6 text-muted-foreground" />
-            </button>
           </div>
         </div>
       </div>

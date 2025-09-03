@@ -1,17 +1,21 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MessageCircle, FileText, Edit, Clock, Trash2 } from '@/components/ui/icons';
+import { MessageCircle, FileText, Edit, Clock, Trash2, Zap, Copy, ExternalLink } from '@/components/ui/icons';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useResponsive } from '@/hooks/useResponsive';
 import { cn } from '@/lib/utils';
 import { BudgetStatusBadge } from './BudgetStatusBadge';
 import { useAdvancedBudgets } from '@/hooks/useAdvancedBudgets';
+import { useAuth } from '@/hooks/useAuth';
+import { useSecureServiceOrders } from '@/hooks/useSecureServiceOrders';
+import { useToast } from '@/hooks/useToast';
+import { useNavigate } from 'react-router-dom';
 
 interface BudgetCardProps {
   budget: any;
@@ -48,6 +52,82 @@ export const BudgetCard = ({
   const { isMobile } = useLayout();
   const { isDesktop } = useResponsive();
   const { isAdvancedMode } = useAdvancedBudgets();
+  const { profile: authProfile } = useAuth();
+  const { createServiceOrderMutation } = useSecureServiceOrders();
+  const { showSuccess, showError, showInfo } = useToast();
+  const navigate = useNavigate();
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [formattedId, setFormattedId] = useState<string | null>(null);
+
+  // Verificar se o usuário é VIP
+  const isVipUser = authProfile?.service_orders_vip_enabled || false;
+  
+  // Debug: Log do status VIP
+  console.log('🔍 [BudgetCard] Debug VIP Status:', {
+    authProfile: authProfile,
+    service_orders_vip_enabled: authProfile?.service_orders_vip_enabled,
+    isVipUser: isVipUser,
+    budgetId: budget.id
+  });
+
+  // Função para criar ordem de serviço automaticamente
+  const handleCreateServiceOrder = async () => {
+    if (!isVipUser) {
+      showError('Esta funcionalidade está disponível apenas para usuários VIP.');
+      return;
+    }
+
+    setIsCreatingOrder(true);
+    
+    try {
+      const serviceOrderData = {
+        device_model: budget.device_model || '',
+        device_type: budget.device_type || '',
+        client_name: budget.client_name || '',
+        client_phone: budget.client_phone || '',
+        client_email: budget.client_email || '',
+        issue_description: budget.issue || '',
+        estimated_price: budget.total_price || 0,
+        notes: `Ordem criada automaticamente a partir do orçamento #${budget.id}`,
+        budget_reference_id: budget.id
+      };
+
+      const result = await createServiceOrderMutation.mutateAsync(serviceOrderData);
+      
+      if (result?.id) {
+        setCreatedOrderId(result.id);
+        // Se o resultado incluir formatted_id, definir também
+        if (result.formatted_id) {
+          setFormattedId(result.formatted_id);
+        }
+        showSuccess('Ordem de serviço criada com sucesso!');
+      }
+    } catch (error) {
+      console.error('Erro ao criar ordem de serviço:', error);
+      showError('Erro ao criar ordem de serviço. Tente novamente.');
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  // Função para copiar link de compartilhamento
+  const handleCopyShareLink = () => {
+    if (!createdOrderId) return;
+    
+    const shareUrl = `${window.location.origin}/share/service-order/${createdOrderId}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showSuccess('Link copiado para a área de transferência!');
+    }).catch(() => {
+      showError('Erro ao copiar link.');
+    });
+  };
+
+  // Função para navegar para edição da ordem
+  const handleEditOrder = () => {
+    if (!createdOrderId) return;
+    navigate(`/service-orders/${createdOrderId}/edit`);
+  };
 
   // Verificação de segurança: não renderizar se o orçamento foi excluído
   if (!budget || !budget.id || budget.deleted_at) {
@@ -148,6 +228,76 @@ export const BudgetCard = ({
 
 
         <Separator />
+
+        {/* Botão VIP - Criar Ordem de Serviço */}
+        {isVipUser && !createdOrderId && (
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
+                  VIP
+                </Badge>
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Criar Ordem de Serviço
+                </span>
+              </div>
+              <Button
+                onClick={handleCreateServiceOrder}
+                disabled={isCreatingOrder}
+                size="sm"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0"
+              >
+                {isCreatingOrder ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                    Criando...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Criar Automaticamente
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Botões de ação após criação da ordem */}
+        {createdOrderId && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0">
+                  ✓ Ordem Criada
+                </Badge>
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                  ID: {createdOrderId.slice(0, 8)}...
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={handleEditOrder}
+                size="sm"
+                variant="outline"
+                className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950/20"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Editar Ordem
+              </Button>
+              <Button
+                onClick={handleCopyShareLink}
+                size="sm"
+                variant="outline"
+                className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950/20"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copiar Link
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Botões de ação principais */}
         <div className={cn(

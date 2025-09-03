@@ -76,7 +76,7 @@ export const useGameSettings = () => {
       if (!settings?.id) {
         // If still no ID, try to fetch/create first
         await fetchSettings();
-        if (!settings?.id) return false;
+        if (!settings?.id) return { success: false, error: 'Configurações não encontradas' };
       }
 
       const { error } = await supabase
@@ -87,12 +87,10 @@ export const useGameSettings = () => {
       if (error) throw error;
 
       setSettings(prev => prev ? { ...prev, ...newSettings } : null);
-      toast.success('Configurações salvas com sucesso!');
-      return true;
+      return { success: true };
     } catch (err: any) {
       console.error('Erro ao atualizar configurações:', err);
-      toast.error('Erro ao salvar configurações: ' + (err.message || 'Erro desconhecido'));
-      return false;
+      return { success: false, error: err.message || 'Erro desconhecido' };
     }
   };
 

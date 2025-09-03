@@ -3,10 +3,19 @@
  * OneDrip - CSP e Meta Security Tags
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+// Flag global para evitar múltiplos overrides
+let consoleErrorOverridden = false;
+let originalConsoleError: typeof console.error | null = null;
 
 export const SecurityHeaders = () => {
+  const isInitialized = useRef(false);
+
   useEffect(() => {
+    // Evitar múltiplas inicializações
+    if (isInitialized.current) return;
+    isInitialized.current = true;
     // Configurar Content Security Policy
     const cspDirectives = [
       "default-src 'self'",
@@ -84,28 +93,62 @@ export const SecurityHeaders = () => {
       // Falha silenciosa
     }
 
-    // Detectar tentativas de XSS
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      const message = args.join(' ');
-      if (message.includes('script') || message.includes('eval') || message.includes('javascript:')) {
-        // Log potencial tentativa de XSS
-        fetch('/api/security-log', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'POTENTIAL_XSS',
-            message,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent
-          })
-        }).catch(() => {}); // Falha silenciosa
-      }
-      originalConsoleError.apply(console, args);
-    };
+    // Detectar tentativas de XSS - apenas uma vez
+    if (!consoleErrorOverridden) {
+      originalConsoleError = console.error;
+      consoleErrorOverridden = true;
+      
+      console.error = (...args) => {
+        try {
+          const message = args.join(' ');
+          
+          // Ignorar warnings do React/Sonner para evitar loops
+          if (message.includes('Cannot update a component') || 
+              message.includes('setState') ||
+              message.includes('Sonner') ||
+              message.includes('Toast')) {
+            if (originalConsoleError) {
+              originalConsoleError.apply(console, args);
+            }
+            return;
+          }
+          
+          // Detectar apenas XSS real
+          if (message.includes('script') || message.includes('eval') || message.includes('javascript:')) {
+            // Log potencial tentativa de XSS de forma assíncrona
+            setTimeout(() => {
+              fetch('/api/security-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'POTENTIAL_XSS',
+                  message,
+                  timestamp: new Date().toISOString(),
+                  userAgent: navigator.userAgent
+                })
+              }).catch(() => {}); // Falha silenciosa
+            }, 0);
+          }
+          
+          if (originalConsoleError) {
+            originalConsoleError.apply(console, args);
+          }
+        } catch (error) {
+          // Fallback para console original em caso de erro
+          if (originalConsoleError) {
+            originalConsoleError.apply(console, args);
+          }
+        }
+      };
+    }
 
     return () => {
-      console.error = originalConsoleError;
+      // Cleanup apenas se este componente foi o responsável pelo override
+      if (consoleErrorOverridden && originalConsoleError) {
+        console.error = originalConsoleError;
+        consoleErrorOverridden = false;
+        originalConsoleError = null;
+      }
     };
   }, []);
 

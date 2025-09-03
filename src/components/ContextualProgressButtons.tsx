@@ -41,7 +41,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useContextualActions } from '@/hooks/useContextualActions';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/useToast';
 
 interface ServiceOrder {
   id: string;
@@ -158,6 +158,7 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
   size = 'md',
   variant = 'default'
 }) {
+  const { showSuccess, showError } = useToast();
   const {
     loading: globalLoading,
     getAvailableActions,
@@ -180,11 +181,17 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
       const success = await executeAction(serviceOrder.id, action);
       if (success && onStatusUpdate) {
         onStatusUpdate(action.nextStatus);
-        toast.success(`Ação "${action.label}" executada com sucesso!`);
+        showSuccess({
+          title: 'Ação executada',
+          description: `Ação "${action.label}" executada com sucesso!`
+        });
       }
       return success;
     } catch (error) {
-      toast.error(`Erro ao executar ação "${action.label}"`);
+      showError({
+        title: 'Erro',
+        description: `Erro ao executar ação "${action.label}"`
+      });
       return false;
     } finally {
       setLoadingActions(prev => {
@@ -203,7 +210,10 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
     }
 
     if (!serviceOrder.id) {
-      toast.error('ID da ordem de serviço não encontrado');
+      showError({
+        title: 'Erro',
+        description: 'ID da ordem de serviço não encontrado'
+      });
       return;
     }
 
@@ -216,7 +226,10 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
         if (onStatusUpdate) {
           onStatusUpdate(action.nextStatus);
         }
-        toast.success(`Ação "${action.label}" executada com sucesso!`);
+        showSuccess({
+          title: 'Ação executada',
+          description: `Ação "${action.label}" executada com sucesso!`
+        });
         
         // Show success state
         setSuccessStates(prev => ({ ...prev, [action.id]: true }));
@@ -230,7 +243,10 @@ export const ContextualProgressButtons = React.memo<ContextualProgressButtonsPro
     } catch (error) {
       // Fallback para erros não capturados
       console.error('Erro inesperado ao executar ação:', error);
-      toast.error('Erro inesperado. Tente novamente.');
+      showError({
+        title: 'Erro',
+        description: 'Erro inesperado. Tente novamente.'
+      });
     } finally {
       setLoadingActions(prev => {
         const newSet = new Set(prev);

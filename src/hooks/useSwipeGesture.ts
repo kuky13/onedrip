@@ -1,78 +1,124 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 interface SwipeGestureOptions {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
+  onSwipeUp?: () => void;
+  onSwipeDown?: () => void;
   threshold?: number;
   preventScrollOnSwipe?: boolean;
+  element?: HTMLElement | null;
 }
 
-export const useSwipeGesture = (options: SwipeGestureOptions) => {
+interface TouchPosition {
+  x: number;
+  y: number;
+}
+
+export const useSwipeGesture = (options: SwipeGestureOptions = {}) => {
   const {
     onSwipeLeft,
     onSwipeRight,
+    onSwipeUp,
+    onSwipeDown,
     threshold = 50,
-    preventScrollOnSwipe = true
+    preventScrollOnSwipe = false,
+    element
   } = options;
 
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
+  const touchStartRef = useRef<TouchPosition | null>(null);
+  const touchEndRef = useRef<TouchPosition | null>(null);
+  const isSwipingRef = useRef(false);
 
-  useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
     };
+    touchEndRef.current = null;
+    isSwipingRef.current = false;
+  }, []);
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!touchStartX.current || !touchStartY.current) return;
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchStartRef.current) return;
 
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+    // Determine if this is a swipe gesture
+    if (deltaX > threshold || deltaY > threshold) {
+      isSwipingRef.current = true;
       
-      const diffX = touchStartX.current - currentX;
-      const diffY = touchStartY.current - currentY;
-
-      // Prevent scroll if horizontal swipe is detected and option is enabled
-      if (preventScrollOnSwipe && Math.abs(diffX) > Math.abs(diffY)) {
+      if (preventScrollOnSwipe && deltaX > deltaY) {
         e.preventDefault();
       }
+    }
+
+    touchEndRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
     };
+  }, [threshold, preventScrollOnSwipe]);
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!touchStartX.current || !touchStartY.current) return;
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current || !touchEndRef.current || !isSwipingRef.current) {
+      return;
+    }
 
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      
-      const diffX = touchStartX.current - touchEndX;
-      const diffY = touchStartY.current - touchEndY;
+    const deltaX = touchEndRef.current.x - touchStartRef.current.x;
+    const deltaY = touchEndRef.current.y - touchStartRef.current.y;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
 
-      // Only trigger swipe if horizontal movement is greater than vertical
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        if (Math.abs(diffX) > threshold) {
-          if (diffX > 0) {
-            // Swipe Left
-            onSwipeLeft?.();
-          } else {
-            // Swipe Right
-            onSwipeRight?.();
-          }
+    // Determine swipe direction based on the larger delta
+    if (absDeltaX > absDeltaY) {
+      // Horizontal swipe
+      if (absDeltaX > threshold) {
+        if (deltaX > 0) {
+          onSwipeRight?.();
+        } else {
+          onSwipeLeft?.();
         }
       }
+    } else {
+      // Vertical swipe
+      if (absDeltaY > threshold) {
+        if (deltaY > 0) {
+          onSwipeDown?.();
+        } else {
+          onSwipeUp?.();
+        }
+      }
+    }
 
-      touchStartX.current = null;
-      touchStartY.current = null;
-    };
+    // Reset refs
+    touchStartRef.current = null;
+    touchEndRef.current = null;
+    isSwipingRef.current = false;
+  }, [threshold, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown]);
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+  useEffect(() => {
+    const targetElement = element || document;
+    
+    // Add passive: false to allow preventDefault
+    const touchMoveOptions = { passive: !preventScrollOnSwipe };
+    
+    targetElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+    targetElement.addEventListener('touchmove', handleTouchMove, touchMoveOptions);
+    targetElement.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      targetElement.removeEventListener('touchstart', handleTouchStart);
+      targetElement.removeEventListener('touchmove', handleTouchMove);
+      targetElement.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [onSwipeLeft, onSwipeRight, threshold, preventScrollOnSwipe]);
+  }, [element, handleTouchStart, handleTouchMove, handleTouchEnd, preventScrollOnSwipe]);
+
+  return {
+    isSwipingRef
+  };
 };
+
+export default useSwipeGesture;

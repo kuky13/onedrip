@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 
 interface PushSubscription {
   endpoint: string;
@@ -31,6 +31,7 @@ interface UserPushSubscription {
 
 export function usePushNotifications() {
   const { user } = useAuth();
+  const { showError, showSuccess } = useToast();
   const [permissionState, setPermissionState] = useState<NotificationPermissionState>({
     permission: 'default',
     isSupported: false,
@@ -180,7 +181,7 @@ export function usePushNotifications() {
 
   const requestPermission = async (): Promise<boolean> => {
     if (!permissionState.isSupported) {
-      toast.error('Notificações push não são suportadas neste navegador');
+      showError('Notificações push não são suportadas neste navegador');
       return false;
     }
 
@@ -189,27 +190,27 @@ export function usePushNotifications() {
       setPermissionState(prev => ({ ...prev, permission }));
       
       if (permission === 'granted') {
-        toast.success('Permissão concedida para notificações!');
+        showSuccess('Permissão concedida para notificações!');
         return true;
       } else {
-        toast.error('Permissão negada. Você pode alterar isso nas configurações do navegador.');
+        showError('Permissão negada. Você pode alterar isso nas configurações do navegador.');
         return false;
       }
     } catch (error) {
       console.error('Erro ao solicitar permissão:', error);
-      toast.error('Erro ao solicitar permissão de notificação');
+      showError('Erro ao solicitar permissão de notificação');
       return false;
     }
   };
 
   const subscribe = useCallback(async () => {
     if (!user) {
-      toast.error('Você precisa estar logado para se inscrever em notificações');
+      showError('Você precisa estar logado para se inscrever em notificações');
       return false;
     }
     
     if (!permissionState.isSupported || !permissionState.isServiceWorkerReady) {
-      toast.error('Notificações push não são suportadas');
+      showError('Notificações push não são suportadas');
       return false;
     }
     
@@ -243,11 +244,11 @@ export function usePushNotifications() {
       
       setSubscription(subscriptionData);
       setIsSubscribed(true);
-      toast.success('Inscrito em notificações push com sucesso!');
+      showSuccess('Inscrito em notificações push com sucesso!');
       return true;
     } catch (error) {
       console.error('Erro ao se inscrever:', error);
-      toast.error('Erro ao se inscrever em notificações push');
+      showError('Erro ao se inscrever em notificações push');
       return false;
     } finally {
       setIsLoading(false);
@@ -256,7 +257,7 @@ export function usePushNotifications() {
 
   const unsubscribe = useCallback(async () => {
     if (!subscription || !user) {
-      toast.error('Nenhuma inscrição ativa encontrada');
+      showError('Nenhuma inscrição ativa encontrada');
       return false;
     }
 
@@ -278,11 +279,11 @@ export function usePushNotifications() {
       
       setSubscription(null);
       setIsSubscribed(false);
-      toast.success('Notificações push desativadas');
+      showSuccess('Notificações push desativadas');
       return true;
     } catch (error) {
       console.error('Erro ao cancelar subscription:', error);
-      toast.error('Erro ao desativar notificações push');
+      showError('Erro ao desativar notificações push');
       return false;
     } finally {
       setIsLoading(false);
@@ -292,12 +293,12 @@ export function usePushNotifications() {
   // Enviar notificação de teste
   const sendTestNotification = useCallback(async () => {
     if (!user) {
-      toast.error('Você precisa estar logado');
+      showError('Você precisa estar logado');
       return false;
     }
     
     if (!isSubscribed) {
-      toast.error('Você precisa estar inscrito em notificações push');
+      showError('Você precisa estar inscrito em notificações push');
       return false;
     }
     
@@ -312,11 +313,11 @@ export function usePushNotifications() {
       
       if (error) throw error;
       
-      toast.success('Notificação de teste enviada!');
+      showSuccess('Notificação de teste enviada!');
       return true;
     } catch (error) {
       console.error('Erro ao enviar notificação de teste:', error);
-      toast.error('Erro ao enviar notificação de teste');
+      showError('Erro ao enviar notificação de teste');
       return false;
     }
   }, [user, isSubscribed]);

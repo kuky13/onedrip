@@ -8,8 +8,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Bell, BellOff, Volume2, VolumeX, Smartphone, Clock, Settings, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 
 interface NotificationPermission {
@@ -71,6 +71,7 @@ export const NotificationSettings: React.FC<{
     unsubscribe,
     sendTestNotification,
   } = usePushNotifications();
+  const { showError, showSuccess } = useToast();
   const [preferences, setPreferences] = useState<NotificationPreferences>(defaultPreferences);
 
   // Carregar preferências salvas
@@ -91,13 +92,13 @@ export const NotificationSettings: React.FC<{
       setPreferences(newPreferences);
     } catch (error) {
       console.error('Erro ao salvar preferências:', error);
-      toast.error('Erro ao salvar preferências');
+      showError('Erro ao salvar preferências');
     }
   };
 
   const handleTestNotification = async () => {
     if (!hasPermission) {
-      toast.error('Permissão de notificação não concedida');
+      showError('Permissão de notificação não concedida');
       return;
     }
 
@@ -113,10 +114,10 @@ export const NotificationSettings: React.FC<{
           silent: !preferences.soundEnabled
         });
         
-        toast.success('Notificação de teste enviada!');
+        showSuccess('Notificação de teste enviada!');
       } catch (error) {
         console.error('Erro ao enviar notificação de teste:', error);
-        toast.error('Erro ao enviar notificação de teste');
+        showError('Erro ao enviar notificação de teste');
       }
     } else {
       // Enviar push notification
@@ -140,7 +141,7 @@ export const NotificationSettings: React.FC<{
         const newPreferences = { ...preferences, pushEnabled: true };
         savePreferences(newPreferences);
       } catch (error) {
-        toast.error('Erro ao ativar notificações push');
+        showError('Erro ao ativar notificações push');
       }
     }
   };
