@@ -1,18 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { 
   Phone, 
-  Calendar, 
-  User, 
-  MapPin, 
-  Clock, 
-  CheckCircle, 
   AlertCircle, 
-  ExternalLink,
   ArrowLeft,
   Share2,
   Download,
@@ -21,8 +14,6 @@ import {
 } from 'lucide-react';
 import { useServiceOrderShare } from '@/hooks/useServiceOrderShare';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
-
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

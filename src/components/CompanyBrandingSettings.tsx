@@ -11,17 +11,14 @@ import {
   Building2, 
   Upload, 
   Save, 
-  Eye, 
   Trash2, 
   AlertCircle,
-  CheckCircle,
   Image as ImageIcon,
   Phone,
-  Globe,
-  Palette,
-  Settings,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Settings,
+  Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
@@ -35,13 +32,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface CompanyFormData {
   name: string;

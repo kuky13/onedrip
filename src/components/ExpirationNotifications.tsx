@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -55,11 +55,6 @@ export const ExpirationNotifications = ({ onViewBudget, compact = false }: Expir
     return `Vence em ${days} dias`;
   };
 
-  const getStatusColor = (days: number) => {
-    if (days < 0) return 'destructive';
-    if (days <= 1) return 'secondary';
-    return 'outline';
-  };
 
   const getStatusIcon = (days: number) => {
     if (days < 0) return AlertTriangle;

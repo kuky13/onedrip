@@ -2,7 +2,6 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { safeRedirect } from '@/utils/secureNavigation';
 
 interface ErrorBoundaryProps {
@@ -48,9 +47,7 @@ export class EnhancedErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
   private handleRetry = () => {
     this.setState({
-      hasError: false,
-      error: undefined,
-      errorInfo: undefined
+      hasError: false
     });
   };
 

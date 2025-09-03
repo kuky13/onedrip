@@ -14,9 +14,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 }) => {
   return (
     <OptimizedNotificationPanel 
-      className={className}
+      className={className || ''}
       isFullPage={isFullPage}
-      onClose={onClose}
+      onClose={onClose || (() => {})}
     />
   );
 };

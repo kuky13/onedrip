@@ -141,14 +141,15 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
       }
       const createdAt = new Date(budget.created_at);
       const validUntilDate = new Date(createdAt);
-      const cashPriceValue = parseFloat(data.cash_price) || totalPrice;
+      const totalPriceValue = parseFloat(data.total_price) || 0;
+      const cashPriceValue = parseFloat(data.cash_price) || totalPriceValue;
       const installmentPriceValue = parseFloat(data.installment_price) || 0;
       const updateData = {
         device_type: data.device_type,
         device_model: data.device_model,
         issue: data.issue,
         part_type: data.part_type,
-        total_price: Math.round(totalPrice * 100),
+        total_price: Math.round(totalPriceValue * 100),
         cash_price: Math.round(cashPriceValue * 100),
         installment_price: installmentPriceValue > 0 ? Math.round(installmentPriceValue * 100) : null,
         installments: data.installments,

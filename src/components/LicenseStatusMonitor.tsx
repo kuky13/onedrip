@@ -157,8 +157,9 @@ export const LicenseStatusMonitor: React.FC<LicenseStatusMonitorProps> = ({
             p_user_id: user.id
           });
 
-        if (data) {
-          const initialStatus = (data.has_license && data.is_valid) ? 'active' : 'inactive';
+        if (data && typeof data === 'object') {
+          const licenseData = data as { has_license: boolean; is_valid: boolean };
+          const initialStatus = (licenseData.has_license && licenseData.is_valid) ? 'active' : 'inactive';
           lastStatusRef.current = initialStatus;
           
           console.log(`📊 Status inicial da licença: ${initialStatus}`);

@@ -7,13 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/useToast';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useAdvancedBudgets } from '@/hooks/useAdvancedBudgets';
+
 import { useSecureClients } from '@/hooks/useSecureClients';
 import { ClientSection } from '@/components/lite/ios/ClientSection';
 
@@ -53,13 +53,8 @@ export const NewBudgetForm = ({
     showError
   } = useToast();
   const {
-    user,
-    profile
+    user
   } = useAuth();
-  const {
-    clients,
-    isAdvancedMode
-  } = useAdvancedBudgets();
   const {
     clients: secureClients,
     isLoading: isLoadingClients
@@ -216,8 +211,7 @@ export const NewBudgetForm = ({
         owner_id: user.id,
         device_type: data.deviceType,
         device_model: data.deviceModel,
-        issue: data.issue,
-        part_quality: data.issue, // Usar issue como part_quality
+        part_quality: data.issue,
         part_type: data.partType,
         warranty_months: data.warrantyMonths,
         cash_price: Math.round(cashPriceValue * 100),
@@ -235,7 +229,7 @@ export const NewBudgetForm = ({
         client_name: data.clientName || null,
         client_phone: data.clientPhone || null,
         workflow_status: 'pending',
-        expires_at: validUntil.toISOString().split('T')[0] // Date only
+        expires_at: validUntil.toISOString().split('T')[0] || null // Date only
       }).select('id').single();
       if (budgetError) {
         console.error('Budget creation error:', budgetError);
@@ -405,7 +399,11 @@ export const NewBudgetForm = ({
             client_name: formData.clientName || '',
             client_phone: formData.clientPhone || ''
           }}
-          existingClients={secureClients}
+          existingClients={(secureClients || []).map(client => ({
+            ...client,
+            is_default: client.is_default || false,
+            is_favorite: client.is_favorite || false
+          }))}
           showClientSearch={showClientSearch}
           clientSearchTerm={clientSearchTerm}
           isLoadingClients={isLoadingClients}
