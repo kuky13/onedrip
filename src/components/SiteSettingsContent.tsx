@@ -548,9 +548,9 @@ export const SiteSettingsContent = () => {
             </Label>
             <Input
               id="payment_url"
-              value={currentSettings.payment_url || 'https://mpago.la/246f2WV'}
+              value={currentSettings.payment_url || ''}
               onChange={(e) => handleInputChange('payment_url', e.target.value)}
-              placeholder="https://mpago.la/246f2WV"
+              placeholder="https://exemplo.com/pagamento"
             />
             <p className="text-sm text-muted-foreground mt-1">
               Este link será usado para redirecionamento do pagamento

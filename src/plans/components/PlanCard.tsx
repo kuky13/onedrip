@@ -53,35 +53,17 @@ export const PlanCard = ({ plano, aoSelecionarPlano, isVip = false, userEmail = 
   const handlePayment = () => {
     setLoading(true);
     try {
-      // Determinar o link de pagamento baseado no plano e VIP
-      let paymentUrl = '';
+      const planDetails = {
+        plan: plano.nome,
+        cycle: plano.ciclo,
+        vip: vipSelected,
+        price: calculateTotalPrice()
+      };
       
-      if (plano.ciclo === 'monthly') {
-        // Planos mensais
-        if (vipSelected) {
-          // Mensal VIP (R$78,90)
-          paymentUrl = 'https://mpago.li/2A351iP';
-        } else {
-          // Mensal sem VIP (R$68,90)
-          paymentUrl = 'https://mpago.li/2ZqAPDs';
-        }
-      } else if (plano.ciclo === 'yearly') {
-        // Planos anuais
-        if (vipSelected) {
-          // Anual VIP (R$648,55)
-          paymentUrl = 'https://mpago.li/1x254ne';
-        } else {
-          // Anual sem VIP (R$638,55)
-          paymentUrl = 'https://mpago.li/1c4LGhc';
-        }
-      }
+      console.log('Plano selecionado:', planDetails);
       
-      if (paymentUrl) {
-        console.log('Redirecting to Mercado Pago for plan:', plano.nome, 'VIP:', vipSelected, 'URL:', paymentUrl);
-        window.open(paymentUrl, '_blank');
-      } else {
-        throw new Error('Link de pagamento não encontrado para esta combinação de plano');
-      }
+      // TODO: Implementar integração de pagamento
+      alert('Plano selecionado! Integração de pagamento será implementada em breve.');
       
     } catch (error) {
       console.error('Erro ao processar:', error);

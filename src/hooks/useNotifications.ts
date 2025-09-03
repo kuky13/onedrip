@@ -41,11 +41,7 @@ export const useNotifications = () => {
 
   // Debug: Log do estado de autenticação
   useEffect(() => {
-    console.log('🔍 DEBUG useNotifications - Estado de auth:', {
-      user: user ? { id: user.id, email: user.email } : null,
-      authLoading,
-      isAuthenticated: !!user
-    });
+    // Auth state debug
   }, [user, authLoading]);
 
   // Buscar notificações do usuário
@@ -57,24 +53,20 @@ export const useNotifications = () => {
   } = useQuery({
     queryKey: ['user-notifications', user?.id, filters],
     queryFn: async () => {
-      console.log('🔍 DEBUG: Iniciando busca de notificações', {
-        userId: user?.id,
-        authLoading,
-        filters
-      });
+      // Starting notifications fetch
 
       if (!user?.id) {
-        console.log('🔍 DEBUG: Usuário não encontrado, retornando array vazio');
+        // User not found, returning empty array
         return [];
       }
 
-      console.log('🔍 DEBUG: Chamando get_user_notifications com filtros:', filters);
+      // Calling get_user_notifications with filters
       const { data, error } = await supabase.rpc('get_user_notifications', {
         p_limit: 50,
         p_offset: 0
       });
       
-      console.log('🔍 DEBUG: Resultado da RPC:', { data, error, dataLength: data?.length });
+      // RPC result
       
       if (error) {
         console.error('🔍 DEBUG: Erro ao buscar notificações:', error);
@@ -82,12 +74,12 @@ export const useNotifications = () => {
       }
 
       let filteredData = data || [];
-      console.log('🔍 DEBUG: Dados antes dos filtros:', filteredData.length);
+      // Data before filters
 
       // Aplicar filtros
       if (filters.type && filters.type !== 'all') {
         filteredData = filteredData.filter((n: any) => n.type === filters.type);
-        console.log('🔍 DEBUG: Após filtro de tipo:', filteredData.length);
+        // After type filter
       }
 
       if (filters.read_status && filters.read_status !== 'all') {
@@ -96,10 +88,10 @@ export const useNotifications = () => {
         } else {
           filteredData = filteredData.filter((n: any) => !n.is_read);
         }
-        console.log('🔍 DEBUG: Após filtro de leitura:', filteredData.length);
+        // After read filter
       }
 
-      console.log('🔍 DEBUG: Dados finais retornados:', filteredData.length);
+      // Final data returned
       return filteredData;
     },
     enabled: !authLoading && !!user?.id,
@@ -114,13 +106,13 @@ export const useNotifications = () => {
   // Marcar notificação como lida
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      console.log('📖 DEBUG: Iniciando markAsRead:', { notificationId, userId: user?.id });
+      // Starting markAsRead
       
       const { data, error } = await supabase.rpc('mark_notification_as_read', {
         p_notification_id: notificationId
       });
 
-      console.log('📖 DEBUG: Resultado markAsRead:', { data, error });
+      // markAsRead result
 
       if (error) {
         console.error('📖 DEBUG: Erro na função mark_notification_as_read:', error);
@@ -130,7 +122,7 @@ export const useNotifications = () => {
       return data;
     },
     onSuccess: (data, notificationId) => {
-      console.log('📖 DEBUG: markAsRead sucesso:', { data, notificationId });
+      // markAsRead success
       // Invalidar cache para atualizar a lista
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
       showSuccess({
@@ -190,7 +182,7 @@ export const useNotifications = () => {
   // Soft delete de notificação individual
   const softDeleteNotificationMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      console.log('🗑️ DEBUG: Iniciando soft delete:', { notificationId, userId: user?.id });
+      // Starting soft delete
       
       // Garantir que o notificationId seja um UUID válido
       let validUuid: string;
@@ -211,7 +203,7 @@ export const useNotifications = () => {
         p_notification_id: validUuid
       });
 
-      console.log('🗑️ DEBUG: Resultado da RPC delete_user_notification:', { data, error });
+      // delete_user_notification RPC result
 
       if (error) {
         console.error('🗑️ DEBUG: Erro na RPC delete_user_notification:', error);
@@ -221,7 +213,7 @@ export const useNotifications = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log('🗑️ DEBUG: Soft delete sucesso:', { data });
+      // Soft delete success
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
       showSuccess({
         title: 'Sucesso',
@@ -240,14 +232,14 @@ export const useNotifications = () => {
   // Restaurar notificação
   const restoreNotificationMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      console.log('🔄 DEBUG: Iniciando restore:', { notificationId, userId: user?.id });
+      // Starting restore
       
       // Note: restore function would need to be implemented in database
       // For now, just refresh the data
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
       return null;
 
-      console.log('🔄 DEBUG: Restore executado');
+      // Restore executed
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
@@ -272,7 +264,7 @@ export const useNotifications = () => {
         // Garantir que o ID seja um UUID válido
         let validUuid = notification.id;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(notification.id)) {
-          console.warn('🗑️ DEBUG: ID não é UUID válido:', notification.id);
+          // Invalid UUID
         }
         
         return supabase.rpc('delete_user_notification', {
@@ -308,7 +300,7 @@ export const useNotifications = () => {
 
   // Função para marcar notificação como lida
   const markAsRead = useCallback((notificationId: string) => {
-    console.log('📖 DEBUG: markAsRead chamado:', { notificationId });
+    // markAsRead called
     markAsReadMutation.mutate(notificationId);
   }, [markAsReadMutation]);
 
@@ -319,7 +311,7 @@ export const useNotifications = () => {
 
   // Função para soft delete de notificação
   const deleteNotification = useCallback((notificationId: string) => {
-    console.log('🗑️ DEBUG: deleteNotification chamado:', { notificationId });
+    // deleteNotification called
     softDeleteNotificationMutation.mutate(notificationId);
   }, [softDeleteNotificationMutation]);
 

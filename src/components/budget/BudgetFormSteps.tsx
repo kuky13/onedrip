@@ -531,7 +531,6 @@ export const BudgetFormSteps = ({
                       <SelectItem value="À Vista">À Vista</SelectItem>
                       <SelectItem value="Cartão de Crédito">Cartão de Crédito</SelectItem>
                       <SelectItem value="Cartão de Débito">Cartão de Débito</SelectItem>
-                      <SelectItem value="PIX">PIX</SelectItem>
                       <SelectItem value="Dinheiro">Dinheiro</SelectItem>
                     </SelectContent>
                   </Select>

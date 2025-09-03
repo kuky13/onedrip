@@ -29,7 +29,7 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
     
     const tryLoad = () => {
       attempts++;
-      console.log(`[PDF] Tentativa ${attempts}/${retries} de carregar logo: ${url}`);
+      // Loading logo attempt
       
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -37,7 +37,7 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
       
       // Timeout para evitar travamento
       const timeoutId = setTimeout(() => {
-        console.warn(`[PDF] Timeout ao carregar logo (tentativa ${attempts})`);
+        // Logo loading timeout
         img.src = ''; // Cancela o carregamento
         if (attempts < retries) {
           setTimeout(tryLoad, 1000); // Retry após 1 segundo
@@ -54,7 +54,7 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
           canvas.height = 72;
           ctx?.drawImage(img, 0, 0, 72, 72);
           const dataURL = canvas.toDataURL('image/jpeg', 1.0);
-          console.log(`[PDF] Logo carregada com sucesso na tentativa ${attempts}`);
+          // Logo loaded successfully
           resolve(dataURL);
         } catch (error) {
           console.error(`[PDF] Erro ao processar imagem:`, error);
@@ -68,7 +68,7 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
       
       img.onerror = function() {
         clearTimeout(timeoutId);
-        console.warn(`[PDF] Erro ao carregar logo (tentativa ${attempts}):`, url);
+        // Logo loading error
         if (attempts < retries) {
           setTimeout(tryLoad, 1000); // Retry após 1 segundo
         } else {
@@ -85,7 +85,7 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
 
 // Função para validar e normalizar dados da empresa
 const validateCompanyData = (companyData?: CompanyData): CompanyData => {
-  console.log('[PDF] Dados da empresa recebidos:', companyData);
+  // Company data received
   
   const validated: CompanyData = {
     shop_name: companyData?.shop_name || 'Minha Loja',
@@ -96,13 +96,13 @@ const validateCompanyData = (companyData?: CompanyData): CompanyData => {
     cnpj: companyData?.cnpj || ''
   };
   
-  console.log('[PDF] Dados da empresa validados:', validated);
+  // Company data validated
   return validated;
 };
 
 export const generateBudgetPDF = async (budget: BudgetData, companyData?: CompanyData): Promise<Blob> => {
-  console.log('[PDF] Iniciando geração de PDF...');
-  console.log('[PDF] Dados do orçamento:', budget);
+  // Starting PDF generation
+  // Budget data
   
   // Validar e normalizar dados da empresa
   const validatedCompanyData = validateCompanyData(companyData);
@@ -126,20 +126,20 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   let logoLoaded = false;
   if (validatedCompanyData.logo_url && validatedCompanyData.logo_url.trim() !== '') {
     try {
-      console.log('[PDF] Tentando carregar logo:', validatedCompanyData.logo_url);
+      // Attempting to load logo
       const logoDataURL = await loadImage(validatedCompanyData.logo_url, 3, 8000);
       doc.addImage(logoDataURL, 'JPEG', margin, yPosition - 5, 18, 18);
       logoLoaded = true;
-      console.log('[PDF] Logo carregada e adicionada ao PDF');
+      // Logo loaded and added
     } catch (error) {
-      console.warn('[PDF] Falha ao carregar logo, usando placeholder:', error);
+      // Logo loading failed, using placeholder
       logoLoaded = false;
     }
   }
   
   // Placeholder elegante quando não há logo ou falha no carregamento
   if (!logoLoaded) {
-    console.log('[PDF] Usando placeholder para logo');
+    // Using logo placeholder
     doc.setDrawColor(...mediumGray);
     doc.setLineWidth(0.5);
     doc.roundedRect(margin, yPosition - 5, 18, 18, 2, 2, 'S');
@@ -154,7 +154,7 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text(validatedCompanyData.shop_name, margin + 25, yPosition + 3);
-  console.log('[PDF] Nome da empresa adicionado:', validatedCompanyData.shop_name);
+  // Company name added
   
   // Subtítulo
   doc.setTextColor(...darkGray);
@@ -171,18 +171,18 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   if (validatedCompanyData.contact_phone && validatedCompanyData.contact_phone.trim() !== '') {
     doc.text(`Tel: ${validatedCompanyData.contact_phone}`, rightX, rightY, { align: 'right' });
     rightY += 4;
-    console.log('[PDF] Telefone adicionado:', validatedCompanyData.contact_phone);
+    // Phone added
   }
   
   if (validatedCompanyData.cnpj && validatedCompanyData.cnpj.trim() !== '') {
     doc.text(`CNPJ: ${validatedCompanyData.cnpj}`, rightX, rightY, { align: 'right' });
     rightY += 4;
-    console.log('[PDF] CNPJ adicionado:', validatedCompanyData.cnpj);
+    // CNPJ added
   }
   
   if (validatedCompanyData.address && validatedCompanyData.address.trim() !== '') {
     doc.text(`Endereço: ${validatedCompanyData.address}`, rightX, rightY, { align: 'right' });
-    console.log('[PDF] Endereço adicionado:', validatedCompanyData.address);
+    // Address added
   }
   
   yPosition += 30;
@@ -394,32 +394,24 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     doc.setTextColor(...darkGray);
     doc.setFont('helvetica', 'normal');
     doc.text(validatedCompanyData.address, margin, yPosition);
-    console.log('[PDF] Rodapé com endereço adicionado:', validatedCompanyData.address);
+    // Footer with address added
   }
   
   // Retornar o PDF como Blob para compartilhamento
   const pdfBlob = doc.output('blob');
-  console.log('[PDF] PDF gerado com sucesso! Tamanho:', pdfBlob.size, 'bytes');
-  console.log('[PDF] Dados da empresa utilizados:', {
-    shop_name: validatedCompanyData.shop_name,
-    address: validatedCompanyData.address,
-    contact_phone: validatedCompanyData.contact_phone,
-    cnpj: validatedCompanyData.cnpj,
-    logo_url: validatedCompanyData.logo_url
-  });
+  // PDF generated successfully
   return pdfBlob;
 };
 
 // Função auxiliar para salvar o PDF localmente
 export const saveBudgetPDF = async (budget: BudgetData, companyData?: CompanyData) => {
-  console.log('[PDF] Iniciando salvamento de PDF...');
-  console.log('[PDF] Dados da empresa recebidos:', companyData);
+  // Starting PDF save
   
   const pdfBlob = await generateBudgetPDF(budget, companyData);
   const validatedCompanyData = validateCompanyData(companyData);
   const fileName = `orcamento-${validatedCompanyData.shop_name.replace(/\s+/g, '-').toLowerCase()}-${budget.device_model.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
   
-  console.log('[PDF] Nome do arquivo gerado:', fileName);
+  // Generated filename
   
   // Criar link para download
   const url = URL.createObjectURL(pdfBlob);
@@ -431,7 +423,7 @@ export const saveBudgetPDF = async (budget: BudgetData, companyData?: CompanyDat
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
   
-  console.log('[PDF] Download iniciado com sucesso!');
+  // Download started successfully
 };
 
 export default generateBudgetPDF;

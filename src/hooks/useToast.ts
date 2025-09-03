@@ -48,8 +48,8 @@ export const useToast = () => {
   };
 
   const showSuccess = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one
-    toast.dismiss();
+    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
+    setTimeout(() => toast.dismiss(), 0);
     
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
@@ -72,12 +72,12 @@ export const useToast = () => {
   };
 
   const showError = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one
-    toast.dismiss();
+    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
+    setTimeout(() => toast.dismiss(), 0);
     
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
-      console.error('Toast Error:', enhancedOptions.title, enhancedOptions.description);
+      // Toast error logged
       toast.error(enhancedOptions.title, {
         description: enhancedOptions.description,
         duration: enhancedOptions.duration || 6000,
@@ -97,8 +97,8 @@ export const useToast = () => {
   };
 
   const showInfo = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one
-    toast.dismiss();
+    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
+    setTimeout(() => toast.dismiss(), 0);
     
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
@@ -121,12 +121,12 @@ export const useToast = () => {
   };
 
   const showWarning = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one
-    toast.dismiss();
+    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
+    setTimeout(() => toast.dismiss(), 0);
     
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
-      console.warn('Toast Warning:', enhancedOptions.title, enhancedOptions.description);
+      // Toast warning logged
       toast.warning(enhancedOptions.title, {
         description: enhancedOptions.description,
         duration: enhancedOptions.duration || 5000,
@@ -146,14 +146,14 @@ export const useToast = () => {
   };
 
   const showLoading = (title: string, promise: Promise<any>) => {
-    // Dismiss all existing toasts before showing new one
-    toast.dismiss();
+    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
+    setTimeout(() => toast.dismiss(), 0);
     
     return toast.promise(promise, {
       loading: title,
       success: 'Operação concluída com sucesso!',
       error: (err) => {
-        console.error('Promise Toast Error:', err);
+        // Promise toast error logged
         return 'Ocorreu um erro durante a operação';
       },
     });

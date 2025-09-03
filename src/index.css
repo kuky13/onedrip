@@ -191,15 +191,7 @@
     @apply hover:bg-secondary/90;
   }
 
-  .btn-mercadopago {
-    @apply btn-apple text-white font-semibold;
-    background: #009EE3;
-    @apply hover:shadow-md;
-  }
 
-  .btn-mercadopago:hover {
-    background: #007BB8;
-  }
 
   .btn-premium {
     @apply rounded-xl px-8 py-4 font-bold text-white;

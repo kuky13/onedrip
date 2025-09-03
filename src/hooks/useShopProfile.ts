@@ -27,7 +27,7 @@ export const useShopProfile = () => {
     queryFn: async () => {
       if (!user?.id) return null;
       
-      console.log('Fetching shop profile for user:', user.id);
+      // Fetching shop profile
       const { data, error } = await supabase
         .from('shop_profiles')
         .select('*')
@@ -39,7 +39,7 @@ export const useShopProfile = () => {
         throw error;
       }
       
-      console.log('Shop profile loaded:', data);
+      // Shop profile loaded
       return data as ShopProfile | null;
     },
     enabled: !!user?.id,
@@ -59,7 +59,7 @@ export const useShopProfile = () => {
         logo_url: profileData.logo_url || null,
       };
 
-      console.log('Saving shop profile:', payload);
+      // Saving shop profile
 
       if (shopProfile?.id) {
         // Update existing profile
@@ -105,8 +105,7 @@ export const useShopProfile = () => {
     mutationFn: async (file: File) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      console.log('Starting logo upload for user:', user.id);
-      console.log('File details:', { name: file.name, size: file.size, type: file.type });
+      // Starting logo upload
 
       // Verificar tamanho do arquivo (3MB = 3145728 bytes)
       if (file.size > 3145728) {
@@ -129,7 +128,7 @@ export const useShopProfile = () => {
         try {
           const urlParts = shopProfile.logo_url.split('/');
           const oldFileName = `${user.id}/${urlParts[urlParts.length - 1]}`;
-          console.log('Removing old logo:', oldFileName);
+          // Removing old logo
           
           await supabase.storage
             .from('company-logos')
@@ -141,7 +140,7 @@ export const useShopProfile = () => {
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/logo.${fileExt}`;
-      console.log('Uploading to:', fileName);
+      // Uploading file
 
       // Upload do arquivo
       const { data, error } = await supabase.storage
@@ -156,18 +155,18 @@ export const useShopProfile = () => {
         throw error;
       }
 
-      console.log('Upload successful:', data);
+      // Upload successful
 
       // Obter URL pública
       const { data: { publicUrl } } = supabase.storage
         .from('company-logos')
         .getPublicUrl(fileName);
 
-      console.log('Public URL:', publicUrl);
+      // Public URL generated
       return publicUrl;
     },
     onSuccess: async (logoUrl) => {
-      console.log('Logo uploaded successfully, updating profile with URL:', logoUrl);
+      // Logo uploaded, updating profile
       
       try {
         // Atualizar o perfil com a nova URL da logo
@@ -202,13 +201,13 @@ export const useShopProfile = () => {
     mutationFn: async () => {
       if (!user?.id || !shopProfile?.logo_url) throw new Error('No logo to remove');
 
-      console.log('Removing logo for user:', user.id);
+      // Removing logo
 
       try {
         // Extrair o caminho do arquivo da URL
         const urlParts = shopProfile.logo_url.split('/');
         const fileName = `${user.id}/${urlParts[urlParts.length - 1]}`;
-        console.log('Removing file:', fileName);
+        // Removing file
 
         // Remover do storage
         const { error } = await supabase.storage
@@ -218,7 +217,7 @@ export const useShopProfile = () => {
         if (error) {
           console.error('Error removing from storage:', error);
           // Não falhar se não conseguir remover do storage
-          console.warn('Continuing with profile update despite storage error');
+          // Continuing despite storage error
         }
 
         // Atualizar o perfil removendo a URL da logo

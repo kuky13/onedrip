@@ -21,12 +21,12 @@ class DebugLogger {
       this.lastLogTime = now;
     }
     
-    // Limitar logs para prevenir spam
+    // Debug logs disabled in production
     if (this.logCount < this.LOG_THROTTLE_LIMIT) {
-      console.log(`[${category}] ${message}`, data || '');
+      // console.log(`[${category}] ${message}`, data || '');
       this.logCount++;
     } else if (this.logCount === this.LOG_THROTTLE_LIMIT) {
-      console.warn('⚠️ Logs throttled to prevent spam');
+      // console.warn('⚠️ Logs throttled to prevent spam');
       this.logCount++;
     }
   }

@@ -263,33 +263,7 @@ export class AuditService {
     return JSON.stringify(this.logs, null, 2);
   }
 
-  // Logs específicos para transações PIX
-  async logPixTransaction(action: string, transactionId: string, details: any, userEmail?: string): Promise<void> {
-    await this.logEvent({
-      action: `pix_${action}`,
-      transactionId,
-      details: {
-        transactionId,
-        ...details
-      },
-      userEmail,
-      severity: 'info'
-    });
-  }
 
-  // Logs de erro para transações PIX
-  async logPixError(error: string, details: any, userEmail?: string, transactionId?: string): Promise<void> {
-    await this.logEvent({
-      action: 'pix_error',
-      transactionId,
-      details: {
-        error,
-        ...details
-      },
-      userEmail,
-      severity: 'error'
-    });
-  }
 
   // Logs de segurança
   async logSecurityEvent(action: string, details: any, userEmail?: string): Promise<void> {
@@ -315,11 +289,7 @@ export const getAuditLogs = (filters?: any) =>
 export const getLogStatistics = () => 
   auditService.getLogStatistics();
 
-export const logPixTransaction = (action: string, transactionId: string, details: any, userEmail?: string) => 
-  auditService.logPixTransaction(action, transactionId, details, userEmail);
 
-export const logPixError = (error: string, details: any, userEmail?: string, transactionId?: string) => 
-  auditService.logPixError(error, details, userEmail, transactionId);
 
 export const logSecurityEvent = (action: string, details: any, userEmail?: string) => 
   auditService.logSecurityEvent(action, details, userEmail);

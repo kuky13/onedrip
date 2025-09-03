@@ -237,7 +237,7 @@ const AppContent = () => {
             </UnifiedProtectionGuard>
           } 
         />
-        <Route path="/cookie" element={<CookiePage />} />
+        <Route path="/game" element={<CookiePage />} />
         
         {/* Novas rotas para políticas e termos */}
         <Route path="/privacy" element={<PrivacyPage />} />

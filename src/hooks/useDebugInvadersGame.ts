@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useAchievements } from '@/hooks/useAchievements';
 
 export interface Bug {
   id: string;
@@ -24,13 +25,14 @@ export type GameState = 'idle' | 'playing' | 'paused' | 'gameOver';
 export const useDebugInvadersGame = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { trackBugKill, trackGameEnd } = useAchievements();
   const [gameState, setGameState] = useState<GameState>('idle');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(5);
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [logs, setLogs] = useState<GameLog[]>([]);
-  const [gameSettings, setGameSettings] = useState({ speed_bug_spawn_rate: 0.02, speed_bug_speed_multiplier: 2.0, boss_bug_spawn_rate: 0.002, boss_bug_points: 1000, boss_bug_timer: 7000, boss_bug_damage: 5 });
+  const [gameSettings, setGameSettings] = useState({ speed_bug_spawn_rate: 0.008, speed_bug_speed_multiplier: 1.5, boss_bug_spawn_rate: 0.001, boss_bug_points: 1000, boss_bug_timer: 12000, boss_bug_damage: 3 });
   const [particles, setParticles] = useState<Array<{id: string, x: number, y: number, type: Bug['type']}>>([]);
   
   const gameLoopRef = useRef<NodeJS.Timeout>();
@@ -74,7 +76,7 @@ export const useDebugInvadersGame = () => {
         y: -5,
         speed: 0.15 + (level * 0.03), // Mais lento e previsível
         type: 'boss-bug',
-        bossTimer: 7000 // 7 segundos para clicar
+        bossTimer: gameSettings.boss_bug_timer // 12 segundos para clicar
       };
     }
     
@@ -95,8 +97,8 @@ export const useDebugInvadersGame = () => {
     if (!isPlaying) return;
     
     const now = Date.now();
-    // Spawn rate mais generoso - mais tempo entre spawns para facilitar o jogo
-    const spawnRate = Math.max(1800 - (level * 100), 800);
+    // Spawn rate mais equilibrado - progressão mais suave
+    const spawnRate = Math.max(2200 - (level * 80), 1000);
     
     if (now - lastSpawnRef.current > spawnRate) {
       setBugs(prev => [...prev, createBug()]);
@@ -158,6 +160,8 @@ export const useDebugInvadersGame = () => {
           const newLives = current - bugsPassedCount;
           if (newLives <= 0) {
             setGameState('gameOver');
+            // Track game end for achievements
+            trackGameEnd(score, level, 5 - newLives);
           }
           return newLives;
         });
@@ -168,7 +172,7 @@ export const useDebugInvadersGame = () => {
     });
   }, [isPlaying, addLog]);
 
-  // Game loop
+  // Game loop - Otimizado para evitar memory leaks
   useEffect(() => {
     if (isPlaying) {
       gameLoopRef.current = setInterval(() => {
@@ -179,14 +183,21 @@ export const useDebugInvadersGame = () => {
       return () => {
         if (gameLoopRef.current) {
           clearInterval(gameLoopRef.current);
+          gameLoopRef.current = undefined;
         }
       };
+    } else {
+      // Limpar timer quando não está jogando
+      if (gameLoopRef.current) {
+        clearInterval(gameLoopRef.current);
+        gameLoopRef.current = undefined;
+      }
     }
   }, [isPlaying, updateBugs, spawnBug]);
 
-  // Level progression - mais lento
+  // Level progression - progressão mais equilibrada
   useEffect(() => {
-    const newLevel = Math.floor(score / 150) + 1; // Precisa de mais pontos para subir de nível
+    const newLevel = Math.floor(score / 300) + 1; // Precisa de mais pontos para subir de nível
     if (newLevel > level) {
       setLevel(newLevel);
     }
@@ -271,6 +282,9 @@ export const useDebugInvadersGame = () => {
       addLog('info', logMessage);
     }
 
+    // Track achievement progress
+    trackBugKill(clickedBug.type);
+    
     // Update score and remove bug
     setScore(current => current + points);
     setBugs(prev => prev.filter(bug => bug.id !== bugId));
@@ -278,12 +292,23 @@ export const useDebugInvadersGame = () => {
 
   // Game controls
   const startGame = useCallback(() => {
+    // Limpar timers existentes antes de iniciar
+    if (gameLoopRef.current) {
+      clearInterval(gameLoopRef.current);
+      gameLoopRef.current = undefined;
+    }
+    if (spawnTimerRef.current) {
+      clearInterval(spawnTimerRef.current);
+      spawnTimerRef.current = undefined;
+    }
+    
     setGameState('playing');
     setScore(0);
     setLevel(1);
     setLives(5);
     setBugs([]);
     setLogs([]);
+    setParticles([]);
     lastSpawnRef.current = Date.now();
     addLog('info', 'Sistema iniciado. Caçador de bugs ativo.');
   }, [addLog]);
@@ -295,6 +320,11 @@ export const useDebugInvadersGame = () => {
 
   const pauseGame = useCallback(() => {
     if (isPlaying) {
+      // Limpar timers ao pausar
+      if (gameLoopRef.current) {
+        clearInterval(gameLoopRef.current);
+        gameLoopRef.current = undefined;
+      }
       setGameState('paused');
     } else if (gameState === 'paused') {
       setGameState('playing');
@@ -329,14 +359,16 @@ export const useDebugInvadersGame = () => {
     loadSettings();
   }, []);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - Melhorado para evitar memory leaks
   useEffect(() => {
     return () => {
       if (gameLoopRef.current) {
         clearInterval(gameLoopRef.current);
+        gameLoopRef.current = undefined;
       }
       if (spawnTimerRef.current) {
         clearInterval(spawnTimerRef.current);
+        spawnTimerRef.current = undefined;
       }
     };
   }, []);

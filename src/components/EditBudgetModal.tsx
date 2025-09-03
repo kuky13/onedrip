@@ -348,7 +348,6 @@ export const EditBudgetModal = ({ budget, open, onOpenChange }: EditBudgetModalP
                 <SelectContent>
                   <SelectItem value="À Vista">À Vista</SelectItem>
                   <SelectItem value="Cartão de Crédito">Cartão de Crédito</SelectItem>
-                  <SelectItem value="PIX">PIX</SelectItem>
                   <SelectItem value="Dinheiro">Dinheiro</SelectItem>
                   <SelectItem value="Transferência">Transferência</SelectItem>
                 </SelectContent>

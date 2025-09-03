@@ -902,51 +902,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pix_transactions: {
-        Row: {
-          amount: number
-          created_at: string | null
-          expires_at: string | null
-          external_reference: string | null
-          id: string
-          mercado_pago_id: string | null
-          plan_type: string
-          qr_code: string | null
-          qr_code_base64: string | null
-          status: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          expires_at?: string | null
-          external_reference?: string | null
-          id?: string
-          mercado_pago_id?: string | null
-          plan_type: string
-          qr_code?: string | null
-          qr_code_base64?: string | null
-          status?: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          expires_at?: string | null
-          external_reference?: string | null
-          id?: string
-          mercado_pago_id?: string | null
-          plan_type?: string
-          qr_code?: string | null
-          qr_code_base64?: string | null
-          status?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+
       ranking_invaders: {
         Row: {
           created_at: string

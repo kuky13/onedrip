@@ -53,7 +53,7 @@ export const useIOSHelpSystem = () => {
         }));
       }
     } catch (error) {
-      console.warn('Erro ao carregar configurações de ajuda:', error);
+      // Error loading help settings
     }
   }, []);
 
@@ -64,7 +64,7 @@ export const useIOSHelpSystem = () => {
       const updated = { ...current, ...settings };
       localStorage.setItem('ios-help-settings', JSON.stringify(updated));
     } catch (error) {
-      console.warn('Erro ao salvar configurações de ajuda:', error);
+      // Error saving help settings
     }
   }, []);
 

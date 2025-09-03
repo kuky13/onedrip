@@ -3,7 +3,13 @@
 // ============================================
 // Serviço para criptografia e descriptografia de dados sensíveis
 
-import type { SecurityConfig } from '../../shared/types/pix';
+// Interface para configuração de segurança
+interface SecurityConfig {
+  encryptionKey: string;
+  algorithm: string;
+  keyLength: number;
+  ivLength: number;
+}
 
 // Configuração de segurança
 const getSecurityConfig = (): SecurityConfig => {

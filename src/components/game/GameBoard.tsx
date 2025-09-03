@@ -8,7 +8,7 @@ interface GameBoardProps {
   isPlaying: boolean;
 }
 
-const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClick }) => {
+const BugComponent = React.forwardRef<HTMLButtonElement, { bug: Bug; onClick: () => void }>(({ bug, onClick }, ref) => {
   const getBugEmoji = (type: Bug['type']) => {
     switch (type) {
       case 'critical-bug': return '🔥';
@@ -30,10 +30,10 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   };
 
   const getBugSize = (type: Bug['type']) => {
-    // Hitboxes aumentadas significativamente para melhor detecção de cliques
-    if (type === 'boss-bug') return 'text-6xl w-24 h-24 min-w-[96px] min-h-[96px]';
-    if (type === 'speed-bug') return 'text-4xl w-20 h-20 min-w-[80px] min-h-[80px]';
-    return 'text-3xl w-18 h-18 min-w-[72px] min-h-[72px]';
+    // Hitboxes otimizadas para mobile e desktop - muito maiores para facilitar cliques
+    if (type === 'boss-bug') return 'text-6xl w-28 h-28 min-w-[112px] min-h-[112px] sm:w-32 sm:h-32 sm:min-w-[128px] sm:min-h-[128px]';
+    if (type === 'speed-bug') return 'text-4xl w-24 h-24 min-w-[96px] min-h-[96px] sm:w-28 sm:h-28 sm:min-w-[112px] sm:min-h-[112px]';
+    return 'text-3xl w-20 h-20 min-w-[80px] min-h-[80px] sm:w-24 sm:h-24 sm:min-w-[96px] sm:min-h-[96px]';
   };
 
   const getClickEffect = () => ({
@@ -45,21 +45,27 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
 
   return (
     <motion.button
+      ref={ref}
       onClick={onClick}
       onTouchStart={onClick} // Melhora responsividade em mobile
+      onTouchEnd={(e) => { e.preventDefault(); onClick(); }} // Previne double-tap zoom
       className={`absolute z-20 ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)} 
         flex items-center justify-center rounded-lg
         active:scale-95 touch-manipulation
-        before:absolute before:inset-0 before:w-full before:h-full before:z-[-1]`}
+        before:absolute before:inset-0 before:w-full before:h-full before:z-[-1]
+        focus:outline-none focus:ring-2 focus:ring-green-400/50`}
       style={{
         left: `${bug.x}%`,
         top: `${bug.y}%`,
         transform: 'translate(-50%, -50%)',
-        // Hitbox muito expandida para garantir cliques
-        padding: '20px',
-        margin: '-20px',
+        // Hitbox muito expandida para garantir cliques em mobile
+        padding: '24px', // Aumentado para mobile
+        margin: '-24px',
         // Força um z-index alto para evitar sobreposição
-        zIndex: 1000 + parseInt(bug.id.slice(-3), 10) || 1000
+        zIndex: 1000 + parseInt(bug.id.slice(-3), 10) || 1000,
+        // Melhora área de toque em dispositivos móveis
+        minWidth: '44px', // Padrão de acessibilidade para touch targets
+        minHeight: '44px'
       }}
       animate={
         bug.type === 'boss-bug' 
@@ -86,14 +92,16 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
       )}
     </motion.button>
   );
-};
+});
+
+BugComponent.displayName = 'BugComponent';
 
 export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlaying }) => {
   const bossCount = bugs.filter(bug => bug.type === 'boss-bug').length;
   const speedBugCount = bugs.filter(bug => bug.type === 'speed-bug').length;
   
   return (
-    <div className="relative w-full h-96 bg-gradient-to-b from-gray-900 to-gray-800 border-2 border-green-400/30 rounded-lg overflow-hidden shadow-2xl">
+    <div className="relative w-full h-80 sm:h-96 md:h-[28rem] lg:h-96 bg-gradient-to-b from-gray-900 to-gray-800 border-2 border-green-400/30 rounded-lg overflow-hidden shadow-2xl touch-none">
       {/* Matrix-style background */}
       <div className="absolute inset-0 opacity-5">
         <div className="grid grid-cols-20 h-full">

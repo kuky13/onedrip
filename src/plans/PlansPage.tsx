@@ -48,31 +48,18 @@ export const PlansPage = () => {
     try {
       setIsProcessingPayment(true);
       
-      // Links específicos do Mercado Pago para cada combinação
-      let mercadoPagoUrl = '';
+      const planDetails = {
+        cycle: billingCycle,
+        vip: isVipSelected,
+        plan: getCurrentPlanData()
+      };
       
-      if (billingCycle === 'monthly') {
-        if (isVipSelected) {
-          mercadoPagoUrl = 'https://mpago.li/2A351iP'; // Mensal VIP
-        } else {
-          mercadoPagoUrl = 'https://mpago.li/2ZqAPDs'; // Mensal sem VIP
-        }
-      } else {
-        if (isVipSelected) {
-          mercadoPagoUrl = 'https://mpago.li/1x254ne'; // Anual VIP
-        } else {
-          mercadoPagoUrl = 'https://mpago.li/1c4LGhc'; // Anual sem VIP
-        }
-      }
+      console.log('🚀 Plano selecionado:', planDetails);
       
-      console.log('🚀 Redirecionando para Mercado Pago:', { billingCycle, isVipSelected, url: mercadoPagoUrl });
+      toast.success('Plano selecionado com sucesso!');
       
-      toast.success('Redirecionando para pagamento...');
-      
-      // Redirecionar para o Mercado Pago
-      setTimeout(() => {
-        window.open(mercadoPagoUrl, '_blank');
-      }, 500);
+      // TODO: Implementar integração de pagamento
+      toast.info('Integração de pagamento será implementada em breve.');
       
     } catch (error) {
       console.error('❌ Erro ao processar:', error);

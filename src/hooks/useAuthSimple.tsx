@@ -50,25 +50,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Inicialização simplificada
   useEffect(() => {
-    console.log('🔐 Iniciando AuthProvider simplificado...');
+    // Starting simplified AuthProvider
     
     const initializeAuth = async () => {
       try {
-        console.log('🔍 Verificando sessão...');
+        // Checking session
         
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ Erro ao obter sessão:', error);
         } else {
-          console.log('📋 Sessão obtida:', !!session);
+          // Session obtained
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
         console.error('❌ Erro na inicialização:', error);
       } finally {
-        console.log('✅ Inicialização concluída');
+        // Initialization completed
         setLoading(false);
         setIsInitialized(true);
       }
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listener simplificado
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('🔄 Auth state change:', event, !!session);
+        // Auth state change
         setSession(session);
         setUser(session?.user ?? null);
       }
@@ -89,19 +89,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔑 Fazendo login...');
+    // Logging in
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
   const signUp = async (email: string, password: string, userData: { name: string; role?: string }) => {
-    console.log('📝 Fazendo cadastro...');
+    // Signing up
     const { error } = await supabase.auth.signUp({ email, password });
     return { error };
   };
 
   const signOut = async () => {
-    console.log('🚪 Fazendo logout...');
+    // Logging out
     await supabase.auth.signOut();
   };
 
@@ -144,11 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     hasPermission,
   };
 
-  console.log('🔄 AuthProvider renderizando com:', { 
-    user: !!user, 
-    loading, 
-    isInitialized 
-  });
+  // AuthProvider rendering
 
   return (
     <AuthContext.Provider value={value}>

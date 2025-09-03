@@ -5,7 +5,7 @@ import TestApp from './TestApp.tsx';
 import './index.css';
 
 // Debug: Adicionar logs para identificar problemas
-console.log('🚀 Iniciando aplicação React...');
+// Starting React application
 
 // Capturar erros não tratados
 window.addEventListener('error', (event) => {
@@ -24,10 +24,10 @@ try {
     throw new Error('Elemento root não encontrado!');
   }
   
-  console.log('✅ Elemento root encontrado:', rootElement);
+  // Root element found
   
   const root = ReactDOM.createRoot(rootElement);
-  console.log('✅ Root do React criado');
+  // React root created
   
   root.render(
     <React.StrictMode>
@@ -35,7 +35,7 @@ try {
     </React.StrictMode>,
   );
   
-  console.log('✅ Aplicação renderizada com sucesso!');
+  // Application rendered successfully
 } catch (error) {
   console.error('❌ Erro ao inicializar aplicação:', error);
   

@@ -25,15 +25,10 @@ export const useRanking = () => {
       if (error) throw error;
       
       setRankings(data?.map((item: any) => ({
-        id: item.user_id,
-        user_id: item.user_id,
+        id: item.id,
         user_name: item.user_name,
-        score: item.total_value || 0,
-        total_budgets: item.total_budgets,
-        total_value: item.total_value,
-        avg_budget_value: item.avg_budget_value,
-        rank_position: item.rank_position,
-        created_at: new Date().toISOString()
+        score: item.score,
+        created_at: item.created_at
       })) || []);
     } catch (err) {
       console.error('Error fetching rankings:', err);

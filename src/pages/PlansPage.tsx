@@ -9,8 +9,6 @@ import { BenefitsSection } from '@/components/plans/BenefitsSection';
 import { TestimonialsSection } from '@/components/plans/TestimonialsSection';
 import { FAQSection } from '@/components/plans/FAQSection';
 
-import MercadoPagoCheckout from '@/components/MercadoPagoCheckout';
-
 
 interface SiteSettings {
   plan_name: string;
@@ -172,35 +170,7 @@ export const PlansPage = () => {
           show={config.show_benefits_section}
         />
         
-        {/* Checkout Section */}
-        <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Escolha Seu Plano
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Selecione o plano ideal para seu negócio e pague de forma segura via Mercado Pago
-              </p>
-              <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Pagamento 100% Seguro</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span>Ativação Imediata</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span>Suporte 24/7</span>
-                </div>
-              </div>
-            </div>
-            
-            <MercadoPagoCheckout className="max-w-7xl mx-auto" />
-          </div>
-        </section>
+
         <TestimonialsSection 
           title={config.testimonials_section_title}
           subtitle={config.testimonials_section_subtitle}

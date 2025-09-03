@@ -5,14 +5,17 @@ import { GameOver } from './GameOver';
 import { Ranking } from './Ranking';
 import { GameConfigDisplay } from './GameConfigDisplay';
 import { ParticleEffect } from './ParticleEffect';
+import { AchievementsPanel } from './AchievementsPanel';
 import { useDebugInvadersGame } from '@/hooks/useDebugInvadersGame';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence } from 'framer-motion';
+import { Trophy } from 'lucide-react';
 export const DebugInvadersGame = () => {
   const navigate = useNavigate();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
   const {
     user
   } = useAuth();
@@ -111,19 +114,29 @@ export const DebugInvadersGame = () => {
         </div>
       </div>;
   }
-  return <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'max-w-6xl mx-auto'}`}>
-      <div className={`${isFullscreen ? 'h-full flex flex-col' : 'grid grid-cols-1 lg:grid-cols-4 gap-6'}`}>
-        {/* Fullscreen Toggle Button */}
-        <button
-          onClick={toggleFullscreen}
-          className="fixed bottom-4 left-4 z-50 bg-green-600/80 hover:bg-green-700/80 text-white p-2 rounded-lg font-mono text-sm backdrop-blur-sm border border-green-400/50 transition-all opacity-50 hover:opacity-100"
-          title={isFullscreen ? 'Sair da tela cheia (ESC)' : 'Tela cheia (F11)'}
-        >
-          {isFullscreen ? '🗗' : '🗖'}
-        </button>
+  return <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'max-w-6xl mx-auto px-2 sm:px-4'}`}>
+      <div className={`${isFullscreen ? 'h-full flex flex-col' : 'grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6'}`}>
+        {/* Fixed Action Buttons - Otimizado para mobile */}
+        <div className="fixed bottom-4 left-4 z-50 flex flex-col gap-2">
+          <button
+            onClick={toggleFullscreen}
+            className="bg-green-600/80 hover:bg-green-700/80 text-white p-3 sm:p-2 rounded-lg font-mono text-base sm:text-sm backdrop-blur-sm border border-green-400/50 transition-all opacity-50 hover:opacity-100 touch-manipulation min-w-[44px] min-h-[44px]"
+            title={isFullscreen ? 'Sair da tela cheia (ESC)' : 'Tela cheia (F11)'}
+          >
+            {isFullscreen ? '🗗' : '🗖'}
+          </button>
+          
+          <button
+            onClick={() => setShowAchievements(true)}
+            className="bg-yellow-600/80 hover:bg-yellow-700/80 text-white p-3 sm:p-2 rounded-lg backdrop-blur-sm border border-yellow-400/50 transition-all opacity-50 hover:opacity-100 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Ver Conquistas"
+          >
+            <Trophy size={18} />
+          </button>
+        </div>
 
-        {/* Game Area */}
-        <div className={`${isFullscreen ? 'flex-1 px-4 pt-16 pb-4' : 'lg:col-span-3'} space-y-4`}>
+        {/* Game Area - Responsivo para mobile */}
+        <div className={`${isFullscreen ? 'flex-1 px-2 sm:px-4 pt-16 pb-4' : 'xl:col-span-3'} space-y-2 sm:space-y-4`}>
           {!isFullscreen && <GameConfigDisplay />}
           <GameStats score={score} level={level} lives={lives} />
           
@@ -144,9 +157,9 @@ export const DebugInvadersGame = () => {
             </AnimatePresence>
             
             {!isPlaying && !isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="text-green-400 text-lg mb-4">// Inicializar sistema de debug</div>
-                  <button onClick={startGame} className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-xl transition-colors font-mono">
+                <div className="text-center px-4">
+                  <div className="text-green-400 text-sm sm:text-lg mb-4">// Inicializar sistema de debug</div>
+                  <button onClick={startGame} className="px-6 sm:px-8 py-3 sm:py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-lg sm:text-xl transition-colors font-mono touch-manipulation min-w-[44px] min-h-[44px]">
                     ./start_debug_hunter.sh
                   </button>
                 </div>
@@ -156,9 +169,9 @@ export const DebugInvadersGame = () => {
           </div>
         </div>
 
-        {/* Sidebar with Logs and Ranking - Hide in fullscreen */}
+        {/* Sidebar with Logs and Ranking - Responsivo e oculto em mobile por padrão */}
         {!isFullscreen && (
-          <div className="lg:col-span-1 space-y-6">
+          <div className="xl:col-span-1 space-y-4 sm:space-y-6 order-first xl:order-last">
           {/* System Logs */}
           <div className="bg-gray-900 border border-green-400/30 rounded-lg">
             <div className="border-b border-green-400/30 p-3">
@@ -207,6 +220,22 @@ export const DebugInvadersGame = () => {
 
           {/* Ranking */}
           <Ranking />
+          </div>
+        )}
+        
+        {/* Achievements Panel Modal */}
+        {showAchievements && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="relative max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <button
+                onClick={() => setShowAchievements(false)}
+                className="absolute top-4 right-4 z-10 bg-red-600/80 hover:bg-red-700/80 text-white p-2 rounded-lg backdrop-blur-sm border border-red-400/50 transition-all"
+                title="Fechar"
+              >
+                ✕
+              </button>
+              <AchievementsPanel />
+            </div>
           </div>
         )}
       </div>

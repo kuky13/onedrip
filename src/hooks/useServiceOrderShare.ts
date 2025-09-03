@@ -65,8 +65,7 @@ export function useServiceOrderShare() {
 
   const getServiceOrderByToken = async (shareToken: string): Promise<ServiceOrderShareData | null> => {
     try {
-      console.log('🔍 [DEBUG] Iniciando busca da ordem de serviço com token:', shareToken);
-      console.log('🔍 [DEBUG] Supabase client status:', !!supabase);
+      // Starting service order search with token
       
       const startTime = Date.now();
       const { data, error } = await supabase
@@ -75,43 +74,35 @@ export function useServiceOrderShare() {
         });
       
       const endTime = Date.now();
-      console.log(`📊 [DEBUG] RPC call completed in ${endTime - startTime}ms`);
-      console.log('📊 [DEBUG] Resposta da função RPC get_service_order_by_share_token:', { data, error });
+      // RPC call completed
 
       if (error) {
-        console.error('❌ [DEBUG] Erro ao buscar ordem de serviço:', error);
-        console.error('❌ [DEBUG] Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error('❌ Erro ao buscar ordem de serviço:', error);
         throw new Error(`Erro ao buscar ordem de serviço: ${error.message}`);
       }
 
       if (!data || data.length === 0) {
-        console.log('⚠️ [DEBUG] Nenhum dado retornado da função RPC');
+        // No data returned from RPC
         throw new Error('Token de compartilhamento inválido ou expirado');
       }
 
-      console.log('✅ [DEBUG] Ordem de serviço encontrada:', data[0]);
+      // Service order found
       return data[0] as ServiceOrderShareData;
     } catch (error) {
-      console.error('💥 [DEBUG] Erro geral ao buscar ordem de serviço:', error);
-      console.error('💥 [DEBUG] Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('💥 Erro geral ao buscar ordem de serviço:', error);
       throw error;
     }
   };
 
   const getCompanyInfoByToken = async (shareToken: string): Promise<CompanyInfo | null> => {
     try {
-      console.log('🏢 Buscando informações da empresa com token:', shareToken);
+      // Fetching company information
       const { data, error } = await supabase
         .rpc('get_company_info_by_share_token', {
           p_share_token: shareToken
         });
 
-      console.log('📋 Resposta da função RPC get_company_info_by_share_token:', { data, error });
+      // Company info RPC response
 
       if (error) {
         console.error('❌ Erro ao buscar informações da empresa:', error);
@@ -122,7 +113,7 @@ export function useServiceOrderShare() {
         return null;
       }
 
-      console.log('✅ Informações da empresa encontradas:', data[0]);
+      // Company information found
       return data[0] as CompanyInfo;
     } catch (error) {
       console.error('💥 Erro geral ao buscar informações da empresa:', error);

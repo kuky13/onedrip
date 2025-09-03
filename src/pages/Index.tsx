@@ -76,11 +76,7 @@ const Index = () => {
                   </Link>
                 </Button>
               </ScaleOnHover>
-              <ScaleOnHover>
-                <Button className="btn-mercadopago text-lg px-8 py-4" onClick={() => openWhatsApp('https://wa.me/556496028022')}>
-                  Confirmar Pagamento
-                </Button>
-              </ScaleOnHover>
+
               <ScaleOnHover>
                 <Button variant="outline" className="btn-apple-secondary text-lg px-8 py-4" onClick={() => openWhatsApp('https://wa.me/556496028022')}>
                   Entre em contato

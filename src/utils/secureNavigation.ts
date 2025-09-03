@@ -19,11 +19,7 @@ const ALLOWED_INTERNAL_PATHS = [
 const ALLOWED_EXTERNAL_DOMAINS = [
   'wa.me',
   'api.whatsapp.com',
-  'web.whatsapp.com',
-  'mercadopago.com.br',
-  'mercadopago.com',
-  'mp.com.br',
-  'mpago.li'
+  'web.whatsapp.com'
 ];
 
 /**

@@ -2,42 +2,173 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Cookie, Shield, BarChart3, Settings, Info, Save } from 'lucide-react';
+import { ArrowLeft, Cookie, Shield, BarChart3, Settings, Info, Save, RefreshCw, Download, Upload, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/useToast';
+import { useCookiePreferences } from '@/hooks/useCookiePreferences';
+import { useAuth } from '@/hooks/useAuth';
 
 export const CookiesPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const {
+    preferences,
+    loading,
+    error,
+    savePreferences,
+    acceptAll,
+    rejectAll,
+    resetToDefaults,
+    reload
+  } = useCookiePreferences();
   
-  const [cookiePreferences, setCookiePreferences] = useState({
-    essential: true, // Sempre habilitado
-    analytics: true,
-    functional: true,
-    marketing: false
-  });
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  const handlePreferenceChange = (type: string, value: boolean) => {
+  const handlePreferenceChange = async (type: string, enabled: boolean) => {
     if (type === 'essential') return; // Não pode ser desabilitado
     
-    setCookiePreferences(prev => ({
-      ...prev,
-      [type]: value
-    }));
+    try {
+      await savePreferences({ [type]: enabled });
+      toast({
+        title: "Preferência atualizada",
+        description: `Cookie ${type} ${enabled ? 'habilitado' : 'desabilitado'} com sucesso.`,
+      });
+    } catch (err) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível atualizar a preferência. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSavePreferences = () => {
-    // Salvar preferências no localStorage
-    localStorage.setItem('cookiePreferences', JSON.stringify(cookiePreferences));
-    
-    toast({
-      title: "Preferências salvas",
-      description: "Suas preferências de cookies foram atualizadas com sucesso.",
-    });
+  const handleSaveAll = async () => {
+    try {
+      await savePreferences(preferences);
+      toast({
+        title: "Preferências salvas",
+        description: user ? "Preferências sincronizadas com sua conta." : "Preferências salvas localmente.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as preferências. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAcceptAll = async () => {
+    try {
+      await acceptAll();
+      toast({
+        title: "Todos os cookies aceitos",
+        description: "Todas as categorias de cookies foram habilitadas.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível aceitar todos os cookies.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRejectAll = async () => {
+    try {
+      await rejectAll();
+      toast({
+        title: "Cookies opcionais rejeitados",
+        description: "Apenas cookies essenciais permaneceram ativos.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível rejeitar os cookies.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      await resetToDefaults();
+      toast({
+        title: "Preferências resetadas",
+        description: "Todas as preferências foram restauradas para o padrão.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível resetar as preferências.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const dataStr = JSON.stringify(preferences, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `onedrip-cookie-preferences-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Preferências exportadas",
+        description: "Arquivo de configuração baixado com sucesso.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível exportar as preferências.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      const importedPrefs = JSON.parse(text);
+      
+      // Validar estrutura básica
+      if (typeof importedPrefs !== 'object' || !('essential' in importedPrefs)) {
+        throw new Error('Arquivo inválido');
+      }
+      
+      await savePreferences(importedPrefs);
+      toast({
+        title: "Preferências importadas",
+        description: "Configurações aplicadas com sucesso.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro na importação",
+        description: "Arquivo inválido ou corrompido.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+      // Limpar input
+      event.target.value = '';
+    }
   };
 
   const cookieTypes = [
@@ -137,7 +268,7 @@ export const CookiesPage = () => {
               <div className="space-y-6">
                 {cookieTypes.map((type) => {
                   const IconComponent = type.icon;
-                  const isEnabled = cookiePreferences[type.id as keyof typeof cookiePreferences];
+                  const isEnabled = preferences[type.id as keyof typeof preferences] || false;
                   
                   return (
                     <Card key={type.id} className="border-muted">
@@ -176,7 +307,7 @@ export const CookiesPage = () => {
                             <Switch
                               checked={isEnabled}
                               onCheckedChange={(checked) => handlePreferenceChange(type.id, checked)}
-                              disabled={type.required}
+                              disabled={type.required || loading}
                             />
                             <span className="text-xs text-muted-foreground">
                               {isEnabled ? 'Ativo' : 'Inativo'}
@@ -189,11 +320,131 @@ export const CookiesPage = () => {
                 })}
               </div>
               
-              <div className="flex justify-center mt-6">
-                <Button onClick={handleSavePreferences} className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  Salvar Preferências
+              {/* Status de Sincronização */}
+              {user && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                  <div className="flex items-center gap-2">
+                    <Cloud className="h-5 w-5 text-blue-600" />
+                    <span className="text-blue-800 font-medium">
+                      Preferências sincronizadas com sua conta
+                    </span>
+                    {loading && <RefreshCw className="h-4 w-4 animate-spin text-blue-600" />}
+                  </div>
+                </div>
+              )}
+
+              {/* Erro de carregamento */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    <span className="text-red-800">
+                      Erro ao carregar preferências: {error}
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={reload}
+                      className="ml-auto"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-1" />
+                      Tentar novamente
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Controles Rápidos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                <Button 
+                  onClick={handleAcceptAll}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Aceitar Todos
                 </Button>
+                
+                <Button 
+                  onClick={handleRejectAll}
+                  disabled={loading}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Rejeitar Opcionais
+                </Button>
+                
+                <Button 
+                  onClick={handleReset}
+                  disabled={loading}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Resetar
+                </Button>
+                
+                <Button 
+                  onClick={handleSaveAll}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Salvar Tudo
+                </Button>
+              </div>
+
+              {/* Importar/Exportar */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Exportar Configurações</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Baixe suas preferências como arquivo JSON.
+                  </p>
+                  <Button 
+                    onClick={handleExport}
+                    disabled={loading || isExporting}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {isExporting ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
+                    Exportar
+                  </Button>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Importar Configurações</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Restaure suas preferências de um arquivo JSON.
+                  </p>
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleImport}
+                      disabled={loading || isImporting}
+                      className="hidden"
+                    />
+                    <Button 
+                      as="span"
+                      disabled={loading || isImporting}
+                      variant="outline"
+                      className="w-full cursor-pointer"
+                    >
+                      {isImporting ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4 mr-2" />
+                      )}
+                      Importar
+                    </Button>
+                  </label>
+                </div>
               </div>
             </section>
 

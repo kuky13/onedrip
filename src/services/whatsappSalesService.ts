@@ -307,7 +307,7 @@ class WhatsAppSalesService {
   async updateSaleStatus(saleId: string, status: WhatsAppSale['status']): Promise<boolean> {
     try {
       // In a real app, this would update the database
-      console.log(`Updating sale ${saleId} to status: ${status}`);
+      // Status update
       return true;
     } catch (error) {
       console.error('Error updating sale status:', error);
@@ -343,12 +343,12 @@ class WhatsAppSalesService {
 
   private storeSale(sale: WhatsAppSale): void {
     // In a real app, this would save to database
-    console.log('Storing sale:', sale);
+    // Sale stored
   }
 
   private storeConversion(conversion: WhatsAppConversion): void {
     // In a real app, this would save to database
-    console.log('Storing conversion:', conversion);
+    // Conversion stored
   }
 
   // Static method to create instance

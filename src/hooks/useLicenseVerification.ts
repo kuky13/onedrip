@@ -54,7 +54,7 @@ export const useLicenseVerification = (
 
     // Se estivermos na página de verificação, não fazer consultas automáticas
     if (isVerifyLicensePage && !forceRefresh) {
-      console.log('🔍 [useLicenseVerification] Página de verificação detectada - consulta bloqueada');
+      // Verification page detected - query blocked
       setIsLoading(false);
       return;
     }
@@ -62,13 +62,13 @@ export const useLicenseVerification = (
     // Verificar cache
     const now = Date.now();
     if (!forceRefresh && lastFetch && (now - lastFetch) < cacheTTL && data) {
-      console.log('🔍 [useLicenseVerification] Usando dados do cache');
+      // Using cached data
       return;
     }
 
     // Evitar múltiplas chamadas simultâneas
     if (fetchInProgress.current) {
-      console.log('🔍 [useLicenseVerification] Fetch já em progresso, ignorando');
+      // Fetch already in progress, ignoring
       return;
     }
 
@@ -77,7 +77,7 @@ export const useLicenseVerification = (
       setIsLoading(true);
       setError(null);
       
-      console.log('🔍 [useLicenseVerification] Buscando dados da licença para:', userId);
+      // Fetching license data
 
       const { data: rpcData, error: rpcError } = await supabase
         .rpc('get_user_license_status', {
@@ -102,7 +102,7 @@ export const useLicenseVerification = (
         validation_timestamp: rpcData?.timestamp || new Date().toISOString()
       };
 
-      console.log('✅ [useLicenseVerification] Dados processados:', licenseData);
+      // License data processed
       setData(licenseData);
       setLastFetch(now);
     } catch (err) {
@@ -129,7 +129,7 @@ export const useLicenseVerification = (
   useEffect(() => {
     // Não executar carregamento automático na página de verificação
     if (isVerifyLicensePage) {
-      console.log('🔍 [useLicenseVerification] Effect bloqueado na página de verificação');
+      // Effect blocked on verification page
       return;
     }
     
@@ -172,7 +172,7 @@ export const useLicenseVerification = (
           filter: `user_id=eq.${userId}`
         },
         () => {
-          console.log('🔔 [useLicenseVerification] Mudança detectada, atualizando...');
+          // Change detected, updating...
           debouncedFetch(true);
         }
       )

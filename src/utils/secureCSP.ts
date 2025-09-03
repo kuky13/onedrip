@@ -44,8 +44,6 @@ class SecureCSPManager {
       allowedDomains: [
         'https://api.supabase.co',
         'https://*.supabase.co',
-        'https://api.mercadopago.com',
-        'https://secure.mercadopago.com',
         'https://api.ipify.org',
         'https://fonts.googleapis.com',
         'https://fonts.gstatic.com'
@@ -90,8 +88,6 @@ class SecureCSPManager {
       'self',
       'https://api.supabase.co',
       'https://*.supabase.co',
-      'https://api.mercadopago.com',
-      'https://secure.mercadopago.com',
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
       'https://api.ipify.org'
