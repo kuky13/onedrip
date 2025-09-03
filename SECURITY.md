@@ -159,7 +159,7 @@ Levamos a segurança muito a sério. Se você descobrir uma vulnerabilidade, ped
 
 ### **📧 Contato Seguro**
 - **E-mail Principal**: kuky.png@gmail.com
-- **E-mail Alternativo**: suporte@kuky.cloud
+- **E-mail Alternativo**: suporte@onedrip.email
 
 ### **📋 Processo de Reporte**
 
@@ -256,3 +256,4 @@ Investimos constantemente em segurança porque sabemos que a confiança dos noss
 *Última atualização: Agosto 2025*
 
 </div>
+
