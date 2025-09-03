@@ -87,7 +87,7 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 | **OneDrip** | **Concorrentes** |
 |:----------:|:----------------:|
 | ✅ **Interface Moderna** | ❌ Design Ultrapassado |
-| ✅ **Preço Acessível (R$ 45/mês)** | ❌ Mensalidades Altas |
+| ✅ **Preço Acessível** | ❌ Mensalidades Altas |
 | ✅ **Suporte Brasileiro** | ❌ Suporte Limitado |
 | ✅ **Atualizações Constantes** | ❌ Funcionalidades Estáticas |
 | ✅ **Sistema Completo** | ❌ Funcionalidades Limitadas |
@@ -164,5 +164,6 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 *Transformando assistências técnicas em negócios de sucesso* 🚀
 
 </div>
+
 
 
