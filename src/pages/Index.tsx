@@ -46,7 +46,7 @@ const Index = () => {
             </Link>
             <div className="flex items-center space-x-2">
               <Button asChild variant="outline" className="btn-apple-secondary interactive-scale">
-                <Link to="/auth">Login</Link>
+                <Link to="/auth">Entrar</Link>
               </Button>
               <Button asChild className="btn-apple interactive-scale">
                 <Link to="/sign">Criar</Link>
