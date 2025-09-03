@@ -113,9 +113,9 @@ export const BudgetCard = ({
 
   // Função para copiar link de compartilhamento
   const handleCopyShareLink = () => {
-    if (!createdOrderId) return;
+    const shareUrl = getShareUrl();
+    if (!shareUrl) return;
     
-    const shareUrl = `${window.location.origin}/share/service-order/${createdOrderId}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       showSuccess('Link copiado para a área de transferência!');
     }).catch(() => {
