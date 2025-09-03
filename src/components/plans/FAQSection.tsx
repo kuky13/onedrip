@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { HelpCircle } from 'lucide-react';
 
 interface FAQ {
   question: string;
@@ -40,6 +43,7 @@ export const FAQSection = ({
 }: FAQSectionProps) => {
   if (!show) return null;
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   return (
     <section className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
@@ -89,6 +93,18 @@ export const FAQSection = ({
             </Card>
           </div>
         ))}
+      </div>
+      
+      <div className="text-center mt-8">
+        <Button 
+          onClick={() => navigate('/central-de-ajuda')}
+          variant="outline"
+          size="lg"
+          className="gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+        >
+          <HelpCircle className="w-4 h-4" />
+          Ver mais na Central de Ajuda
+        </Button>
       </div>
     </section>
   );

@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Calculator, Smartphone, Shield, Star, Activity, ArrowRight, CheckCircle } from 'lucide-react';
+import { FileText, Calculator, Smartphone, Shield, Star, Activity, ArrowRight, CheckCircle, HelpCircle } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
@@ -178,6 +178,11 @@ const Index = () => {
                   </Link>
                 </Button>
               </ScaleOnHover>
+              <ScaleOnHover>
+                <Button variant="outline" className="btn-apple-secondary text-lg px-8 py-4" onClick={() => openWhatsApp('https://wa.me/556496028022')}>
+                  Entre em contato
+                </Button>
+              </ScaleOnHover>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <CheckCircle className="h-5 w-5 text-green-500" />
                 <Text size="sm">Sem compromisso • Cancele quando quiser</Text>
@@ -217,6 +222,18 @@ const Index = () => {
           </FadeInUp>
         </div>
       </footer>
+
+      {/* Floating Help Button (FAB) */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <ScaleOnHover>
+          <Button asChild className="w-14 h-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-0 group transition-all duration-300 hover:scale-110">
+            <Link to="/central-de-ajuda" className="flex items-center justify-center">
+              <HelpCircle className="h-6 w-6 text-primary-foreground group-hover:scale-110 transition-transform duration-300" />
+              <span className="sr-only">Central de Ajuda</span>
+            </Link>
+          </Button>
+        </ScaleOnHover>
+      </div>
     </div>;
 };
 export default Index;

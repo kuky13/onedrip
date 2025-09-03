@@ -59,7 +59,7 @@ const HelpCenterPage = () => {
           <div className="bg-secondary/50 p-4 rounded-lg border border-border">
             <h4 className="font-semibold text-foreground mb-2">💡 Dicas Importantes</h4>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              <li>Os orçamentos são atualizados em tempo real via Supabase</li>
+              <li>Os orçamentos são atualizados em tempo real via Nuvem</li>
               <li>Use a função de cópia para criar orçamentos similares rapidamente</li>
               <li>O compartilhamento via WhatsApp gera uma mensagem formatada automaticamente</li>
               <li>Todos os dados são salvos automaticamente durante a criação</li>
@@ -127,7 +127,7 @@ const HelpCenterPage = () => {
             <h4 className="font-semibold text-foreground mb-2">📱 Funcionalidades Avançadas</h4>
             <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
               <li><strong>Página de Detalhes VIP:</strong> Visualização completa com histórico de eventos</li>
-              <li><strong>Upload de Anexos:</strong> Adicione fotos e documentos relacionados</li>
+
               <li><strong>Histórico de Eventos:</strong> Acompanhe todas as alterações e atualizações</li>
               <li><strong>Compartilhamento WhatsApp:</strong> Envie detalhes formatados para clientes</li>
               <li><strong>Filtros Avançados:</strong> Busque por status, prioridade, cliente ou período</li>
@@ -168,7 +168,7 @@ const HelpCenterPage = () => {
               <li><strong>Ordens de Serviço Avançadas:</strong> Acesso completo ao módulo de ordens de serviço</li>
               <li><strong>Página de Detalhes VIP:</strong> Visualização detalhada com design mobile-first</li>
               <li><strong>Histórico Completo:</strong> Acompanhamento de eventos e alterações</li>
-              <li><strong>Upload de Anexos:</strong> Adicione arquivos e imagens às ordens</li>
+
               <li><strong>Ações Contextuais:</strong> Funcionalidades avançadas de gerenciamento</li>
             </ul>
           </div>
@@ -247,27 +247,7 @@ const HelpCenterPage = () => {
     description: 'Personalize sua experiência e configure preferências da aplicação',
     videoIncluded: true,
     content: <div className="space-y-6">
-          <div className="bg-card p-4 rounded-lg border border-border">
-            <h4 className="font-semibold text-foreground mb-2">👤 Conta e Segurança</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="font-medium text-foreground mb-2">Configurações de Perfil:</p>
-                <ul className="space-y-1 text-muted-foreground">
-                  <li>• Alterar informações pessoais</li>
-                  <li>• Atualizar foto de perfil</li>
-                  <li>• Gerenciar dados de contato</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-medium text-foreground mb-2">Configurações de Segurança:</p>
-                <ul className="space-y-1 text-muted-foreground">
-                  <li>• Alterar senha de acesso</li>
-                  <li>• Configurar autenticação</li>
-                  <li>• Gerenciar sessões ativas</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+
 
           <div className="bg-primary/10 p-4 rounded-lg border border-border">
             <h4 className="font-semibold text-foreground mb-2">🏢 Configurações da Empresa</h4>
@@ -279,27 +259,7 @@ const HelpCenterPage = () => {
             </ul>
           </div>
 
-          <div className="bg-secondary/50 p-4 rounded-lg border border-border">
-            <h4 className="font-semibold text-foreground mb-2">⚙️ Preferências da Aplicação</h4>
-            <div className="space-y-3">
-              <div>
-                <p className="font-medium text-foreground mb-2">Alertas e Avisos:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>Configurar avisos de orçamento</li>
-                  <li>Definir limites e notificações</li>
-                  <li>Personalizar alertas do sistema</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-medium text-foreground mb-2">Recursos Avançados:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>Ativar funcionalidades beta</li>
-                  <li>Configurar recursos experimentais</li>
-                  <li>Gerenciar integrações externas</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+
 
           <div className="bg-muted p-4 rounded-lg border border-border">
             <h4 className="font-semibold text-foreground mb-2">💾 Gerenciamento de Dados</h4>

@@ -34,7 +34,8 @@ export const ROUTE_CONFIG = {
     '/cookies',
     '/cookie',
     '/unauthorized',
-    '/share/service-order/*' // rotas de compartilhamento
+    '/share/service-order/*', // rotas de compartilhamento
+    '/central-de-ajuda'
   ],
 
   // Rotas que requerem apenas autenticação
@@ -44,7 +45,6 @@ export const ROUTE_CONFIG = {
     '/reset-email',
     '/service-orders',
     '/service-orders/*',
-    '/central-de-ajuda',
     '/msg'
   ],
 
@@ -54,7 +54,6 @@ export const ROUTE_CONFIG = {
     '/painel',
     '/service-orders',
     '/service-orders/*',
-    '/central-de-ajuda',
     '/msg'
   ],
 
@@ -64,7 +63,6 @@ export const ROUTE_CONFIG = {
     '/painel',
     '/service-orders',
     '/service-orders/*',
-    '/central-de-ajuda',
     '/msg'
   ],
 

@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -85,7 +85,7 @@ export const PlansPage = () => {
 
       <div className="relative z-10 container mx-auto px-4 py-12 space-y-20">
         {/* Botão Voltar */}
-        <div className="flex justify-start mb-8">
+        <div className="flex justify-between items-center mb-8">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -94,6 +94,16 @@ export const PlansPage = () => {
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/central-de-ajuda')}
+            className="interactive-scale text-foreground hover:text-primary hover:bg-primary/10 border border-border/20 rounded-xl"
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            Ajuda
           </Button>
         </div>
 
