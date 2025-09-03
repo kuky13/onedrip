@@ -387,15 +387,12 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     doc.text(service, margin + 5, yPosition + 7 + (index * 10));
   });
   
-  // Rodapé com endereço da empresa (se disponível)
-  if (validatedCompanyData.address && validatedCompanyData.address.trim() !== '') {
-    yPosition = pageHeight - 20;
-    doc.setFontSize(7);
-    doc.setTextColor(...darkGray);
-    doc.setFont('helvetica', 'normal');
-    doc.text(validatedCompanyData.address, margin, yPosition);
-    // Footer with address added
-  }
+  // Rodapé
+  const footerY = doc.internal.pageSize.height - 30;
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  
+  doc.text(`Orçamento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, footerY);
   
   // Retornar o PDF como Blob para compartilhamento
   const pdfBlob = doc.output('blob');
