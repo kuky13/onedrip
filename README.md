@@ -66,8 +66,13 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 ### **Demo Online**
 ```bash
 🌐 URL: https://onedrip.com.br
+<<<<<<< HEAD
 📧 Usuário: caipora@kuky.cloud
 🔑 Senha: caipora
+=======
+📧 Usuário: layla@onedrip.email
+🔑 Senha: undergrounds
+>>>>>>> c6e44e91e793182fb3b21229787e762079ee3c05
 ```
 
 ### **Página de Planos**
@@ -99,7 +104,7 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 
 ## 🚀 **Roadmap de Desenvolvimento**
 
-### ✅ **Versão 2.0 - Blue Barry** - *Atual*
+### ✅ **Versão 2.0 - Blue berry** - *Atual*
 - [x] Sistema completo de orçamentos com workflow
 - [x] Dashboard analytics avançado
 - [x] Geração de PDF profissional
@@ -107,19 +112,6 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 - [x] Lixeira inteligente com recuperação
 - [x] Exportação/Importação de dados
 - [x] Otimizações para iOS/Android
-
-### 🔄 **Versão 3.0 - Ice Cream** - *Em Desenvolvimento*
-- [ ] **API WhatsApp Integrada**: Envio automático de orçamentos
-- [ ] **Alertas Inteligentes**: Notificações de vencimento
-- [ ] **Relatórios Avançados**: Business Intelligence
-- [ ] **Integração com Sistemas Externos**: ERP, E-commerce
-- [ ] **Métricas Avançadas**: Conversion tracking
-
-### 🎯 **Versão 4.0 - Pão de Queijo** - *Planejado*
-- [ ] **IA Assistant**: Diagnósticos automáticos com machine learning
-- [ ] **Marketplace**: Peças e fornecedores integrados
-- [ ] **Agenda Online**: Agendamento para clientes
-- [ ] **Sistema de Notas Fiscais**: Integração com SEFAZ
 
 ---
 
@@ -156,18 +148,6 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 - **Preço Justo**: Valor acessível para assistências técnicas de todos os tamanhos
 - **Dados Seguros**: Seus dados protegidos com tecnologia de ponta
 
-## 🌟 **Depoimentos de Clientes**
-
-> *"O OneDrip transformou completamente nossa assistência técnica. Agora conseguimos organizar todos os orçamentos e ter controle total do negócio."*
-> 
-> **— Oliveira Imports, Cliente desde 2024**
-
-> *"A facilidade de usar no celular fez toda a diferença. Posso acessar tudo de qualquer lugar."*
-> 
-> **— TechFix Assistência, São Paulo**
-
----
-
 ---
 
 ## 🚀 **Comece Agora Mesmo!**
@@ -189,3 +169,4 @@ O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistên
 *Transformando assistências técnicas em negócios de sucesso* 🚀
 
 </div>
+
