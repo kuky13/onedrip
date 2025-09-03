@@ -109,13 +109,19 @@ export const PlanCard = ({ plano, aoSelecionarPlano, isVip = false, userEmail = 
             {/* Preço */}
             <div className="flex flex-col items-center justify-center mb-6">
               {plano.preco_original && (
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg text-muted-foreground line-through">
-                    {plano.moeda}{plano.preco_original.toFixed(2)}
-                  </span>
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-semibold">
-                    {Math.round(((plano.preco_original - plano.preco) / plano.preco_original) * 100)}% OFF
-                  </span>
+                <div className="flex flex-col items-center space-y-1 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg text-muted-foreground line-through">
+                      {plano.moeda}{plano.preco_original.toFixed(2)}
+                    </span>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-semibold">
+                      {Math.round(((plano.preco_original - plano.preco) / plano.preco_original) * 100)}% OFF
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-primary mb-1">Promoção de Lançamento</p>
+                    <p className="text-xs font-bold text-red-600 animate-pulse">Termina em breve!</p>
+                  </div>
                 </div>
               )}
               <div className="flex items-baseline justify-center">

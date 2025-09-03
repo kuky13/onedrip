@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Calculator, Smartphone, Shield, Star, Activity, ArrowRight, CheckCircle, HelpCircle } from 'lucide-react';
+import { FileText, Users, BarChart3, Shield, Database, Settings, ArrowRight, CheckCircle, HelpCircle } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
@@ -102,33 +102,33 @@ const Index = () => {
           <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[{
             icon: FileText,
-            title: "Orçamentos Detalhados",
-            description: "Crie orçamentos profissionais com peças, serviços e condições de pagamento personalizadas.",
+            title: "Sistema de Orçamentos Avançado",
+            description: "Workflow completo de orçamentos (Novo → Aprovado → Pago → Entregue → Concluído) com geração de PDF e templates personalizáveis.",
             color: "blue"
           }, {
-            icon: Smartphone,
-            title: "Gestão de Dispositivos",
-            description: "Cadastre diferentes tipos de dispositivos, marcas e defeitos para agilizar o atendimento.",
+            icon: Users,
+            title: "Gestão de Clientes",
+            description: "Cadastro completo de clientes com histórico de orçamentos e acompanhamento de relacionamento.",
             color: "green"
           }, {
-            icon: Star,
-            title: "Preço Acessível",
-            description: "Planos que cabem no seu bolso, focados na sua necessidade e sem surpresas.",
+            icon: BarChart3,
+            title: "Relatórios e Dashboard",
+            description: "Relatórios semanais, estatísticas de crescimento e insights de dados para tomada de decisão.",
             color: "yellow"
           }, {
-            icon: Activity,
-            title: "Agilidade e Utilidade",
-            description: "Ferramenta rápida e intuitiva, projetada para otimizar o dia a dia da sua assistência.",
+            icon: Shield,
+            title: "Gestão Multi-usuário",
+            description: "Controle de acesso com diferentes níveis de permissão e auditoria completa de ações.",
             color: "purple"
           }, {
-            icon: Shield,
-            title: "Segurança Avançada",
-            description: "Controle de acesso por usuário com diferentes níveis de permissão e auditoria completa.",
+            icon: Database,
+            title: "Backup e Recuperação",
+            description: "Lixeira inteligente (90 dias), exportação CSV/Excel/PDF e backup automático dos dados.",
             color: "red"
           }, {
-            icon: Calculator,
-            title: "Cálculos Automáticos",
-            description: "Cálculo automático de totais, impostos e condições de pagamento personalizadas.",
+            icon: Settings,
+            title: "Personalização Empresarial",
+            description: "Logo personalizado, dados da empresa e identidade visual nos PDFs gerados.",
             color: "indigo"
           }].map((feature, index) => {
             const Icon = feature.icon;
