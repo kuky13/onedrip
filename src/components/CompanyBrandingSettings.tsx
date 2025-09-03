@@ -188,15 +188,22 @@ export function CompanyBrandingSettings() {
 
     setIsSaving(true);
     try {
+      console.log('Salvando configurações de compartilhamento:', shareData);
+      console.log('Configurações existentes:', shareSettings);
+      
       if (shareSettings) {
-        await updateShareSettings(shareData);
+        const result = await updateShareSettings(shareData);
+        console.log('Resultado da atualização:', result);
         toast.success('Configurações de compartilhamento atualizadas!');
       } else {
-        await createShareSettings(shareData);
+        const result = await createShareSettings(shareData);
+        console.log('Resultado da criação:', result);
         toast.success('Configurações de compartilhamento criadas!');
       }
     } catch (error) {
-      toast.error('Erro ao salvar configurações de compartilhamento');
+      console.error('Erro detalhado ao salvar configurações:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao salvar configurações de compartilhamento: ${errorMessage}`);
     } finally {
       setIsSaving(false);
     }

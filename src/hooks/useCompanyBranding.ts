@@ -43,30 +43,40 @@ export function useCompanyBranding() {
       setLoading(true);
       setError(null);
 
+      // Obter dados do usuário autenticado
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('Usuário não autenticado');
+
       // Buscar informações da empresa
       const { data: companyData, error: companyError } = await supabase
         .from('company_info')
         .select('*')
-        .limit(1)
-        .single();
+        .eq('owner_id', userData.user.id)
+        .maybeSingle();
 
-      if (companyError && companyError.code !== 'PGRST116') throw companyError;
+      if (companyError) {
+        console.error('Erro ao buscar company_info:', companyError);
+        throw companyError;
+      }
 
       // Buscar configurações de compartilhamento
       const { data: settingsData, error: settingsError } = await supabase
         .from('company_share_settings')
         .select('*')
-        .limit(1)
-        .single();
+        .eq('owner_id', userData.user.id)
+        .maybeSingle();
 
-      if (settingsError && settingsError.code !== 'PGRST116') throw settingsError;
+      if (settingsError) {
+        console.error('Erro ao buscar company_share_settings:', settingsError);
+        throw settingsError;
+      }
 
       setCompanyInfo(companyData || null);
       setShareSettings(settingsData || null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar informações da empresa';
       setError(errorMessage);
-      toast.error(errorMessage);
+      console.error('Erro ao carregar dados da empresa:', err);
     } finally {
       setLoading(false);
     }
@@ -133,7 +143,10 @@ export function useCompanyBranding() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao criar share_settings:', error);
+          throw error;
+        }
         setShareSettings(data);
         toast.success('Configurações de compartilhamento criadas com sucesso!');
         return data;
@@ -146,7 +159,10 @@ export function useCompanyBranding() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao atualizar share_settings:', error);
+          throw error;
+        }
         setShareSettings(data);
         toast.success('Configurações de compartilhamento atualizadas com sucesso!');
         return data;
