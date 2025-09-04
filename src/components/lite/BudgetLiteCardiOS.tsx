@@ -59,7 +59,7 @@ export const BudgetLiteCardiOS = ({
   const {
     companyInfo
   } = useCompanyBranding();
-  const { getCompanyDataForPDF, isLoading: companyDataLoading, refreshData } = useCompanyDataLoader();
+  const { getCompanyDataForPDF, isLoading: companyDataLoading, refreshData, hasMinimalData } = useCompanyDataLoader();
   const {
     hapticFeedback,
     showSuccessAction,
@@ -230,17 +230,55 @@ export const BudgetLiteCardiOS = ({
       showProgressAction('Gerando PDF...');
 
       console.log('[PDF] Iniciando geração de PDF...');
-      console.log('[PDF] Dados do perfil da loja:', shopProfile);
-      console.log('[PDF] Dados da empresa:', companyInfo);
-
-      // Verificar se temos dados mínimos necessários usando o cache inteligente
-      if (!hasValidCompanyDataForPDF()) {
-        console.warn('[PDF] Dados da empresa não disponíveis no cache');
-        showErrorAction('Dados da empresa não carregados. Aguarde ou tente novamente.');
-        // Tentar recarregar os dados
-        refreshData();
+      console.log('[PDF] Estado detalhado dos dados:', {
+        hasMinimalData: hasMinimalData(),
+        isLoading: companyDataLoading,
+        shopProfile: {
+          exists: !!shopProfile,
+          shop_name: shopProfile?.shop_name,
+          address: shopProfile?.address,
+          contact_phone: shopProfile?.contact_phone
+        },
+        companyInfo: {
+          exists: !!companyInfo,
+          name: companyInfo?.name,
+          email: companyInfo?.email,
+          whatsapp_phone: companyInfo?.whatsapp_phone
+        },
+        companyDataFromHook: getCompanyDataForPDF()
+      });
+      
+      if (companyDataLoading) {
+        console.warn('[PDF] Dados da empresa ainda carregando');
+        showErrorAction('Carregando dados da empresa. Aguarde...');
         return;
       }
+      
+      if (!hasMinimalData()) {
+          console.log('[PDF] Dados insuficientes - tentando recarregar');
+          
+          // Tentar recarregar os dados
+          await refreshData();
+          
+          // Aguardar o carregamento com timeout
+          let attempts = 0;
+          const maxAttempts = 10; // 5 segundos máximo
+          
+          while (attempts < maxAttempts && (companyDataLoading || !hasMinimalData())) {
+            console.log(`[PDF] Aguardando dados... tentativa ${attempts + 1}/${maxAttempts}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+          }
+          
+          // Verificar novamente após aguardar
+          if (!hasMinimalData()) {
+            console.log('[PDF] Dados ainda insuficientes após aguardar');
+            showErrorAction('Dados da empresa não carregados. Verifique sua conexão e tente novamente.');
+            return;
+          }
+          
+          console.log('[PDF] Dados carregados com sucesso após aguardar');
+        }
 
       // Buscar dados completos do orçamento do banco
       const { data: fullBudget, error } = await supabase
@@ -303,17 +341,55 @@ export const BudgetLiteCardiOS = ({
 
       console.log('[PDF] Iniciando compartilhamento de PDF...');
       console.log('[PDF] Tipo de compartilhamento:', shareType);
-      console.log('[PDF] Dados do perfil da loja:', shopProfile);
-      console.log('[PDF] Dados da empresa:', companyInfo);
-
-      // Verificar se temos dados mínimos necessários usando o cache inteligente
-      if (!hasValidCompanyDataForPDF()) {
-        console.warn('[PDF] Dados da empresa não disponíveis no cache para compartilhamento');
-        showErrorAction('Dados da empresa não carregados. Aguarde ou tente novamente.');
-        // Tentar recarregar os dados
-        refreshData();
+      console.log('[PDF] Estado detalhado dos dados:', {
+        hasMinimalData: hasMinimalData(),
+        isLoading: companyDataLoading,
+        shopProfile: {
+          exists: !!shopProfile,
+          shop_name: shopProfile?.shop_name,
+          address: shopProfile?.address,
+          contact_phone: shopProfile?.contact_phone
+        },
+        companyInfo: {
+          exists: !!companyInfo,
+          name: companyInfo?.name,
+          email: companyInfo?.email,
+          whatsapp_phone: companyInfo?.whatsapp_phone
+        },
+        companyDataFromHook: getCompanyDataForPDF()
+      });
+      
+      if (companyDataLoading) {
+        console.warn('[PDF] Dados da empresa ainda carregando para compartilhamento');
+        showErrorAction('Carregando dados da empresa. Aguarde...');
         return;
       }
+      
+      if (!hasMinimalData()) {
+          console.log('[PDF] Dados insuficientes - tentando recarregar');
+          
+          // Tentar recarregar os dados
+          await refreshData();
+          
+          // Aguardar o carregamento com timeout
+          let attempts = 0;
+          const maxAttempts = 10; // 5 segundos máximo
+          
+          while (attempts < maxAttempts && (companyDataLoading || !hasMinimalData())) {
+            console.log(`[PDF] Aguardando dados... tentativa ${attempts + 1}/${maxAttempts}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+          }
+          
+          // Verificar novamente após aguardar
+          if (!hasMinimalData()) {
+            console.log('[PDF] Dados ainda insuficientes após aguardar');
+            showErrorAction('Dados da empresa não carregados. Verifique sua conexão e tente novamente.');
+            return;
+          }
+          
+          console.log('[PDF] Dados carregados com sucesso após aguardar');
+        }
 
       // Buscar dados completos do orçamento do banco
       const { data: fullBudget, error } = await supabase

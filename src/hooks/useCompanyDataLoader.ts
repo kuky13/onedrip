@@ -26,6 +26,22 @@ let companyDataCache: CombinedCompanyData | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
+// Função para sincronizar com o cache do pdfUtils
+const syncWithPdfUtilsCache = (data: CombinedCompanyData) => {
+  // Importar dinamicamente para evitar dependência circular
+  import('../utils/pdfUtils').then(({ updateCompanyDataCache }) => {
+    const pdfData = {
+      shop_name: data.shopProfile?.shop_name || data.companyInfo?.name || 'Minha Empresa',
+      address: data.shopProfile?.address || data.companyInfo?.address || '',
+      contact_phone: data.shopProfile?.contact_phone || data.companyInfo?.whatsapp_phone || '',
+      logo_url: data.shopProfile?.logo_url || data.companyInfo?.logo_url || '',
+      email: data.companyInfo?.email || '',
+      cnpj: data.shopProfile?.cnpj || ''
+    };
+    updateCompanyDataCache(pdfData, data.hasData);
+  }).catch(console.error);
+};
+
 export const useCompanyDataLoader = () => {
   const { user } = useAuth();
   const { shopProfile, isLoading: shopLoading } = useShopProfile();
@@ -60,6 +76,9 @@ export const useCompanyDataLoader = () => {
       companyDataCache = combinedData;
       cacheTimestamp = Date.now();
       setError(null);
+      
+      // Sincronizar com o cache do pdfUtils
+      syncWithPdfUtilsCache(combinedData);
     }
   }, [combinedData]);
 
@@ -83,6 +102,13 @@ export const useCompanyDataLoader = () => {
     try {
       setError(null);
       await fetchCompanyBranding();
+      
+      // Forçar atualização do cache após recarregar
+      setTimeout(() => {
+        if (companyDataCache) {
+          syncWithPdfUtilsCache(companyDataCache);
+        }
+      }, 100);
     } catch (err) {
       console.error('Erro ao recarregar dados da empresa:', err);
       setError('Erro ao recarregar dados da empresa');
@@ -97,7 +123,7 @@ export const useCompanyDataLoader = () => {
     const shopData = dataSource?.shopProfile;
     const companyData = dataSource?.companyInfo;
     
-    return {
+    const result = {
       shop_name: shopData?.shop_name || companyData?.name || 'Minha Empresa',
       address: shopData?.address || companyData?.address || '',
       contact_phone: shopData?.contact_phone || companyData?.whatsapp_phone || '',
@@ -105,13 +131,34 @@ export const useCompanyDataLoader = () => {
       email: companyData?.email || '',
       cnpj: shopData?.cnpj || ''
     };
-  }, [combinedData, isCacheValid]);
+    
+    console.log('[useCompanyDataLoader] getCompanyDataForPDF:', {
+      result,
+      shopProfile: !!shopProfile,
+      companyInfo: !!companyInfo
+    });
+    
+    return result;
+  }, [combinedData, isCacheValid, shopProfile, companyInfo]);
 
   // Função para verificar se temos dados mínimos necessários
   const hasMinimalData = useCallback((): boolean => {
-    const data = getCompanyDataForPDF();
-    return !!(data.shop_name && data.shop_name !== 'Minha Empresa');
-  }, [getCompanyDataForPDF]);
+    const hasShopName = !!(shopProfile?.shop_name && shopProfile.shop_name !== 'Minha Empresa' && shopProfile.shop_name !== 'Minha Loja');
+    const hasCompanyName = !!(companyInfo?.name && companyInfo.name !== 'Minha Empresa' && companyInfo.name !== 'Minha Loja');
+    const result = hasShopName || hasCompanyName;
+    
+    console.log('[useCompanyDataLoader] hasMinimalData check:', {
+      hasShopName,
+      hasCompanyName,
+      result,
+      shopName: shopProfile?.shop_name,
+      companyName: companyInfo?.name,
+      isLoading: combinedData.isLoading,
+      hasData: combinedData.hasData
+    });
+    
+    return result;
+  }, [shopProfile?.shop_name, companyInfo?.name, combinedData.isLoading, combinedData.hasData]);
 
   // Retornar dados do cache se disponível e válido
   if (isCacheValid && companyDataCache) {

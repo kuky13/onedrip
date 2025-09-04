@@ -90,27 +90,34 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
 const validateCompanyData = (companyData?: CompanyData): CompanyData => {
   // Company data received
   
-  // Tentar usar dados do cache primeiro
-  const cachedData = getCachedCompanyData();
+  // Primeiro, tentar usar o cache local sincronizado
+  const localCache = getLocalCompanyCache();
   let fallbackData: CompanyDataForPDF | null = null;
   
-  if (cachedData?.hasData) {
-    // Usar função do hook para obter dados formatados
-    try {
-      // Simular o comportamento do hook para obter dados formatados
-      const shopData = cachedData.shopProfile;
-      const companyInfo = cachedData.companyInfo;
-      
-      fallbackData = {
-        shop_name: shopData?.shop_name || companyInfo?.name || 'Minha Empresa',
-        address: shopData?.address || companyInfo?.address || '',
-        contact_phone: shopData?.contact_phone || companyInfo?.whatsapp_phone || '',
-        logo_url: shopData?.logo_url || companyInfo?.logo_url || '',
-        email: companyInfo?.email || '',
-        cnpj: shopData?.cnpj || ''
-      };
-    } catch (error) {
-      console.warn('Erro ao processar dados do cache:', error);
+  if (localCache?.hasData) {
+    console.log('[PDF Utils] Usando cache local sincronizado');
+    fallbackData = localCache.data;
+  } else {
+    // Fallback para o cache do hook
+    const cachedData = getCachedCompanyData();
+    if (cachedData?.hasData) {
+      console.log('[PDF Utils] Usando cache do hook como fallback');
+      try {
+        // Simular o comportamento do hook para obter dados formatados
+        const shopData = cachedData.shopProfile;
+        const companyInfo = cachedData.companyInfo;
+        
+        fallbackData = {
+          shop_name: shopData?.shop_name || companyInfo?.name || 'Minha Empresa',
+          address: shopData?.address || companyInfo?.address || '',
+          contact_phone: shopData?.contact_phone || companyInfo?.whatsapp_phone || '',
+          logo_url: shopData?.logo_url || companyInfo?.logo_url || '',
+          email: companyInfo?.email || '',
+          cnpj: shopData?.cnpj || ''
+        };
+      } catch (error) {
+        console.warn('Erro ao processar dados do cache:', error);
+      }
     }
   }
   
@@ -123,7 +130,7 @@ const validateCompanyData = (companyData?: CompanyData): CompanyData => {
     cnpj: companyData?.cnpj || fallbackData?.cnpj || ''
   };
   
-  // Company data validated with cache fallback
+  console.log('[PDF Utils] Dados validados:', { shop_name: validated.shop_name, hasLocalCache: !!localCache, hasFallback: !!fallbackData });
   return validated;
 };
 
@@ -477,6 +484,24 @@ export const hasValidCompanyDataForPDF = (): boolean => {
     return !!(shopName && shopName !== 'Minha Empresa' && shopName !== 'Minha Loja');
   }
   return false;
+};
+
+// Cache local para sincronização com useCompanyDataLoader
+let localCompanyCache: { data: CompanyData; hasData: boolean; timestamp: number } | null = null;
+
+// Função para atualizar o cache local (chamada pelo useCompanyDataLoader)
+export const updateCompanyDataCache = (data: CompanyData, hasData: boolean) => {
+  localCompanyCache = {
+    data,
+    hasData,
+    timestamp: Date.now()
+  };
+  console.log('[PDF Utils] Cache atualizado:', { hasData, shopName: data.shop_name });
+};
+
+// Função para obter dados do cache local
+export const getLocalCompanyCache = () => {
+  return localCompanyCache;
 };
 
 export default generateBudgetPDF;
