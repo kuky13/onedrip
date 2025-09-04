@@ -66,6 +66,20 @@ export const DashboardLiteHelpSupport = () => {
                 <span>Compartilhe orçamentos com um clique no WhatsApp</span>
               </div>
             </div>
+            
+            {/* Botão Central de Ajuda */}
+            <div className="mt-4 pt-3 border-t border-muted-foreground/10">
+              <Button
+                onClick={handleHelpClick}
+                variant="outline"
+                size="sm"
+                className="w-full flex items-center justify-center gap-2 text-sm font-medium bg-background hover:bg-muted/50 border-primary/20 hover:border-primary/40 transition-all duration-200"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>Central de Ajuda</span>
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
