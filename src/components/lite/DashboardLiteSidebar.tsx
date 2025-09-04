@@ -43,37 +43,16 @@ export const DashboardLiteSidebar = ({
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Menu',
-      icon: Home,
-    },
-    {
       id: 'new-budget',
       label: 'Novo Orçamento',
       icon: PlusCircle,
       permission: 'create_budgets'
     },
     {
-      id: 'budgets',
-      label: 'Ver Orçamentos',
-      icon: List,
-      permission: 'view_own_budgets'
-    },
-    {
-      id: 'clients',
-      label: 'Clientes',
-      icon: Users,
-    },
-    {
       id: 'notifications',
       label: 'Notificações',
       icon: Bell,
       isExternal: true
-    },
-    {
-      id: 'data-management',
-      label: 'Gestão de Dados',
-      icon: Database,
     },
     {
       id: 'admin',

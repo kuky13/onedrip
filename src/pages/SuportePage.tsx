@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ interface FAQItem {
 
 const SuportePage = () => {
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   const supportChannels = [
     {
@@ -121,27 +123,17 @@ const SuportePage = () => {
     toast.success(`Redirecionando para ${title}...`);
   };
 
+  const handleHelpCenterClick = () => {
+    navigate('/central-de-ajuda');
+    toast.success('Redirecionando para Central de Ajuda...');
+  };
+
   const toggleFAQ = (index: number) => {
     setExpandedFAQ(expandedFAQ === index ? null : index);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Header */}
-      <div className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center justify-center gap-3">
-              <HelpCircle className="h-8 w-8 text-primary" />
-              Precisa de Ajuda?
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Estamos aqui para ajudar você! Escolha o canal de suporte que preferir.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4 py-8 space-y-12">
         {/* Canais de Suporte */}
         <section>
@@ -252,6 +244,21 @@ const SuportePage = () => {
               </Card>
             ))}
           </div>
+
+          {/* Botão para Central de Ajuda */}
+          <div className="text-center mt-8">
+            <p className="text-muted-foreground mb-4">
+              Não encontrou o que procurava? Acesse nossa central de ajuda completa.
+            </p>
+            <Button 
+              onClick={handleHelpCenterClick}
+              variant="outline"
+              className="hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+            >
+              <HelpCircle className="mr-2 h-4 w-4" />
+              Ver mais na Central de Ajuda
+            </Button>
+          </div>
         </section>
 
         {/* Call to Action */}
@@ -271,7 +278,7 @@ const SuportePage = () => {
                   WhatsApp Rápido
                 </Button>
                 <Button 
-                  onClick={() => handleChannelClick("https://discord.gg/a3X4DC8rjYp", "Discord")}
+                  onClick={() => handleChannelClick("https://discord.gg/a3X4DC8rjY", "Discord")}
                   className="bg-indigo-500 hover:bg-indigo-600 text-white"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
@@ -283,6 +290,13 @@ const SuportePage = () => {
                 >
                   <Mail className="mr-2 h-4 w-4" />
                   Enviar E-mail
+                </Button>
+                <Button 
+                  onClick={handleHelpCenterClick}
+                  variant="outline"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  Central de Ajuda
                 </Button>
               </div>
             </CardContent>

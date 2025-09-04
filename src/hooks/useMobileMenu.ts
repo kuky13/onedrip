@@ -36,14 +36,34 @@ export const useMobileMenu = () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         
         const menuItems: MenuItem[] = [
-          { id: 'dashboard', label: 'Dashboard', icon: 'Home' },
-          { id: 'budgets', label: 'Orçamentos', icon: 'FileText', permission: 'view_own_budgets' },
-          { id: 'new-budget', label: 'Novo Orçamento', icon: 'Plus', permission: 'create_budgets' },
-          { id: 'clients', label: 'Clientes', icon: 'UserCheck' },
-          { id: 'help-center', label: 'Central de Ajuda', icon: 'HelpCircle' },
-          { id: 'data-management', label: 'Gestão de Dados', icon: 'Database' },
-          { id: 'admin', label: 'Administração', icon: 'Users', permission: 'manage_users' },
-          { id: 'settings', label: 'Configurações', icon: 'Settings' },
+          {
+            id: 'new-budget',
+            label: 'Novo Orçamento',
+            icon: 'Plus',
+            href: '/novo-orcamento',
+            description: 'Criar um novo orçamento'
+          },
+          {
+            id: 'admin',
+            label: 'Administração',
+            icon: 'Shield',
+            href: '/admin',
+            description: 'Painel administrativo'
+          },
+          {
+            id: 'settings',
+            label: 'Configurações',
+            icon: 'Settings',
+            href: '/configuracoes',
+            description: 'Configurações do sistema'
+          },
+          {
+            id: 'support',
+            label: 'Suporte',
+            icon: 'CircleHelp',
+            href: '/suporte',
+            description: 'Obter ajuda e suporte'
+          }
         ];
 
         // Filter items based on permissions

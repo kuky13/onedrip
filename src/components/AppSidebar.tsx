@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useResponsive } from '@/hooks/useResponsive';
 import { cn } from '@/lib/utils';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator, useSidebar } from '@/components/ui/sidebar';
-import { Home, Plus, Users, Database, UserCheck, HelpCircle } from 'lucide-react';
+import { Plus, Users, HelpCircle } from 'lucide-react';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -27,10 +27,7 @@ export const AppSidebar = ({
   } = useResponsive();
 
   const navigationItems = [
-    { id: 'dashboard', label: 'Menu', icon: Home, permission: true },
     { id: 'new-budget', label: 'Novo Orçamento', icon: Plus, permission: true },
-    { id: 'clients', label: 'Clientes', icon: UserCheck, permission: true },
-    { id: 'data-management', label: 'Gestão de Dados', icon: Database, permission: true },
     { id: 'help-center', label: 'Central de Ajuda', icon: HelpCircle, permission: true, route: '/central-de-ajuda' },
     { id: 'admin', label: 'Administração', icon: Users, permission: hasRole('admin') }
   ];
