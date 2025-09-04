@@ -1,11 +1,10 @@
 import React from 'react';
-import { BudgetLiteList } from './BudgetLiteList';
-import { BudgetLiteListiOS } from './BudgetLiteListiOS';
+import { BudgetListUnified } from './BudgetListUnified';
 import { BudgetViewLite } from './BudgetViewLite';
 import { NewBudgetLite } from './NewBudgetLite';
 import { DataManagementLite } from './DataManagementLite';
 import { SettingsLite } from './SettingsLite';
-import { AdminLiteEnhanced } from './AdminLiteEnhanced';
+import AdminLiteUnified from './AdminLiteUnified';
 import { ClientsLite } from './ClientsLite';
 import { ServiceOrdersLite } from './ServiceOrdersLite';
 import { ServiceOrderTrash } from '@/components/ServiceOrderTrash';
@@ -109,32 +108,29 @@ export const DashboardLiteContent = ({
     case 'admin':
       if (!hasPermission?.('manage_users')) return null;
       return (
-        <AdminLiteEnhanced
-          userId={userId || ''}
-          onBack={onNavigateBack || (() => {})}
+        <AdminLiteUnified
+          variant="enhanced"
         />
       );
       
     case 'budgets':
     case 'list':
     default:
-      // Sempre usar versão iOS otimizada (agora é a principal)
-      if (activeView === 'budgets' || activeView === 'list' || !activeView) {
-        return (
-          <BudgetLiteListiOS
-            userId={userId || ''}
-            profile={profile}
-          />
-        );
-      }
+      // Determine variant based on device and view context
+      const budgetVariant = isiOSDevice ? { type: 'ios' as const } : 
+                           hasPermission?.('enhanced_features') ? { type: 'enhanced' as const } : 
+                           { type: 'standard' as const };
       
       return (
-        <BudgetLiteList
+        <BudgetListUnified
           budgets={budgets}
           profile={profile}
           loading={loading}
           error={error}
           onRefresh={onRefresh}
+          userId={userId}
+          onNavigateTo={onNavigateTo}
+          budgetVariant={budgetVariant}
         />
       );
   }

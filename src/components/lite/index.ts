@@ -10,10 +10,9 @@ export { DataManagementLite } from './DataManagementLite';
 
 // Outros componentes lite existentes
 export { DashboardLiteContent } from './DashboardLiteContent';
-export { BudgetLiteList } from './BudgetLiteList';
-export { BudgetLiteListiOS } from './BudgetLiteListiOS';
+export { BudgetListUnified } from './BudgetListUnified';
 export { BudgetViewLite } from './BudgetViewLite';
 export { NewBudgetLite } from './NewBudgetLite';
 export { SettingsLite } from './SettingsLite';
-export { AdminLite } from './AdminLite';
+export { default as AdminLiteUnified } from './AdminLiteUnified';
 export { ClientsLite } from './ClientsLite';
