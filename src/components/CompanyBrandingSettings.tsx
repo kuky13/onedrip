@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Image as ImageIcon,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Phone
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
@@ -186,7 +187,7 @@ export function CompanyBrandingSettings() {
             <Button 
               variant="ghost" 
               onClick={() => navigate('/service-orders/settings')}
-              className="mr-2 hover:bg-muted"
+              className="mr-2 hover:bg-muted min-h-[44px] px-3 py-2 sm:px-4 sm:py-2"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
@@ -314,12 +315,13 @@ export function CompanyBrandingSettings() {
                       />
                       <div className="flex-1">
                         <p className="text-sm text-gray-600">Logo atual</p>
-                        <div className="flex space-x-2 mt-2">
+                        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 mt-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingLogo}
+                            className="min-h-[44px] px-4 py-2 w-full sm:w-auto"
                           >
                             <Upload className="w-4 h-4 mr-2" />
                             Alterar
@@ -328,6 +330,7 @@ export function CompanyBrandingSettings() {
                             variant="outline"
                             size="sm"
                             onClick={handleRemoveLogo}
+                            className="min-h-[44px] px-4 py-2 w-full sm:w-auto"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Remover
@@ -343,8 +346,9 @@ export function CompanyBrandingSettings() {
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingLogo}
+                        className="min-h-[44px] px-6 py-3 text-base"
                       >
-                        <Upload className="w-4 h-4 mr-2" />
+                        <Upload className="w-5 h-5 mr-2" />
                         {uploadingLogo ? 'Enviando...' : 'Enviar Logo'}
                       </Button>
                     </div>
@@ -379,8 +383,10 @@ export function CompanyBrandingSettings() {
                     <Button
                       variant="outline"
                       onClick={openWhatsApp}
+                      className="min-h-[44px] min-w-[44px] px-3 py-2"
+                      title="Abrir WhatsApp"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-5 h-5" />
                     </Button>
                   )}
                 </div>
@@ -409,8 +415,12 @@ export function CompanyBrandingSettings() {
                 />
               </div>
               
-              <Button onClick={handleCompanySubmit} disabled={isSaving || loading} className="w-full">
-                <Save className="w-4 h-4 mr-2" />
+              <Button 
+                onClick={handleCompanySubmit} 
+                disabled={isSaving || loading} 
+                className="w-full min-h-[48px] px-6 py-3 text-base font-medium"
+              >
+                <Save className="w-5 h-5 mr-2" />
                 {isSaving ? 'Salvando...' : 'Salvar Informações'}
               </Button>
             </CardContent>
