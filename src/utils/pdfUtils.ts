@@ -400,8 +400,7 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
   
-  doc.text(`Orçamento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, footerY);
-  
+// Footer text removed to avoid bugs
   // Retornar o PDF como Blob para compartilhamento
   const pdfBlob = doc.output('blob');
   // PDF generated successfully
