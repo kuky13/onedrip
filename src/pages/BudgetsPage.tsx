@@ -10,7 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { SearchButton } from '@/components/ui/search-button';
 import { ShareSelector } from '@/components/ui/share-selector';
+import { OptimizedSearch } from '@/components/ui/optimized-search';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ResponsiveButton, ActionButton, NavigationButton } from '@/components/ui/responsive-button';
+import { ResponsiveContainer, ResponsiveCard, ResponsiveGrid } from '@/components/ui/responsive-container';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +35,7 @@ import { DeleteBudgetDialog } from '@/components/budgets/DeleteBudgetDialog';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useToast } from '@/hooks/useToast';
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { cn } from '@/lib/utils';
 import '@/styles/search-enhancements.css';
 
@@ -40,6 +44,7 @@ export const BudgetsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isDesktop } = useResponsive();
+  const deviceInfo = useDeviceDetection();
 
   // Data fetching
   const { data: budgets = [], isLoading, error, refetch } = useQuery({
@@ -60,7 +65,7 @@ export const BudgetsPage = () => {
     enabled: !!user,
   });
 
-  // Custom hooks
+  // Custom hooks - mantendo compatibilidade com busca existente
   const {
     searchTerm,
     setSearchTerm,
@@ -132,8 +137,8 @@ export const BudgetsPage = () => {
           <h1 className="text-2xl font-bold mb-4">Acesso Negado</h1>
           <p className="text-muted-foreground mb-6">Você precisa estar logado para ver os orçamentos.</p>
           <Button onClick={() => navigate('/auth')}>Fazer Login</Button>
-        </div>
-      </div>
+        </ResponsiveContainer>
+      </ResponsiveContainer>
     );
   }
 
@@ -147,17 +152,20 @@ export const BudgetsPage = () => {
         "sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50",
         isDesktop && "desktop-section-header"
       )}>
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
+        <ResponsiveContainer 
+          variant="flex" 
+          flexDirection={{ mobile: 'column', tablet: 'row', desktop: 'row' }}
+          gap={{ mobile: 'gap-3', tablet: 'gap-4', desktop: 'gap-4' }}
+          className="items-start justify-between p-4"
+        >
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <NavigationButton
               onClick={() => navigate('/dashboard')}
-              className="p-2 -ml-2"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
+              icon={<ArrowLeft className="h-5 w-5" />}
+              tooltip="Voltar"
+              className="p-2 -ml-2 rounded-full"
+            />
+            <div className="flex-1">
               <h1 className={cn(
                 "text-xl font-bold",
                 isDesktop && "desktop-section-title"
@@ -168,126 +176,84 @@ export const BudgetsPage = () => {
                   {filteredBudgets.length}
                 </span>
               </p>
-            </div>
+            </ResponsiveGrid>
           </div>
           
-          <Button
-            size="sm"
+          <ActionButton
+            action="primary"
             onClick={() => navigate('/dashboard')}
-            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+            icon={<Plus className="h-4 w-4" />}
+            iconPosition="left"
+            mobileText="Novo"
+            tooltip="Criar novo orçamento"
+            className="gap-2 shadow-sm w-full md:w-auto"
           >
-            <Plus className="h-4 w-4" />
-            Novo
-          </Button>
-        </div>
+            Novo Orçamento
+          </ActionButton>
+        </ResponsiveContainer>
 
-        {/* Enhanced Search Bar */}
-        <div className="px-4 pb-4">
-          <div className="relative flex items-center gap-2 search-container">
-            <div className="relative flex-1 search-container">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 search-icon" />
-              <Input
-                 placeholder="Buscar por cliente, dispositivo ou serviço..."
-                 value={searchTerm}
-                 onChange={(e) => setSearchTerm(e.target.value)}
-                 onKeyDown={handleKeyPress}
-                 className={cn(
-                   "pl-12 pr-12 h-12 bg-card border-border/50 rounded-xl text-base",
-                   "placeholder:text-muted-foreground/70 search-input-enhanced search-state-transition",
-                   "focus:border-primary/50 focus:ring-2 focus:ring-primary/20",
-                   searchTerm && "border-primary/30",
-                   isSearching && "border-primary/50 ring-2 ring-primary/10"
-                 )}
-               />
-              {searchTerm && (
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={clearSearch}
-                   className={cn(
-                     "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full",
-                     "clear-search-btn visible hover:bg-muted/80 search-enhanced"
-                   )}
-                 >
-                   <X className="h-4 w-4" />
-                 </Button>
-               )}
-            </div>
-            <SearchButton
-               variant="default"
-               size="md"
-               className="h-12 px-6 rounded-xl shadow-sm search-button-enhanced search-enhanced"
-               isLoading={isSearching}
-               onClick={() => {
-                 // Trigger search feedback
-                 if (searchTerm.trim()) {
-                   toast({
-                     title: "Pesquisa realizada",
-                     description: `Encontrados ${searchStats.filtered} resultado(s) para "${searchTerm}" (${searchStats.percentage}% do total)`
-                   });
-                 } else {
-                   toast({
-                     title: "Digite algo para pesquisar",
-                     description: "Insira um termo de pesquisa para filtrar os orçamentos"
-                   });
-                 }
-               }}
-             >
-               {isSearching ? (
-                 <div className="search-loading-indicator">
-                   <div className="search-loading-dot"></div>
-                   <div className="search-loading-dot"></div>
-                   <div className="search-loading-dot"></div>
-                   <span className="ml-2">Buscando...</span>
-                 </div>
-               ) : 'Buscar'}
-             </SearchButton>
-          </div>
-          
-          {/* Enhanced Search Results Info */}
-           {searchTerm && (
-             <div className="mt-3 space-y-2 search-results-container">
-               <div className="flex items-center justify-between text-sm">
-                 <div className="flex items-center gap-2">
-                   <span className={cn(
-                     "font-medium search-state-transition",
-                     searchStats.hasResults ? "text-foreground" : "text-muted-foreground"
-                   )}>
-                     {searchStats.hasResults 
-                       ? `${searchStats.filtered} resultado(s) encontrado(s)`
-                       : 'Nenhum resultado encontrado'
-                     }
-                   </span>
-                   {searchStats.hasResults && (
-                     <Badge variant="secondary" className="text-xs search-stats-badge">
-                       {searchStats.percentage}% do total
-                     </Badge>
-                   )}
-                 </div>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={clearSearch}
-                   className="text-xs text-primary hover:text-primary/80 p-1 h-auto search-state-transition search-enhanced"
-                 >
-                   Limpar pesquisa
-                 </Button>
-               </div>
-               
-               {/* Search progress indicator */}
-               {isSearching && (
-                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                   <div className="search-loading-indicator">
-                     <div className="search-loading-dot"></div>
-                     <div className="search-loading-dot"></div>
-                     <div className="search-loading-dot"></div>
-                   </div>
-                   <span>Pesquisando...</span>
-                 </div>
-               )}
-             </div>
-           )}
-        </div>
+        {/* Optimized Search Bar */}
+        <ResponsiveContainer 
+          padding={{ mobile: 'px-4 pb-4', tablet: 'px-6 pb-5', desktop: 'px-8 pb-6' }}
+        >
+          <OptimizedSearch
+            data={budgets}
+            placeholder={deviceInfo.isMobile ? "Buscar orçamentos..." : "Buscar por cliente, dispositivo ou serviço..."}
+            searchFields={['client_name', 'device_model', 'description', 'issue']}
+            onSearchChange={(term, results) => {
+              // Sincronizar com o hook existente para manter compatibilidade
+              setSearchTerm(term);
+              if (term.trim()) {
+                toast({
+                  title: "Pesquisa realizada",
+                  description: `Encontrados ${results.length} resultado(s) para "${term}"`
+                });
+              }
+            }}
+            className="w-full"
+            showStats={true}
+            showHistory={true}
+            showFilters={false}
+            maxResults={deviceInfo.isMobile ? 20 : 50}
+            debounceMs={deviceInfo.isMobile ? 400 : 300}
+            renderResult={(budget, index, isSelected) => (
+              <div
+                key={budget.id}
+                className={cn(
+                  "px-4 py-3 cursor-pointer transition-colors duration-150",
+                  "hover:bg-gray-50 dark:hover:bg-gray-800",
+                  isSelected && "bg-blue-50 dark:bg-blue-900/20",
+                  deviceInfo.isMobile && "py-4 text-base"
+                )}
+                onClick={() => {
+                  // Navegar para o orçamento ou abrir modal
+                  toast({
+                    title: "Orçamento selecionado",
+                    description: `Orçamento de ${budget.client_name || 'Cliente'} selecionado`
+                  });
+                }}
+              >
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {budget.client_name || 'Cliente Padrão'}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {budget.device_model && `${budget.device_model} • `}
+                  {budget.description || 'Orçamento'}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {formatCurrency(budget.total || 0)} • {formatDate(budget.created_at)}
+                </div>
+              </div>
+            )}
+            renderEmpty={() => (
+              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                <Search className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                <p>Nenhum orçamento encontrado</p>
+                <p className="text-sm mt-1">Tente usar termos diferentes</p>
+              </div>
+            )}
+          />
+         </ResponsiveContainer>
       </div>
 
       {/* Header Section */}
@@ -296,7 +262,7 @@ export const BudgetsPage = () => {
       </div>
 
       {/* Content */}
-      <div className={cn(
+      <ResponsiveContainer className={cn(
         "px-4 pb-24",
         isDesktop && "desktop-grid-container desktop-grid-auto-fit"
       )}>
@@ -319,12 +285,12 @@ export const BudgetsPage = () => {
                     <div className="h-4 bg-muted rounded w-40"></div>
                     <div className="h-12 bg-muted rounded-lg"></div>
                   </div>
-                </CardContent>
-              </Card>
+                </ResponsiveContainer>
+              </ResponsiveCard>
             ))}
           </div>
         ) : filteredBudgets.length === 0 ? (
-          <div className="text-center py-16">
+          <ResponsiveContainer className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
               <Search className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -338,23 +304,40 @@ export const BudgetsPage = () => {
               }
             </p>
             {!searchTerm && (
-              <Button onClick={() => navigate('/dashboard')} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Plus className="h-4 w-4 mr-2" />
+              <ActionButton 
+                action="primary"
+                onClick={() => navigate('/dashboard')} 
+                icon={<Plus className="h-4 w-4" />}
+                iconPosition="left"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
                 Criar Orçamento
-              </Button>
+              </ActionButton>
             )}
-          </div>
+          </ResponsiveContainer>
         ) : (
-          <div className={cn(
-            "space-y-4",
-            isDesktop && "desktop-grid-3-col gap-6 space-y-0"
-          )}>
+          <ResponsiveGrid 
+            columns={{ mobile: 1, tablet: 2, desktop: 3 }}
+            gap={{ mobile: 'gap-4', tablet: 'gap-5', desktop: 'gap-6' }}
+            className={cn(
+              "space-y-4",
+              isDesktop && "desktop-grid-3-col gap-6 space-y-0"
+            )}
+          >
             {filteredBudgets.map((budget) => (
-              <Card key={budget.id} className={cn(
-                "border-border/50 transition-all duration-200 hover:shadow-lg active:scale-[0.98]",
-                isDesktop && "desktop-card"
-              )}>
-                <CardContent className="p-6">
+              <ResponsiveCard 
+                key={budget.id} 
+                interactive={true}
+                animated={true}
+                className={cn(
+                  "border-border/50 transition-all duration-200 hover:shadow-lg active:scale-[0.98]",
+                  isDesktop && "desktop-card"
+                )}
+              >
+                <ResponsiveContainer 
+                  variant="content"
+                  padding={{ mobile: 'p-4', tablet: 'p-5', desktop: 'p-6' }}
+                >
                   {/* Header with device name and date */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -441,11 +424,15 @@ export const BudgetsPage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleShareWhatsApp(budget)}
-                        className="flex flex-col items-center gap-1 p-2 h-auto text-success hover:text-success/80"
+                        onClick={() => {
+                          // Abrir seletor de compartilhamento para encaminhar mensagem
+                          handleShareWhatsApp(budget);
+                        }}
+                        className="flex flex-col items-center gap-1 p-2 h-auto text-green-600 hover:text-green-700"
+                        title="Encaminhar informações do orçamento via WhatsApp ou outros aplicativos"
                       >
-                        <MessageCircle className="h-5 w-5" />
-                        <span className="text-xs">WhatsApp</span>
+                        <Share className="h-5 w-5" />
+                        <span className="text-xs">Encaminhar</span>
                       </Button>
                       
                       <Button

@@ -151,7 +151,7 @@ export const BudgetLiteCardiOS = ({
   const handleEdit = () => {
     setIsEditModalOpen(true);
   };
-  const handleWhatsAppShare = async () => {
+  const handleNativeShare = async () => {
     if (isSharing) return;
     try {
       setIsSharing(true);
@@ -163,10 +163,12 @@ export const BudgetLiteCardiOS = ({
         data: fullBudget,
         error
       } = await supabase.from('budgets').select('*').eq('id', budget.id).single();
+      
+      let budgetData;
       if (error) {
         console.error('Erro ao buscar orçamento:', error);
         // Fallback com dados básicos
-        const message = generateWhatsAppMessage({
+        budgetData = {
           id: budget.id,
           device_model: budget.device_model || 'Dispositivo',
           device_type: budget.device_type || 'Smartphone',
@@ -184,42 +186,71 @@ export const BudgetLiteCardiOS = ({
           workflow_status: budget.workflow_status || 'pending',
           created_at: budget.created_at,
           valid_until: budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString()
-        });
-        shareViaWhatsApp(message);
-        showSuccessAction('Redirecionando para WhatsApp');
-        return;
+        };
+      } else {
+        // Usar dados completos do banco
+        budgetData = {
+          id: fullBudget.id,
+          device_model: fullBudget.device_model || 'Dispositivo',
+          device_type: fullBudget.device_type || 'Smartphone',
+          part_type: fullBudget.part_type || 'Reparo',
+          part_quality: fullBudget.part_quality || fullBudget.part_type || 'Reparo geral',
+          cash_price: fullBudget.cash_price || fullBudget.total_price || 0,
+          installment_price: fullBudget.installment_price || fullBudget.total_price || 0,
+          installments: fullBudget.installments || 1,
+          total_price: fullBudget.total_price || 0,
+          warranty_months: fullBudget.warranty_months || 3,
+          payment_condition: fullBudget.payment_condition || 'Cartão de Crédito',
+          includes_delivery: fullBudget.includes_delivery || false,
+          includes_screen_protector: fullBudget.includes_screen_protector || false,
+          delivery_date: fullBudget.delivery_date,
+          notes: fullBudget.notes,
+          status: fullBudget.status || 'pending',
+          workflow_status: fullBudget.workflow_status || 'pending',
+          created_at: fullBudget.created_at,
+          valid_until: fullBudget.valid_until || fullBudget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+          expires_at: fullBudget.expires_at
+        };
       }
 
-      // Usar dados completos do banco
-      const message = generateWhatsAppMessage({
-        id: fullBudget.id,
-        device_model: fullBudget.device_model || 'Dispositivo',
-        device_type: fullBudget.device_type || 'Smartphone',
-        part_type: fullBudget.part_type || 'Reparo',
-        part_quality: fullBudget.part_quality || fullBudget.part_type || 'Reparo geral',
-        cash_price: fullBudget.cash_price || fullBudget.total_price || 0,
-        installment_price: fullBudget.installment_price || fullBudget.total_price || 0,
-        installments: fullBudget.installments || 1,
-        total_price: fullBudget.total_price || 0,
-        warranty_months: fullBudget.warranty_months || 3,
-        payment_condition: fullBudget.payment_condition || 'Cartão de Crédito',
-        includes_delivery: fullBudget.includes_delivery || false,
-        includes_screen_protector: fullBudget.includes_screen_protector || false,
-        delivery_date: fullBudget.delivery_date,
-        notes: fullBudget.notes,
-        status: fullBudget.status || 'pending',
-        workflow_status: fullBudget.workflow_status || 'pending',
-        created_at: fullBudget.created_at,
-        valid_until: fullBudget.valid_until || fullBudget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: fullBudget.expires_at
-      });
-      shareViaWhatsApp(message);
-      showSuccessAction('Redirecionando para WhatsApp');
+      // Gerar mensagem formatada
+      const message = generateWhatsAppMessage(budgetData);
+      
+      // Verificar se navigator.share está disponível
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            text: message,
+            title: 'Orçamento - OneDrip'
+          });
+          showSuccessAction('Compartilhado com sucesso!');
+        } catch (shareError) {
+          // Usuário cancelou o compartilhamento ou erro
+          if (shareError.name !== 'AbortError') {
+            console.error('Erro ao compartilhar:', shareError);
+            // Fallback para clipboard
+            await copyToClipboard(message);
+          }
+        }
+      } else {
+        // Fallback para clipboard se navigator.share não estiver disponível
+        await copyToClipboard(message);
+      }
     } catch (error) {
-      console.error('Erro ao compartilhar WhatsApp:', error);
+      console.error('Erro ao compartilhar:', error);
       showErrorAction('Não foi possível compartilhar');
     } finally {
       setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showSuccessAction('Texto copiado para a área de transferência!');
+    } catch (clipboardError) {
+      console.error('Erro ao copiar para clipboard:', clipboardError);
+      showErrorAction('Não foi possível copiar o texto');
     }
   };
   const handleGeneratePDF = async () => {
@@ -652,15 +683,15 @@ export const BudgetLiteCardiOS = ({
 
       {/* Action Buttons - Diretas e intuitivas para iOS */}
       <div className="flex justify-center gap-3 pt-4">
-        {/* WhatsApp - Ação direta */}
-        <button onClick={handleWhatsAppShare} disabled={isSharing} className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 active:scale-95" style={{
+        {/* Compartilhar - Ação direta */}
+        <button onClick={handleNativeShare} disabled={isSharing} className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 active:scale-95" style={{
         minHeight: '48px',
         touchAction: 'manipulation',
         WebkitTapHighlightColor: 'transparent'
       }}>
-          <MessageCircle className="h-5 w-5 flex-shrink-0" />
+          <Share className="h-5 w-5 flex-shrink-0" />
           <span className="text-sm font-medium">
-            {isSharing ? 'Compartilhando...' : 'WhatsApp'}
+            {isSharing ? 'Enviando...' : 'Compartilhar'}
           </span>
         </button>
 
