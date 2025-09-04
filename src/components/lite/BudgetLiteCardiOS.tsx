@@ -238,21 +238,34 @@ export const BudgetLiteCardiOS = ({
         return;
       }
 
-      // Preparar dados do orçamento seguindo a interface BudgetData
+      // Buscar dados completos do orçamento do banco
+      const { data: fullBudget, error } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('id', budget.id)
+        .single();
+
+      if (error) {
+        console.error('[PDF] Erro ao buscar dados completos do orçamento:', error);
+        showErrorAction('Erro ao carregar dados do orçamento');
+        return;
+      }
+
+      // Preparar dados do orçamento seguindo a interface BudgetData com dados completos
       const pdfData = {
-        id: budget.id,
-        device_model: budget.device_model || 'Dispositivo não informado',
-        piece_quality: budget.part_quality || budget.part_type || 'Não informado',
-        total_price: (budget.cash_price || budget.total_price || 0) / 100,
+        id: fullBudget.id,
+        device_model: fullBudget.device_model || 'Dispositivo não informado',
+        piece_quality: fullBudget.part_quality || fullBudget.part_type || 'Não informado',
+        total_price: (fullBudget.cash_price || fullBudget.total_price || 0) / 100,
         // Converter de centavos para reais
-        installment_price: budget.installment_price ? budget.installment_price / 100 : undefined,
-        installment_count: budget.installments || 1,
-        created_at: budget.created_at,
-        validity_date: budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        warranty_months: budget.warranty_months || undefined,
-        notes: budget.notes || budget.issue || undefined,
-        includes_delivery: budget.includes_delivery || false,
-        includes_screen_protector: budget.includes_screen_protector || false
+        installment_price: fullBudget.installment_price ? fullBudget.installment_price / 100 : undefined,
+        installment_count: fullBudget.installments || 1,
+        created_at: fullBudget.created_at,
+        validity_date: fullBudget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        warranty_months: fullBudget.warranty_months || undefined,
+        notes: fullBudget.notes || fullBudget.issue || undefined,
+        includes_delivery: fullBudget.includes_delivery === true,
+        includes_screen_protector: fullBudget.includes_screen_protector === true
       };
       
       // Preparar dados da empresa com fallbacks robustos
@@ -267,7 +280,7 @@ export const BudgetLiteCardiOS = ({
       
       console.log('[PDF] Dados da empresa preparados:', companyData);
       
-      await generateBudgetPDF(pdfData, companyData);
+      await saveBudgetPDF(pdfData, companyData);
       showSuccessAction('PDF gerado com sucesso!');
     } catch (error) {
       console.error('[PDF] Erro ao gerar PDF:', error);
@@ -303,18 +316,33 @@ export const BudgetLiteCardiOS = ({
         return;
       }
 
-      // Preparar dados do orçamento
+      // Buscar dados completos do orçamento do banco
+      const { data: fullBudget, error } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('id', budget.id)
+        .single();
+
+      if (error) {
+        console.error('[PDF] Erro ao buscar dados completos do orçamento:', error);
+        showErrorAction('Erro ao carregar dados do orçamento');
+        return;
+      }
+
+      // Preparar dados do orçamento com dados completos
       const pdfData = {
-        id: budget.id,
-        device_model: budget.device_model || 'Dispositivo não informado',
-        piece_quality: budget.part_quality || budget.part_type || 'Não informado',
-        total_price: (budget.cash_price || budget.total_price || 0) / 100,
-        installment_price: budget.installment_price ? budget.installment_price / 100 : undefined,
-        installment_count: budget.installments || 1,
-        created_at: budget.created_at,
-        validity_date: budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        warranty_months: 12,
-        notes: budget.issue
+        id: fullBudget.id,
+        device_model: fullBudget.device_model || 'Dispositivo não informado',
+        piece_quality: fullBudget.part_quality || fullBudget.part_type || 'Não informado',
+        total_price: (fullBudget.cash_price || fullBudget.total_price || 0) / 100,
+        installment_price: fullBudget.installment_price ? fullBudget.installment_price / 100 : undefined,
+        installment_count: fullBudget.installments || 1,
+        created_at: fullBudget.created_at,
+        validity_date: fullBudget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        warranty_months: fullBudget.warranty_months || undefined,
+        notes: fullBudget.notes || fullBudget.issue || undefined,
+        includes_delivery: fullBudget.includes_delivery === true,
+        includes_screen_protector: fullBudget.includes_screen_protector === true
       };
       
       // Preparar dados da empresa com fallbacks robustos
@@ -367,7 +395,7 @@ export const BudgetLiteCardiOS = ({
         showSuccessAction('PDF baixado e email aberto!');
       } else {
         // Download direto usando a função auxiliar
-        await saveBudgetPDF(pdfData);
+        await saveBudgetPDF(pdfData, companyData);
         showSuccessAction('PDF baixado com sucesso!');
       }
     } catch (error) {

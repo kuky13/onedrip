@@ -111,7 +111,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
       setBlockedIPs(blockedIPsList)
       
       // Load settings from user_profiles if available (fallback approach)
-      const { data: settings } = await supabase
+      await supabase
         .from('user_profiles')
         .select('*')
         .single()

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

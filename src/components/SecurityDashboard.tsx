@@ -3,7 +3,7 @@
  * Real-time monitoring dashboard for security metrics and alerts
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -14,14 +14,9 @@ import {
   Shield, 
   AlertTriangle, 
   Activity, 
-  Eye, 
-  Clock, 
-  Users, 
   Server, 
   Bell,
-  RefreshCw,
-  Download,
-  Settings
+  RefreshCw
 } from 'lucide-react'
 import { useSecurity } from '../hooks/useSecurity'
 import { toast } from 'sonner'
