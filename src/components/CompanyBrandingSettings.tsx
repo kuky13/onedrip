@@ -4,9 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { 
   Building2, 
   Upload, 
@@ -14,24 +12,14 @@ import {
   Trash2, 
   AlertCircle,
   Image as ImageIcon,
-  Phone,
   ExternalLink,
-  ArrowLeft,
-  Settings,
-  Eye
+  ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+
 
 interface CompanyFormData {
   name: string;
@@ -40,13 +28,7 @@ interface CompanyFormData {
   description: string;
 }
 
-interface ShareSettingsFormData {
-  show_logo: boolean;
-  show_company_name: boolean;
-  show_whatsapp_button: boolean;
-  custom_message: string;
-  theme_color: string;
-}
+
 
 const initialCompanyData: CompanyFormData = {
   name: '',
@@ -55,35 +37,17 @@ const initialCompanyData: CompanyFormData = {
   description: ''
 };
 
-const initialShareSettings: ShareSettingsFormData = {
-  show_logo: true,
-  show_company_name: true,
-  show_whatsapp_button: true,
-  custom_message: '',
-  theme_color: '#3B82F6'
-};
 
-const predefinedColors = [
-  { color: '#3B82F6', name: 'Azul' },
-  { color: '#10B981', name: 'Verde' },
-  { color: '#F59E0B', name: 'Amarelo' },
-  { color: '#EF4444', name: 'Vermelho' },
-  { color: '#8B5CF6', name: 'Roxo' },
-  { color: '#EC4899', name: 'Rosa' },
-  { color: '#6B7280', name: 'Cinza' },
-  { color: '#1F2937', name: 'Preto' }
-];
+
+
 
 export function CompanyBrandingSettings() {
   const navigate = useNavigate();
   const {
     companyInfo,
-    shareSettings,
     loading,
     createCompanyInfo,
     updateCompanyInfo,
-    createShareSettings,
-    updateShareSettings,
     uploadLogo,
     removeLogo,
     formatPhoneNumber,
@@ -92,10 +56,7 @@ export function CompanyBrandingSettings() {
   } = useCompanyBranding();
 
   const [companyData, setCompanyData] = useState<CompanyFormData>(initialCompanyData);
-  const [shareData, setShareData] = useState<ShareSettingsFormData>(initialShareSettings);
   const [companyErrors, setCompanyErrors] = useState<Partial<CompanyFormData>>({});
-  const [, setShareErrors] = useState<Partial<ShareSettingsFormData>>({});
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,17 +76,7 @@ export function CompanyBrandingSettings() {
     }
   }, [companyInfo]);
 
-  useEffect(() => {
-    if (shareSettings) {
-      setShareData({
-        show_logo: shareSettings.show_logo ?? true,
-        show_company_name: shareSettings.show_company_name ?? true,
-        show_whatsapp_button: shareSettings.show_whatsapp_button ?? true,
-        custom_message: shareSettings.custom_message || '',
-        theme_color: shareSettings.theme_color || '#3B82F6'
-      });
-    }
-  }, [shareSettings]);
+
 
   const validateCompanyForm = (): boolean => {
     const errors: Partial<CompanyFormData> = {};
@@ -144,16 +95,7 @@ export function CompanyBrandingSettings() {
     return Object.keys(errors).length === 0;
   };
 
-  const validateShareForm = (): boolean => {
-    const errors: Partial<ShareSettingsFormData> = {};
 
-    if (!shareData.theme_color) {
-      errors.theme_color = 'Cor do tema é obrigatória';
-    }
-
-    setShareErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
 
   const handleCompanySubmit = async () => {
     if (!validateCompanyForm()) {
@@ -181,33 +123,7 @@ export function CompanyBrandingSettings() {
     }
   };
 
-  const handleShareSubmit = async () => {
-    if (!validateShareForm()) {
-      return;
-    }
 
-    setIsSaving(true);
-    try {
-      console.log('Salvando configurações de compartilhamento:', shareData);
-      console.log('Configurações existentes:', shareSettings);
-      
-      if (shareSettings) {
-        const result = await updateShareSettings(shareData);
-        console.log('Resultado da atualização:', result);
-        toast.success('Configurações de compartilhamento atualizadas!');
-      } else {
-        const result = await createShareSettings(shareData);
-        console.log('Resultado da criação:', result);
-        toast.success('Configurações de compartilhamento criadas!');
-      }
-    } catch (error) {
-      console.error('Erro detalhado ao salvar configurações:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-      toast.error(`Erro ao salvar configurações de compartilhamento: ${errorMessage}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -354,7 +270,7 @@ export function CompanyBrandingSettings() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Company Information */}
           <Card>
             <CardHeader>
@@ -500,202 +416,11 @@ export function CompanyBrandingSettings() {
             </CardContent>
           </Card>
 
-          {/* Share Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Settings className="w-5 h-5" />
-                <span>Configurações de Compartilhamento</span>
-              </CardTitle>
-              <CardDescription>
-                Configure como sua empresa aparece nas páginas compartilhadas
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Visibility Settings */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="show_logo">Mostrar Logo</Label>
-                    <p className="text-sm text-gray-600">
-                      Exibir logo da empresa nas páginas compartilhadas
-                    </p>
-                  </div>
-                  <Switch
-                    id="show_logo"
-                    checked={shareData.show_logo}
-                    onCheckedChange={(checked) => setShareData({ ...shareData, show_logo: checked })}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="show_company_name">Mostrar Nome</Label>
-                    <p className="text-sm text-gray-600">
-                      Exibir nome da empresa nas páginas compartilhadas
-                    </p>
-                  </div>
-                  <Switch
-                    id="show_company_name"
-                    checked={shareData.show_company_name}
-                    onCheckedChange={(checked) => setShareData({ ...shareData, show_company_name: checked })}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="show_whatsapp_button">Botão WhatsApp</Label>
-                    <p className="text-sm text-gray-600">
-                      Exibir botão de contato via WhatsApp
-                    </p>
-                  </div>
-                  <Switch
-                    id="show_whatsapp_button"
-                    checked={shareData.show_whatsapp_button}
-                    onCheckedChange={(checked) => setShareData({ ...shareData, show_whatsapp_button: checked })}
-                  />
-                </div>
-              </div>
-              
-              <Separator />
-              
-              {/* Theme Color */}
-              <div>
-                <Label htmlFor="theme_color">Cor do Tema</Label>
-                <div className="space-y-3 mt-2">
-                  <Input
-                    id="theme_color"
-                    type="color"
-                    value={shareData.theme_color}
-                    onChange={(e) => setShareData({ ...shareData, theme_color: e.target.value })}
-                    className="h-10"
-                  />
-                  
-                  <div className="grid grid-cols-4 gap-2">
-                    {predefinedColors.map((colorOption) => (
-                      <button
-                        key={colorOption.color}
-                        type="button"
-                        className={cn(
-                          'w-full h-8 rounded border-2 transition-all',
-                          shareData.theme_color === colorOption.color
-                            ? 'border-gray-900 scale-105'
-                            : 'border-gray-200 hover:border-gray-400'
-                        )}
-                        style={{ backgroundColor: colorOption.color }}
-                        onClick={() => setShareData({ ...shareData, theme_color: colorOption.color })}
-                        title={colorOption.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Custom Message */}
-              <div>
-                <Label htmlFor="custom_message">Mensagem Personalizada</Label>
-                <Textarea
-                  id="custom_message"
-                  value={shareData.custom_message}
-                  onChange={(e) => setShareData({ ...shareData, custom_message: e.target.value })}
-                  placeholder="Mensagem adicional para páginas compartilhadas..."
-                  rows={3}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Esta mensagem aparecerá nas páginas de compartilhamento
-                </p>
-              </div>
-              
-              <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsPreviewOpen(true)}
-                  className="flex-1"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Visualizar
-                </Button>
-                
-                <Button
-                  onClick={handleShareSubmit}
-                  disabled={isSaving || loading}
-                  className="flex-1"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {isSaving ? 'Salvando...' : 'Salvar'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
       </div>
 
-      {/* Preview Dialog */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Preview da Página Compartilhada</DialogTitle>
-            <DialogDescription>
-              Veja como sua empresa aparecerá nas páginas compartilhadas
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="border rounded-lg p-6" style={{ borderColor: shareData.theme_color }}>
-            {/* Header Preview */}
-            <div className="flex items-center space-x-4 mb-6">
-              {shareData.show_logo && companyData.logo_url && (
-                <img
-                  src={companyData.logo_url}
-                  alt="Logo"
-                  className="w-12 h-12 object-contain"
-                />
-              )}
-              
-              <div className="flex-1">
-                {shareData.show_company_name && companyData.name && (
-                  <h2 className="text-xl font-bold" style={{ color: shareData.theme_color }}>
-                    {companyData.name}
-                  </h2>
-                )}
-                
-                {shareData.custom_message && (
-                  <p className="text-gray-600 text-sm mt-1">
-                    {shareData.custom_message}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            {/* Sample Content */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold mb-2">OS: 0001</h3>
-              <p className="text-sm text-gray-600">Cliente: João Silva</p>
-              <p className="text-sm text-gray-600">Serviço: Manutenção Preventiva</p>
-              <div className="mt-3">
-                <Badge style={{ backgroundColor: shareData.theme_color }}>Em Andamento</Badge>
-              </div>
-            </div>
-            
-            {/* WhatsApp Button Preview */}
-            {shareData.show_whatsapp_button && companyData.whatsapp_phone && (
-              <Button
-                className="w-full"
-                style={{ backgroundColor: shareData.theme_color }}
-                disabled
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                Entrar em Contato via WhatsApp
-              </Button>
-            )}
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
-              Fechar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
