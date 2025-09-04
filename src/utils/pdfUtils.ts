@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { getCachedCompanyData, CompanyDataForPDF } from '../hooks/useCompanyDataLoader';
 
 export interface BudgetData {
   id: string;
@@ -85,20 +86,44 @@ const loadImage = (url: string, retries: number = 3, timeout: number = 10000): P
   });
 };
 
-// Função para validar e normalizar dados da empresa
+// Função para validar e normalizar dados da empresa com cache inteligente
 const validateCompanyData = (companyData?: CompanyData): CompanyData => {
   // Company data received
   
+  // Tentar usar dados do cache primeiro
+  const cachedData = getCachedCompanyData();
+  let fallbackData: CompanyDataForPDF | null = null;
+  
+  if (cachedData?.hasData) {
+    // Usar função do hook para obter dados formatados
+    try {
+      // Simular o comportamento do hook para obter dados formatados
+      const shopData = cachedData.shopProfile;
+      const companyInfo = cachedData.companyInfo;
+      
+      fallbackData = {
+        shop_name: shopData?.shop_name || companyInfo?.name || 'Minha Empresa',
+        address: shopData?.address || companyInfo?.address || '',
+        contact_phone: shopData?.contact_phone || companyInfo?.whatsapp_phone || '',
+        logo_url: shopData?.logo_url || companyInfo?.logo_url || '',
+        email: companyInfo?.email || '',
+        cnpj: shopData?.cnpj || ''
+      };
+    } catch (error) {
+      console.warn('Erro ao processar dados do cache:', error);
+    }
+  }
+  
   const validated: CompanyData = {
-    shop_name: companyData?.shop_name || 'Minha Loja',
-    address: companyData?.address || '',
-    contact_phone: companyData?.contact_phone || '',
-    logo_url: companyData?.logo_url || '',
-    email: companyData?.email || '',
-    cnpj: companyData?.cnpj || ''
+    shop_name: companyData?.shop_name || fallbackData?.shop_name || 'Minha Loja',
+    address: companyData?.address || fallbackData?.address || '',
+    contact_phone: companyData?.contact_phone || fallbackData?.contact_phone || '',
+    logo_url: companyData?.logo_url || fallbackData?.logo_url || '',
+    email: companyData?.email || fallbackData?.email || '',
+    cnpj: companyData?.cnpj || fallbackData?.cnpj || ''
   };
   
-  // Company data validated
+  // Company data validated with cache fallback
   return validated;
 };
 
@@ -106,7 +131,13 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   // Starting PDF generation
   // Budget data
   
-  // Validar e normalizar dados da empresa
+  // Verificar se temos dados mínimos necessários
+  const cachedData = getCachedCompanyData();
+  if (!companyData && (!cachedData || !cachedData.hasData)) {
+    console.warn('Dados da empresa não encontrados. Usando dados padrão.');
+  }
+  
+  // Validar e normalizar dados da empresa com cache inteligente
   const validatedCompanyData = validateCompanyData(companyData);
   
   const doc = new jsPDF();
@@ -401,6 +432,7 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
   doc.setTextColor(100, 100, 100);
   
 // Footer text removed to avoid bugs
+  
   // Retornar o PDF como Blob para compartilhamento
   const pdfBlob = doc.output('blob');
   // PDF generated successfully
@@ -411,23 +443,40 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
 export const saveBudgetPDF = async (budget: BudgetData, companyData?: CompanyData) => {
   // Starting PDF save
   
-  const pdfBlob = await generateBudgetPDF(budget, companyData);
-  const validatedCompanyData = validateCompanyData(companyData);
-  const fileName = `orcamento-${validatedCompanyData.shop_name.replace(/\s+/g, '-').toLowerCase()}-${budget.device_model.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
-  
-  // Generated filename
-  
-  // Criar link para download
-  const url = URL.createObjectURL(pdfBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  
-  // Download started successfully
+  try {
+    const pdfBlob = await generateBudgetPDF(budget, companyData);
+    const validatedCompanyData = validateCompanyData(companyData);
+    const fileName = `orcamento-${validatedCompanyData.shop_name.replace(/\s+/g, '-').toLowerCase()}-${budget.device_model.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
+    
+    // Generated filename
+    
+    // Criar link para download
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Download started successfully
+  } catch (error) {
+    console.error('Erro ao gerar/salvar PDF:', error);
+    throw new Error('Falha ao gerar PDF. Verifique os dados da empresa.');
+  }
+};
+
+// Função utilitária para verificar se temos dados suficientes para PDF
+export const hasValidCompanyDataForPDF = (): boolean => {
+  const cachedData = getCachedCompanyData();
+  if (cachedData?.hasData) {
+    const shopData = cachedData.shopProfile;
+    const companyInfo = cachedData.companyInfo;
+    const shopName = shopData?.shop_name || companyInfo?.name;
+    return !!(shopName && shopName !== 'Minha Empresa' && shopName !== 'Minha Loja');
+  }
+  return false;
 };
 
 export default generateBudgetPDF;

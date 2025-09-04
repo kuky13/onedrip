@@ -7,6 +7,8 @@ import { ArrowLeft, Edit, FileText, MessageCircle, Copy, Trash2 } from 'lucide-r
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { saveBudgetPDF, hasValidCompanyDataForPDF } from '@/utils/pdfUtils';
+import { getCachedCompanyData } from '@/hooks/useCompanyDataLoader';
 
 
 
@@ -25,9 +27,54 @@ export const BudgetViewLite = ({ budgetId, onBack, onEdit, onCopy }: BudgetViewL
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGeneratePDF = () => {
-    // Placeholder para geração de PDF
-    console.log('Gerar PDF do orçamento');
+  const handleGeneratePDF = async () => {
+    if (!budget || isGenerating) return;
+    
+    setIsGenerating(true);
+    try {
+      // Verificar se temos dados da empresa no cache
+      if (!hasValidCompanyDataForPDF()) {
+        showError({
+          title: 'Dados da empresa não encontrados',
+          description: 'Aguarde o carregamento dos dados da empresa ou configure-os nas configurações.'
+        });
+        return;
+      }
+
+      // Preparar dados do orçamento para PDF
+      const pdfData = {
+        id: budget.id,
+        device_model: budget.device_model || 'Dispositivo não informado',
+        piece_quality: budget.part_quality || budget.part_type || 'Não informado',
+        total_price: (budget.cash_price || budget.total_price || 0) / 100,
+        installment_price: budget.installment_price ? budget.installment_price / 100 : undefined,
+        installment_count: budget.installments || 1,
+        created_at: budget.created_at,
+        validity_date: budget.valid_until || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        warranty_months: budget.warranty_months || undefined,
+        notes: budget.notes || budget.issue || undefined,
+        includes_delivery: budget.includes_delivery === true,
+        includes_screen_protector: budget.includes_screen_protector === true
+      };
+
+      // Usar dados da empresa do cache
+      const companyData = getCachedCompanyData()?.getCompanyDataForPDF();
+      
+      await saveBudgetPDF(pdfData, companyData);
+      
+      showSuccess({
+        title: 'PDF gerado com sucesso!',
+        description: 'O arquivo foi baixado para seu dispositivo.'
+      });
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      showError({
+        title: 'Erro ao gerar PDF',
+        description: 'Não foi possível gerar o PDF. Tente novamente.'
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   useEffect(() => {

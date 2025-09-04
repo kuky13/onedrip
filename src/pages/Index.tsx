@@ -8,6 +8,7 @@ import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
 import { useAppInfo, useMarketingConfig } from '@/hooks/useAppConfig';
+import { useCompanyDataLoader } from '@/hooks/useCompanyDataLoader';
 
 // Função para abrir WhatsApp
 const openWhatsApp = (url: string) => {
@@ -25,7 +26,10 @@ const Index = () => {
   const {
     heroSubtitle
   } = useMarketingConfig();
-  if (loading) {
+  
+  // Carrega dados da empresa quando usuário está logado
+  const { isLoading: companyLoading, error: companyError } = useCompanyDataLoader();
+  if (loading || (user && companyLoading)) {
     return <DashboardSkeleton />;
   }
 

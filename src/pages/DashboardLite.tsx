@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useCompanyDataLoader } from '@/hooks/useCompanyDataLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { AdaptiveLayout } from '@/components/adaptive/AdaptiveLayout';
 import { DashboardLiteContent } from '@/components/lite/DashboardLiteContent';
@@ -20,13 +21,23 @@ export const DashboardLite = () => {
   const { profile, user, hasPermission } = useAuth();
   const { isDesktop } = useResponsive();
   
+  // Hook para carregar dados da empresa automaticamente
+  const companyDataLoader = useCompanyDataLoader();
+  
   // Memoização da verificação de iOS para evitar recálculos
   const isiOSDevice = useMemo(() => {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   }, []);
 
-  // Aguardar user e profile estarem disponíveis
-  const isReady = useMemo(() => Boolean(user?.id && profile), [user?.id, profile]);
+  // Aguardar user, profile e dados da empresa estarem disponíveis
+  const isReady = useMemo(() => {
+    const basicReady = Boolean(user?.id && profile);
+    // Não bloquear se os dados da empresa estão carregando, mas logar se há erro
+    if (companyDataLoader.error) {
+      console.warn('Erro ao carregar dados da empresa:', companyDataLoader.error);
+    }
+    return basicReady;
+  }, [user?.id, profile, companyDataLoader.error]);
 
   // Hook para gerenciar dados dos orçamentos
   const { budgets, loading, error, refreshing, handleRefresh } = useBudgetData(user?.id || '');
@@ -87,7 +98,14 @@ export const DashboardLite = () => {
       >
         <div className="text-center space-y-4">
           <IOSSpinner size="lg" />
-          <p className="text-sm text-muted-foreground font-medium">Carregando...</p>
+          <p className="text-sm text-muted-foreground font-medium">
+            {companyDataLoader.isLoading ? 'Carregando dados da empresa...' : 'Carregando...'}
+          </p>
+          {companyDataLoader.error && (
+            <p className="text-xs text-red-500 max-w-xs mx-auto">
+              Aviso: {companyDataLoader.error}
+            </p>
+          )}
         </div>
       </div>
     );

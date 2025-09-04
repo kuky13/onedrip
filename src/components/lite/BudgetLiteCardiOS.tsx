@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
-import { generateBudgetPDF, saveBudgetPDF, type CompanyData } from '@/utils/pdfUtils';
+import { generateBudgetPDF, saveBudgetPDF, type CompanyData, hasValidCompanyDataForPDF } from '@/utils/pdfUtils';
 import { MessageCircle, FileText, Edit, Trash2, Eye, Share, X, Mail, Download, Zap, ExternalLink, Copy } from 'lucide-react';
 import { BudgetLiteStatusBadge } from './BudgetLiteStatusBadge';
 import { BudgetEditFormIOS } from './BudgetEditFormIOS';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useShopProfile } from '@/hooks/useShopProfile';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
+import { useCompanyDataLoader } from '@/hooks/useCompanyDataLoader';
 import { useIOSFeedback } from './IOSFeedback';
 interface Budget {
   id: string;
@@ -58,6 +59,7 @@ export const BudgetLiteCardiOS = ({
   const {
     companyInfo
   } = useCompanyBranding();
+  const { getCompanyDataForPDF, isLoading: companyDataLoading, refreshData } = useCompanyDataLoader();
   const {
     hapticFeedback,
     showSuccessAction,
@@ -231,10 +233,12 @@ export const BudgetLiteCardiOS = ({
       console.log('[PDF] Dados do perfil da loja:', shopProfile);
       console.log('[PDF] Dados da empresa:', companyInfo);
 
-      // Verificar se temos dados mínimos necessários
-      if (!shopProfile && !companyInfo) {
-        console.warn('[PDF] Nenhum dado da empresa disponível');
-        showErrorAction('Dados da empresa não carregados. Tente novamente.');
+      // Verificar se temos dados mínimos necessários usando o cache inteligente
+      if (!hasValidCompanyDataForPDF()) {
+        console.warn('[PDF] Dados da empresa não disponíveis no cache');
+        showErrorAction('Dados da empresa não carregados. Aguarde ou tente novamente.');
+        // Tentar recarregar os dados
+        refreshData();
         return;
       }
 
@@ -268,15 +272,8 @@ export const BudgetLiteCardiOS = ({
         includes_screen_protector: fullBudget.includes_screen_protector === true
       };
       
-      // Preparar dados da empresa com fallbacks robustos
-      const companyData: CompanyData = {
-        shop_name: shopProfile?.shop_name || companyInfo?.name || 'Minha Loja',
-        address: shopProfile?.address || companyInfo?.address || '',
-        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone || '',
-        logo_url: shopProfile?.logo_url || companyInfo?.logo_url || '',
-        email: companyInfo?.email || '',
-        cnpj: shopProfile?.cnpj || ''
-      };
+      // Usar dados da empresa do cache inteligente
+      const companyData = getCompanyDataForPDF();
       
       console.log('[PDF] Dados da empresa preparados:', companyData);
       
@@ -309,10 +306,12 @@ export const BudgetLiteCardiOS = ({
       console.log('[PDF] Dados do perfil da loja:', shopProfile);
       console.log('[PDF] Dados da empresa:', companyInfo);
 
-      // Verificar se temos dados mínimos necessários
-      if (!shopProfile && !companyInfo) {
-        console.warn('[PDF] Nenhum dado da empresa disponível para compartilhamento');
-        showErrorAction('Dados da empresa não carregados. Tente novamente.');
+      // Verificar se temos dados mínimos necessários usando o cache inteligente
+      if (!hasValidCompanyDataForPDF()) {
+        console.warn('[PDF] Dados da empresa não disponíveis no cache para compartilhamento');
+        showErrorAction('Dados da empresa não carregados. Aguarde ou tente novamente.');
+        // Tentar recarregar os dados
+        refreshData();
         return;
       }
 
@@ -345,15 +344,8 @@ export const BudgetLiteCardiOS = ({
         includes_screen_protector: fullBudget.includes_screen_protector === true
       };
       
-      // Preparar dados da empresa com fallbacks robustos
-      const companyData: CompanyData = {
-        shop_name: shopProfile?.shop_name || companyInfo?.name || 'Minha Loja',
-        address: shopProfile?.address || companyInfo?.address || '',
-        contact_phone: shopProfile?.contact_phone || companyInfo?.whatsapp_phone || companyInfo?.phone || '',
-        logo_url: shopProfile?.logo_url || companyInfo?.logo_url || '',
-        email: companyInfo?.email || '',
-        cnpj: shopProfile?.cnpj || ''
-      };
+      // Usar dados da empresa do cache inteligente
+      const companyData = getCompanyDataForPDF();
       
       console.log('[PDF] Dados da empresa preparados para compartilhamento:', companyData);
       const pdfBlob = await generateBudgetPDF(pdfData, companyData);

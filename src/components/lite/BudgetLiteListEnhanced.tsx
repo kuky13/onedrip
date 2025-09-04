@@ -12,6 +12,8 @@ import { useBudgetData } from '@/hooks/useBudgetData';
 import { useAuth } from '@/hooks/useAuth';
 import { Filter, SortAsc } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { saveBudgetPDF, hasValidCompanyDataForPDF } from '@/utils/pdfUtils';
+import { getCachedCompanyData } from '@/hooks/useCompanyDataLoader';
 
 interface Budget {
   id: string;
@@ -129,10 +131,43 @@ export const BudgetLiteListEnhanced = ({
     showSuccess('Removido', 'Orçamento movido para a lixeira.');
   }, [showSuccess]);
 
-  const handleGeneratePDF = useCallback((budget: Budget) => {
-    // Implement PDF generation
-    showInfo('PDF', 'Gerando PDF...');
-  }, [showInfo]);
+  const handleGeneratePDF = useCallback(async (budget: Budget) => {
+    try {
+      // Verificar se temos dados da empresa no cache
+      if (!hasValidCompanyDataForPDF()) {
+        showError('Erro', 'Dados da empresa não encontrados. Aguarde o carregamento ou configure-os nas configurações.');
+        return;
+      }
+
+      showInfo('PDF', 'Gerando PDF...');
+
+      // Preparar dados do orçamento para PDF
+      const pdfData = {
+        id: budget.id,
+        device_model: budget.device_model || 'Dispositivo não informado',
+        piece_quality: budget.part_quality || budget.part_type || 'Não informado',
+        total_price: (budget.cash_price || budget.total_price || 0) / 100,
+        installment_price: budget.installment_price ? budget.installment_price / 100 : undefined,
+        installment_count: budget.installments || 1,
+        created_at: budget.created_at,
+        validity_date: budget.valid_until || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        warranty_months: budget.warranty_months || undefined,
+        notes: budget.notes || budget.issue || undefined,
+        includes_delivery: budget.includes_delivery === true,
+        includes_screen_protector: budget.includes_screen_protector === true
+      };
+
+      // Usar dados da empresa do cache
+      const companyData = getCachedCompanyData()?.getCompanyDataForPDF();
+      
+      await saveBudgetPDF(pdfData, companyData);
+      
+      showSuccess('PDF', 'PDF gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      showError('Erro', 'Não foi possível gerar o PDF. Tente novamente.');
+    }
+  }, [showInfo, showSuccess, showError]);
 
   // FAB Actions
   const fabActions = createDefaultFABActions({
