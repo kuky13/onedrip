@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// Removed framer-motion imports for better performance
 import { useLayout } from '@/contexts/LayoutContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -54,15 +54,7 @@ const MobileLayoutContent = ({
     paddingRight: `${safeArea.right}px`
   }}>
       {/* Enhanced Mobile Header */}
-      <motion.header className={cn("flex items-center justify-between border-b border-border sticky top-0 z-30 transition-all duration-300", "px-3 py-2 sm:px-4 sm:py-3", isScrolled ? "bg-background/98 backdrop-blur-xl shadow-sm" : "bg-background/95 backdrop-blur-sm", orientation === 'landscape' ? "h-12" : "h-14")} initial={{
-      y: -100
-    }} animate={{
-      y: 0
-    }} transition={{
-      type: "spring",
-      stiffness: 300,
-      damping: 30
-    }}>
+      <header className={cn("flex items-center justify-between border-b border-border sticky top-0 z-30 transition-all duration-100", "px-3 py-2 sm:px-4 sm:py-3", isScrolled ? "bg-background/98 backdrop-blur-xl shadow-sm" : "bg-background/95 backdrop-blur-sm", orientation === 'landscape' ? "h-12" : "h-14")}>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2 sm:gap-3">
             <MobileHamburgerButton isOpen={isOpen} onClick={toggleMenu} />
@@ -74,27 +66,13 @@ const MobileLayoutContent = ({
           
           <NotificationIndicator size="sm" className="mr-2" />
         </div>
-      </motion.header>
+      </header>
 
       {/* Enhanced Main Content */}
       <main className={cn("flex-1 overflow-y-auto w-full relative", "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent")}>
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab} className="w-full min-h-full" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} exit={{
-          opacity: 0,
-          y: -20
-        }} transition={{
-          duration: 0.2,
-          ease: "easeInOut"
-        }}>
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <div key={activeTab} className="w-full min-h-full transition-opacity duration-100">
+          {children}
+        </div>
       </main>
       
       <MobileHamburgerMenu isOpen={isOpen} onClose={closeMenu} onTabChange={onTabChange} menuData={menuData} onLogout={handleLogout} />
@@ -150,104 +128,46 @@ export const AdaptiveLayout = ({
         <ResponsiveContainer className={cn("min-h-screen flex w-full bg-background transition-all duration-300", "desktop-horizontal-layout",
       // Global desktop class
       safeArea && "safe-area-inset", isUltraWide && "max-w-screen-2xl")} padding="none" maxWidth="full" optimized={true}>
-          <motion.div className={cn("w-full flex desktop-main-container", "gap-0 overflow-hidden")} initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          duration: 0.3
-        }}>
+          <div className={cn("w-full flex desktop-main-container", "gap-0 overflow-hidden transition-opacity duration-75")}>
             <AppSidebar activeTab={activeTab} onTabChange={onTabChange} />
             
-            <SidebarInset className={cn("flex-1 flex flex-col min-w-0 desktop-content-area", "transition-all duration-300 ease-in-out", "ml-0 border-l-0" // Remove margin and border
+            <SidebarInset className={cn("flex-1 flex flex-col min-w-0 desktop-content-area", "transition-all duration-100 ease-in-out", "ml-0 border-l-0" // Remove margin and border
           )}>
-              <motion.header className={cn("flex shrink-0 items-center justify-between border-b sticky top-0 z-40 transition-all duration-300", "desktop-header px-8 py-4 h-20",
+              <header className={cn("flex shrink-0 items-center justify-between border-b sticky top-0 z-40 transition-all duration-100", "desktop-header px-8 py-4 h-20",
             // Enhanced desktop header with consistent height
-            "bg-background/98 backdrop-blur-xl border-border/50", navHeight, isScrolled ? "shadow-lg bg-background/99" : "shadow-sm bg-background/95")} initial={{
-              y: -100
-            }} animate={{
-              y: 0
-            }} transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30
-            }} layout>
+            "bg-background/98 border-border/50", navHeight, isScrolled ? "shadow-lg bg-background/99" : "shadow-sm bg-background/95")}>
                 <ResponsiveContainer className="flex items-center gap-4 w-full" padding="none" maxWidth="full">
-                  <motion.div className="flex items-center gap-6" initial={{
-                  opacity: 0,
-                  x: -20
-                }} animate={{
-                  opacity: 1,
-                  x: 0
-                }} transition={{
-                  duration: 0.4,
-                  delay: 0.1,
-                  ease: [0.4, 0, 0.2, 1]
-                }} layout>
-                    <SidebarTrigger className={cn("h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-200")} />
+                  <div className="flex items-center gap-6 transition-opacity duration-75">
+                    <SidebarTrigger className={cn("h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-100")} />
                     <img src="/lovable-uploads/logoo.png" alt="OneDrip" className="h-8 w-8" />
-                    <motion.h1 className="text-2xl font-bold text-foreground tracking-tight" initial={{
-                    opacity: 0,
-                    x: -10
-                  }} animate={{
-                    opacity: 1,
-                    x: 0
-                  }} transition={{
-                    duration: 0.4,
-                    delay: 0.2,
-                    ease: [0.4, 0, 0.2, 1]
-                  }} layout>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">
                       OneDrip
-                    </motion.h1>
-                  </motion.div>
+                    </h1>
+                  </div>
                   <div className="flex-1" />
-                  <motion.div className="flex items-center gap-4" initial={{
-                  opacity: 0,
-                  x: 20
-                }} animate={{
-                  opacity: 1,
-                  x: 0
-                }} transition={{
-                  duration: 0.4,
-                  delay: 0.25,
-                  ease: [0.4, 0, 0.2, 1]
-                }}>
+                  <div className="flex items-center gap-4 transition-opacity duration-75">
                     <NotificationIndicator size="default" className="mr-2" />
-                    <motion.div className={cn("flex items-center gap-2 px-4 py-2", "bg-primary/10 text-primary rounded-full", "border border-primary/20 shadow-sm", "hover:bg-primary/15 hover:border-primary/30", "transition-all duration-300")} whileHover={{
-                    opacity: 0.9
-                  }} transition={{
-                    duration: 0.2
-                  }}>
+                    <div className={cn("flex items-center gap-2 px-4 py-2", "bg-primary/10 text-primary rounded-full", "border border-primary/20 shadow-sm", "hover:bg-primary/15 hover:border-primary/30", "transition-all duration-100")}>
                       <div>
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       </div>
                       <span className="font-semibold text-sm tracking-wide">Desktop Mode</span>
-                    </motion.div>
-                  </motion.div>
+                    </div>
+                  </div>
                 </ResponsiveContainer>
-              </motion.header>
+              </header>
               
-              <main className={cn("flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300", "desktop-main-content bg-muted/20 scroll-smooth",
+              <main className={cn("flex-1 overflow-y-auto overflow-x-hidden transition-all duration-100", "desktop-main-content bg-muted/20 scroll-smooth",
             // Enhanced desktop main content
             "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent")}>
                 <ResponsiveContainer className={cn("desktop-content-wrapper", "px-8 py-8 min-h-full")} padding="lg" maxWidth="full">
-                  <AnimatePresence mode="wait">
-                    <motion.div key={activeTab} initial={{
-                    opacity: 0
-                  }} animate={{
-                    opacity: 1
-                  }} exit={{
-                    opacity: 0
-                  }} transition={{
-                    duration: 0.3
-                  }} className="w-full min-h-full flex flex-col">
-                      {children}
-                    </motion.div>
-                  </AnimatePresence>
+                  <div key={activeTab} className="w-full min-h-full flex flex-col transition-opacity duration-100">
+                    {children}
+                  </div>
                 </ResponsiveContainer>
               </main>
             </SidebarInset>
-          </motion.div>
+          </div>
         </ResponsiveContainer>
       </SidebarProvider>;
   }
@@ -261,19 +181,9 @@ export const AdaptiveLayout = ({
           <ResponsiveContainer padding="adaptive" maxWidth={containerMaxWidth === 'none' ? 'full' : '2xl'} className="min-h-full" breakpointBehavior={{
           tablet: isLandscape ? 'grid-adaptive landscape-tablet-grid' : 'portrait-tablet-grid'
         }}>
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTab} className="w-full h-full" initial={{
-              opacity: 0
-            }} animate={{
-              opacity: 1
-            }} exit={{
-              opacity: 0
-            }} transition={{
-              duration: 0.2
-            }}>
-                {children}
-              </motion.div>
-            </AnimatePresence>
+            <div key={activeTab} className="w-full h-full transition-opacity duration-100">
+              {children}
+            </div>
           </ResponsiveContainer>
         </main>
       </ResponsiveContainer>;

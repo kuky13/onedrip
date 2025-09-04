@@ -1,15 +1,15 @@
 /* Professional Desktop Navigation - Hamburger Menu Styles */
 
-/* Simplified sidebar */
+/* Optimized sidebar */
 .desktop-sidebar {
-  transition: width 0.15s ease;
+  transition: width 0.1s ease;
   background: rgba(255, 255, 255, 0.02);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Simplified hamburger trigger button */
+/* Optimized hamburger trigger button */
 [data-sidebar="trigger"] {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.08s ease;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -26,9 +26,9 @@
 
 /* Removed ripple effect */
 
-/* Sidebar content animations */
+/* Optimized sidebar content */
 .desktop-sidebar-content {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.08s ease;
 }
 
 /* When sidebar is collapsed, hide text with smooth transition */
@@ -40,9 +40,9 @@
   opacity: 1;
 }
 
-/* Simplified menu button hover effects */
+/* Optimized menu button hover effects */
 .desktop-sidebar-button {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.08s ease;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -102,9 +102,9 @@
   padding: 1.5rem 2rem;
 }
 
-/* Enhanced sidebar rail with premium hover */
+/* Optimized sidebar rail */
 [data-sidebar="rail"] {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.08s ease;
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -121,9 +121,9 @@
   color: hsl(var(--primary));
 }
 
-/* Simplified icon animations */
+/* Optimized icon animations */
 .desktop-sidebar-button svg {
-  transition: color 0.15s ease;
+  transition: color 0.08s ease;
 }
 
 .desktop-sidebar-button:hover svg {
@@ -142,13 +142,13 @@
   background: rgba(255, 255, 255, 0.01);
 }
 
-/* Simplified user avatar */
+/* Optimized user avatar */
 .desktop-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.08s ease;
 }
 
 .desktop-avatar:hover {
@@ -181,16 +181,16 @@
 
 /* ===== MOBILE HAMBURGER MENU STYLES ===== */
 
-/* Simplified mobile menu backdrop */
+/* Optimized mobile menu backdrop */
 .mobile-menu-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 50;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.1s ease;
 }
 
-/* Simplified mobile menu panel */
+/* Optimized mobile menu panel */
 .mobile-menu-panel {
   position: fixed;
   top: 0;
@@ -200,7 +200,7 @@
   background: rgba(0, 0, 0, 0.95);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transform: translateX(-100%);
-  transition: transform 0.15s ease;
+  transition: transform 0.1s ease;
   z-index: 51;
   overflow-y: auto;
 }
@@ -212,7 +212,7 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-/* Simplified mobile user profile section */
+/* Optimized mobile user profile section */
 .mobile-user-profile {
   display: flex;
   align-items: center;
@@ -222,7 +222,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.15s ease;
+  transition: background-color 0.08s ease;
 }
 
 .mobile-user-profile:hover {
@@ -230,20 +230,20 @@
   border-color: hsl(var(--primary) / 0.15);
 }
 
-/* Simplified mobile avatar */
+/* Optimized mobile avatar */
 .mobile-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.08s ease;
 }
 
 .mobile-user-profile:hover .mobile-avatar {
   border-color: hsl(var(--primary) / 0.3);
 }
 
-/* Simplified mobile search bar */
+/* Optimized mobile search bar */
 .mobile-search-container {
   padding: 0 1rem;
   margin-bottom: 1rem;
@@ -253,20 +253,20 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.08s ease;
 }
 
 .mobile-search-bar:focus {
   border-color: hsl(var(--primary) / 0.3);
 }
 
-/* Simplified mobile navigation items */
+/* Optimized mobile navigation items */
 .mobile-nav-item {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   margin: 0.5rem 1rem;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.08s ease;
 }
 
 .mobile-nav-item:hover {
