@@ -1,13 +1,15 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Search, Plus, MoreVertical, Eye, Edit, Trash2, Share, Filter, Check, MessageCircle, FileText, Trash } from 'lucide-react';
+import { ArrowLeft, Search, Plus, MoreVertical, Eye, Edit, Trash2, Share, Filter, Check, MessageCircle, FileText, Trash, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { SearchButton } from '@/components/ui/search-button';
+import { ShareSelector } from '@/components/ui/share-selector';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -31,6 +33,7 @@ import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
+import '@/styles/search-enhancements.css';
 
 export const BudgetsPage = () => {
   const { user, profile } = useAuth();
@@ -62,12 +65,18 @@ export const BudgetsPage = () => {
     searchTerm,
     setSearchTerm,
     filteredBudgets,
+    isSearching,
+    handleKeyPress,
+    clearSearch,
+    searchStats
   } = useBudgetSearch(budgets);
 
   const {
     editingBudget,
     deletingBudget,
     confirmation,
+    sharingBudget,
+    showShareSelector,
     isGenerating,
     handleShareWhatsApp,
     handleViewPDF,
@@ -76,7 +85,10 @@ export const BudgetsPage = () => {
     closeEdit,
     closeDelete,
     closeConfirmation,
-    confirmAction
+    closeShareSelector,
+    confirmAction,
+    onShareSuccess,
+    onShareError
   } = useBudgetActions();
 
   const formatCurrency = (value: number) => {
@@ -169,17 +181,112 @@ export const BudgetsPage = () => {
           </Button>
         </div>
 
-        {/* Search Bar */}
+        {/* Enhanced Search Bar */}
         <div className="px-4 pb-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-            <Input
-              placeholder="Buscar por cliente, dispositivo..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-12 bg-card border-border/50 rounded-xl text-base placeholder:text-muted-foreground/70"
-            />
+          <div className="relative flex items-center gap-2 search-container">
+            <div className="relative flex-1 search-container">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 search-icon" />
+              <Input
+                 placeholder="Buscar por cliente, dispositivo ou serviço..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 onKeyDown={handleKeyPress}
+                 className={cn(
+                   "pl-12 pr-12 h-12 bg-card border-border/50 rounded-xl text-base",
+                   "placeholder:text-muted-foreground/70 search-input-enhanced search-state-transition",
+                   "focus:border-primary/50 focus:ring-2 focus:ring-primary/20",
+                   searchTerm && "border-primary/30",
+                   isSearching && "border-primary/50 ring-2 ring-primary/10"
+                 )}
+               />
+              {searchTerm && (
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={clearSearch}
+                   className={cn(
+                     "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full",
+                     "clear-search-btn visible hover:bg-muted/80 search-enhanced"
+                   )}
+                 >
+                   <X className="h-4 w-4" />
+                 </Button>
+               )}
+            </div>
+            <SearchButton
+               variant="default"
+               size="md"
+               className="h-12 px-6 rounded-xl shadow-sm search-button-enhanced search-enhanced"
+               isLoading={isSearching}
+               onClick={() => {
+                 // Trigger search feedback
+                 if (searchTerm.trim()) {
+                   toast({
+                     title: "Pesquisa realizada",
+                     description: `Encontrados ${searchStats.filtered} resultado(s) para "${searchTerm}" (${searchStats.percentage}% do total)`
+                   });
+                 } else {
+                   toast({
+                     title: "Digite algo para pesquisar",
+                     description: "Insira um termo de pesquisa para filtrar os orçamentos"
+                   });
+                 }
+               }}
+             >
+               {isSearching ? (
+                 <div className="search-loading-indicator">
+                   <div className="search-loading-dot"></div>
+                   <div className="search-loading-dot"></div>
+                   <div className="search-loading-dot"></div>
+                   <span className="ml-2">Buscando...</span>
+                 </div>
+               ) : 'Buscar'}
+             </SearchButton>
           </div>
+          
+          {/* Enhanced Search Results Info */}
+           {searchTerm && (
+             <div className="mt-3 space-y-2 search-results-container">
+               <div className="flex items-center justify-between text-sm">
+                 <div className="flex items-center gap-2">
+                   <span className={cn(
+                     "font-medium search-state-transition",
+                     searchStats.hasResults ? "text-foreground" : "text-muted-foreground"
+                   )}>
+                     {searchStats.hasResults 
+                       ? `${searchStats.filtered} resultado(s) encontrado(s)`
+                       : 'Nenhum resultado encontrado'
+                     }
+                   </span>
+                   {searchStats.hasResults && (
+                     <Badge variant="secondary" className="text-xs search-stats-badge">
+                       {searchStats.percentage}% do total
+                     </Badge>
+                   )}
+                 </div>
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={clearSearch}
+                   className="text-xs text-primary hover:text-primary/80 p-1 h-auto search-state-transition search-enhanced"
+                 >
+                   Limpar pesquisa
+                 </Button>
+               </div>
+               
+               {/* Search progress indicator */}
+               {isSearching && (
+                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                   <div className="search-loading-indicator">
+                     <div className="search-loading-dot"></div>
+                     <div className="search-loading-dot"></div>
+                     <div className="search-loading-dot"></div>
+                   </div>
+                   <span>Pesquisando...</span>
+                 </div>
+               )}
+             </div>
+           )}
         </div>
       </div>
 
@@ -399,6 +506,18 @@ export const BudgetsPage = () => {
         title={confirmation?.title || ''} 
         description={confirmation?.description || ''} 
       />
+
+      {/* Share Selector */}
+      {showShareSelector && sharingBudget && (
+        <ShareSelector
+          isOpen={showShareSelector}
+          onClose={closeShareSelector}
+          data={sharingBudget}
+          dataType="budget"
+          onSuccess={onShareSuccess}
+          onError={onShareError}
+        />
+      )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/useToast';
-
+import { useShareOptions } from '@/hooks/useShareOptions';
 
 import { BudgetAction } from '../types';
 import { useBudgetErrorHandler } from './useBudgetErrorHandler';
@@ -17,31 +17,32 @@ export const useBudgetActions = () => {
   const [editingBudget, setEditingBudget] = useState<any>(null);
   const [deletingBudget, setDeletingBudget] = useState<any>(null);
   const [confirmation, setConfirmation] = useState<BudgetAction | null>(null);
+  const [sharingBudget, setSharingBudget] = useState<any>(null);
+  const [showShareSelector, setShowShareSelector] = useState(false);
 
   const handleShareWhatsApp = useCallback((budget: any) => {
-    setConfirmation({
-      action: () => {
-        try {
-          const message = generateWhatsAppMessage({
-            ...budget,
-            service_specification: budget.service_specification || budget.part_type
-          });
-          shareViaWhatsApp(message);
-          showSuccess({
-            title: "Redirecionando...",
-            description: "Você será redirecionado para o WhatsApp para compartilhar o orçamento."
-          });
-        } catch (error) {
-          showError({
-            title: "Erro ao compartilhar",
-            description: "Ocorreu um erro ao preparar o compartilhamento."
-          });
-        }
-      },
-      title: "Compartilhar via WhatsApp?",
-      description: "Você será redirecionado para o WhatsApp para enviar os detalhes do orçamento."
+    setSharingBudget(budget);
+    setShowShareSelector(true);
+  }, []);
+
+  const closeShareSelector = useCallback(() => {
+    setShowShareSelector(false);
+    setSharingBudget(null);
+  }, []);
+
+  const onShareSuccess = useCallback(() => {
+    showSuccess({
+      title: "Compartilhado com sucesso!",
+      description: "O orçamento foi compartilhado."
     });
-  }, [showSuccess, showError]);
+  }, [showSuccess]);
+
+  const onShareError = useCallback((error: Error) => {
+    showError({
+      title: "Erro ao compartilhar",
+      description: error.message || "Ocorreu um erro ao compartilhar o orçamento."
+    });
+  }, [showError]);
 
 
 
@@ -109,6 +110,8 @@ export const useBudgetActions = () => {
     editingBudget,
     deletingBudget,
     confirmation,
+    sharingBudget,
+    showShareSelector,
     handleShareWhatsApp,
     handleEdit,
     handleDelete,
@@ -116,6 +119,9 @@ export const useBudgetActions = () => {
     closeEdit,
     closeDelete,
     closeConfirmation,
-    confirmAction
+    closeShareSelector,
+    confirmAction,
+    onShareSuccess,
+    onShareError
   };
 };
