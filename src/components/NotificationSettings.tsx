@@ -7,16 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Bell, BellOff, Volume2, VolumeX, Smartphone, Clock, Settings, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Bell, Volume2, Smartphone, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 
-interface NotificationPermission {
-  granted: boolean;
-  supported: boolean;
-  subscription?: PushSubscription | null;
-}
 
 interface NotificationPreferences {
   pushEnabled: boolean;
@@ -60,7 +55,6 @@ export const NotificationSettings: React.FC<{
   className?: string;
 }> = ({ className }) => {
   const {
-    permissionState,
     isSupported,
     hasPermission,
     isSubscribed,
@@ -92,13 +86,13 @@ export const NotificationSettings: React.FC<{
       setPreferences(newPreferences);
     } catch (error) {
       console.error('Erro ao salvar preferências:', error);
-      showError('Erro ao salvar preferências');
+      showError({ title: 'Erro ao salvar preferências' });
     }
   };
 
   const handleTestNotification = async () => {
     if (!hasPermission) {
-      showError('Permissão de notificação não concedida');
+      showError({ title: 'Permissão de notificação não concedida' });
       return;
     }
 
@@ -114,10 +108,10 @@ export const NotificationSettings: React.FC<{
           silent: !preferences.soundEnabled
         });
         
-        showSuccess('Notificação de teste enviada!');
+        showSuccess({ title: 'Notificação de teste enviada!' });
       } catch (error) {
         console.error('Erro ao enviar notificação de teste:', error);
-        showError('Erro ao enviar notificação de teste');
+        showError({ title: 'Erro ao enviar notificação de teste' });
       }
     } else {
       // Enviar push notification
@@ -141,15 +135,11 @@ export const NotificationSettings: React.FC<{
         const newPreferences = { ...preferences, pushEnabled: true };
         savePreferences(newPreferences);
       } catch (error) {
-        showError('Erro ao ativar notificações push');
+        showError({ title: 'Erro ao ativar notificações push' });
       }
     }
   };
 
-  const updatePreference = (key: keyof NotificationPreferences, value: any) => {
-    const newPreferences = { ...preferences, [key]: value };
-    savePreferences(newPreferences);
-  };
 
   const updateCategoryPreference = (category: keyof NotificationPreferences['categories'], value: boolean) => {
     const newPreferences = {
@@ -207,8 +197,6 @@ export const NotificationSettings: React.FC<{
 
   const status = getPermissionStatus();
 
-  const permissionStatus = getPermissionStatus();
-  const StatusIcon = permissionStatus.icon;
 
   return (
     <div className={cn("space-y-6", className)}>

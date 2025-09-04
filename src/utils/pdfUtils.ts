@@ -361,12 +361,12 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     yPosition += 25;
   }
   
-  // Seção "SERVIÇOS INCLUSOS" (compacta) - só aparece se houver serviços
+  // Seção "SERVIÇOS INCLUSOS" (compacta) - só aparece se houver serviços ativos
   const includedServices = [];
-  if (budget.includes_delivery) {
+  if (budget.includes_delivery === true) {
     includedServices.push('Busca e entrega do aparelho');
   }
-  if (budget.includes_screen_protector) {
+  if (budget.includes_screen_protector === true) {
     includedServices.push('Película de proteção de brinde');
   }
   

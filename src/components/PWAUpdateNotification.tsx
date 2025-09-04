@@ -29,7 +29,7 @@ export const PWAUpdateNotification: React.FC = () => {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                   setShowUpdate(true);
-                  showInfo('Nova versão disponível! Uma nova versão do app está pronta para ser instalada.');
+                  showInfo({ title: 'Nova versão disponível!', description: 'Uma nova versão do app está pronta para ser instalada.' });
                 }
               });
             }
@@ -48,7 +48,7 @@ export const PWAUpdateNotification: React.FC = () => {
         window.location.href = '/';
       });
       
-      showInfo('Atualizando... A página será recarregada em breve.');
+      showInfo({ title: 'Atualizando...', description: 'A página será recarregada em breve.' });
     }
   };
 

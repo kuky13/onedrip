@@ -10,24 +10,20 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { Alert, AlertDescription, AlertTitle } from './ui/alert'
+
 import { Badge } from './ui/badge'
 import { Separator } from './ui/separator'
 import { 
-  Shield, 
   Settings, 
   AlertTriangle, 
-  Clock, 
   Ban, 
-  Eye, 
-  Bell,
   Save,
   RotateCcw,
   Trash2,
   Plus,
-  X
+  X,
+  Eye
 } from 'lucide-react'
-import { SECURITY_CONFIG } from '../utils/security-config'
 import { securityMiddleware } from '../middleware/security'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
@@ -196,7 +192,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 
   const updateRateLimit = (index: number, field: keyof RateLimitConfig, value: string | number) => {
     const updated = [...rateLimits]
-    updated[index] = { ...updated[index], [field]: value }
+    updated[index] = { ...updated[index], [field]: value } as RateLimitConfig
     setRateLimits(updated)
   }
 
