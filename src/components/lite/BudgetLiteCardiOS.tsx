@@ -249,8 +249,10 @@ export const BudgetLiteCardiOS = ({
         installment_count: budget.installments || 1,
         created_at: budget.created_at,
         validity_date: budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-        warranty_months: 12,
-        notes: budget.issue
+        warranty_months: budget.warranty_months || undefined,
+        notes: budget.notes || budget.issue || undefined,
+        includes_delivery: budget.includes_delivery || false,
+        includes_screen_protector: budget.includes_screen_protector || false
       };
       
       // Preparar dados da empresa com fallbacks robustos

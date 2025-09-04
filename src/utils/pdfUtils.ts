@@ -11,6 +11,8 @@ export interface BudgetData {
   validity_date?: string;
   warranty_months?: number;
   notes?: string;
+  includes_delivery?: boolean;
+  includes_screen_protector?: boolean;
 }
 
 export interface CompanyData {
@@ -359,33 +361,39 @@ export const generateBudgetPDF = async (budget: BudgetData, companyData?: Compan
     yPosition += 25;
   }
   
-  // Seção "SERVIÇOS INCLUSOS" (compacta)
-  doc.setTextColor(...black);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('SERVIÇOS INCLUSOS', margin, yPosition);
+  // Seção "SERVIÇOS INCLUSOS" (compacta) - só aparece se houver serviços
+  const includedServices = [];
+  if (budget.includes_delivery) {
+    includedServices.push('Busca e entrega do aparelho');
+  }
+  if (budget.includes_screen_protector) {
+    includedServices.push('Película de proteção de brinde');
+  }
   
-  yPosition += 8;
-  
-  // Lista de serviços inclusos com bordas
-  const includedServices = [
-    'Busca e entrega do aparelho',
-    'Película de proteção de brinde'
-  ];
-  
-  doc.setDrawColor(...mediumGray);
-  doc.setLineWidth(0.5);
-  doc.setFillColor(...white);
-  doc.rect(margin, yPosition, pageWidth - 2 * margin, includedServices.length * 10, 'FD');
-  
-  includedServices.forEach((service, index) => {
+  if (includedServices.length > 0) {
     doc.setTextColor(...black);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SERVIÇOS INCLUSOS', margin, yPosition);
     
-    // Texto do serviço sem bullet point
-    doc.text(service, margin + 5, yPosition + 7 + (index * 10));
-  });
+    yPosition += 8;
+    
+    doc.setDrawColor(...mediumGray);
+    doc.setLineWidth(0.5);
+    doc.setFillColor(...white);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, includedServices.length * 10, 'FD');
+    
+    includedServices.forEach((service, index) => {
+      doc.setTextColor(...black);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      
+      // Texto do serviço sem bullet point
+      doc.text(service, margin + 5, yPosition + 7 + (index * 10));
+    });
+    
+    yPosition += includedServices.length * 10 + 5;
+  }
   
   // Rodapé
   const footerY = doc.internal.pageSize.height - 30;

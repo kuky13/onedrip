@@ -26,29 +26,47 @@ export const generateWhatsAppMessage = (budgetOrTitle: Budget | string, descript
   const budget = budgetOrTitle;
   let message = `● *Criado em:* ${new Date(budget.created_at).toLocaleDateString('pt-BR')}\n`;
   
-  if (budget.valid_until) {
-    message += `● *Válido até:* ${new Date(budget.valid_until).toLocaleDateString('pt-BR')}\n`;
+  if (budget.valid_until || budget.expires_at) {
+    const validDate = budget.valid_until || budget.expires_at;
+    message += `● *Válido até:* ${new Date(validDate).toLocaleDateString('pt-BR')}\n`;
   }
   
   message += `\n*Aparelho:* ${budget.device_model || 'Não informado'}\n`;
-  message += `*Qualidade da peça:* ${budget.part_quality || 'Original'}\n`;
+  message += `*Qualidade da peça:* ${budget.part_quality || budget.piece_quality || 'Original'}\n`;
   
   message += `\n💰 *VALORES*\n`;
   
-  if (budget.cash_price) {
-    message += `• *Total:* R$ ${(budget.cash_price / 100).toFixed(2).replace('.', ',')}\n`;
+  const cashPrice = budget.cash_price || budget.total_price;
+  if (cashPrice) {
+    const price = typeof cashPrice === 'number' ? (cashPrice > 1000 ? cashPrice / 100 : cashPrice) : parseFloat(cashPrice);
+    message += `• *Total:* R$ ${price.toFixed(2).replace('.', ',')}\n`;
   }
   
-  if (budget.installment_price && budget.installments > 1) {
-    message += `• *Parcelado:* R$ ${(budget.installment_price / 100).toFixed(2).replace('.', ',')} em até ${budget.installments}x no cartão\n`;
+  const installmentPrice = budget.installment_price;
+  const installments = budget.installments || budget.installment_count;
+  if (installmentPrice && installments && installments > 1) {
+    const price = typeof installmentPrice === 'number' ? (installmentPrice > 1000 ? installmentPrice / 100 : installmentPrice) : parseFloat(installmentPrice);
+    message += `• *Parcelado:* R$ ${price.toFixed(2).replace('.', ',')} em até ${installments}x no cartão\n`;
   }
   
-  message += `\n✅️ *Garantia:* ${budget.warranty_months || 3} meses\n`;
-  message += `🚫 *Não cobre danos por água ou quedas*\n`;
+  if (budget.warranty_months) {
+    message += `\n✅️ *Garantia:* ${budget.warranty_months} meses\n`;
+    message += `🚫 *Não cobre danos por água ou quedas*\n`;
+  }
   
-  message += `\n📦 *Serviços inclusos:*\n`;
-  message += `▪︎ Busca e entrega\n`;
-  message += `▪︎ Película 3D de brinde`;
+  // Adicionar serviços inclusos apenas se existirem
+  const services = [];
+  if (budget.includes_delivery) {
+    services.push('▪︎ Busca e entrega');
+  }
+  if (budget.includes_screen_protector) {
+    services.push('▪︎ Película 3D de brinde');
+  }
+  
+  if (services.length > 0) {
+    message += `\n📦 *Serviços inclusos:*\n`;
+    message += services.join('\n');
+  }
   
   return message;
 };
