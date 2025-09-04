@@ -29,7 +29,11 @@ export const DashboardLiteSidebar = ({
 
   const handleItemClick = (item: any) => {
     if (item.isExternal) {
-      navigate('/msg');
+      if (item.route) {
+        navigate(item.route);
+      } else {
+        navigate('/msg');
+      }
       onClose();
     } else {
       handleTabChange(item.id);
@@ -42,6 +46,13 @@ export const DashboardLiteSidebar = ({
   };
 
   const menuItems = [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: Home,
+      isExternal: true,
+      route: '/'
+    },
     {
       id: 'new-budget',
       label: 'Novo Orçamento',

@@ -2,14 +2,14 @@
 
 /* Simplified sidebar */
 .desktop-sidebar {
-  transition: width 0.3s ease;
+  transition: width 0.15s ease;
   background: rgba(255, 255, 255, 0.02);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Simplified hamburger trigger button */
 [data-sidebar="trigger"] {
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -28,7 +28,7 @@
 
 /* Sidebar content animations */
 .desktop-sidebar-content {
-  transition: opacity 0.2s ease-in-out;
+  transition: opacity 0.15s ease;
 }
 
 /* When sidebar is collapsed, hide text with smooth transition */
@@ -42,7 +42,7 @@
 
 /* Simplified menu button hover effects */
 .desktop-sidebar-button {
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -97,29 +97,19 @@
 
 /* Professional header styling */
 .desktop-header {
-  backdrop-filter: blur(25px);
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.08), 
-    rgba(255, 255, 255, 0.03)
-  );
+  background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   padding: 1.5rem 2rem;
 }
 
 /* Enhanced sidebar rail with premium hover */
 [data-sidebar="rail"] {
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: background-color 0.15s ease;
   background: rgba(255, 255, 255, 0.02);
 }
 
 [data-sidebar="rail"]:hover {
-  background: linear-gradient(135deg, 
-    hsl(var(--primary) / 0.08), 
-    hsl(var(--primary) / 0.04)
-  );
-  box-shadow: 0 4px 15px hsl(var(--primary) / 0.1);
-  transform: translateX(2px);
+  background: hsl(var(--primary) / 0.06);
 }
 
 /* Simplified active state indicators */
@@ -133,7 +123,7 @@
 
 /* Simplified icon animations */
 .desktop-sidebar-button svg {
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .desktop-sidebar-button:hover svg {
@@ -158,7 +148,7 @@
   height: 40px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .desktop-avatar:hover {
@@ -197,7 +187,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 50;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.15s ease;
 }
 
 /* Simplified mobile menu panel */
@@ -210,7 +200,7 @@
   background: rgba(0, 0, 0, 0.95);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transform: translateX(-100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.15s ease;
   z-index: 51;
   overflow-y: auto;
 }
@@ -232,7 +222,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .mobile-user-profile:hover {
@@ -246,7 +236,7 @@
   height: 48px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .mobile-user-profile:hover .mobile-avatar {
@@ -263,7 +253,7 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .mobile-search-bar:focus {
@@ -276,7 +266,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   margin: 0.5rem 1rem;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .mobile-nav-item:hover {
@@ -290,7 +280,7 @@
 
 /* Simplified mobile navigation icons */
 .mobile-nav-icon {
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .mobile-nav-item:hover .mobile-nav-icon {
@@ -303,7 +293,7 @@
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .mobile-logout-button:hover {
@@ -319,12 +309,7 @@
 .mobile-user-name {
   font-weight: 600;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, 
-    hsl(var(--foreground)), 
-    hsl(var(--foreground) / 0.8)
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
+  color: hsl(var(--foreground));
 }
 
 .mobile-user-email {
@@ -336,7 +321,7 @@
 .mobile-nav-text {
   font-weight: 500;
   letter-spacing: -0.01em;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: color 0.15s ease;
 }
 
 .mobile-nav-item:hover .mobile-nav-text {
@@ -371,31 +356,22 @@
 /* Dark mode support for mobile menu */
 @media (prefers-color-scheme: dark) {
   .mobile-menu-panel {
-    background: linear-gradient(135deg, 
-      rgba(0, 0, 0, 0.95), 
-      rgba(0, 0, 0, 0.98)
-    );
+    background: rgba(0, 0, 0, 0.95);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .mobile-user-profile {
-    background: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.05), 
-      rgba(255, 255, 255, 0.02)
-    );
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .mobile-nav-item {
-    background: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.08), 
-      rgba(255, 255, 255, 0.04)
-    );
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .mobile-search-bar {
     background: rgba(0, 0, 0, 0.6);
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }

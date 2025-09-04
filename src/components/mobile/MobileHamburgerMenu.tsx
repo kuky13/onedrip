@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, LogOut, Search, User, ChevronRight, HelpCircle } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -112,42 +111,29 @@ export const MobileHamburgerMenu = ({
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className={cn(
-              "fixed inset-0 z-40 bg-black/60 backdrop-blur-md",
-              "md:hidden"
-            )}
-            onClick={onClose}
-          />
+    <>
+      {/* Backdrop */}
+      <div 
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50",
+          "md:hidden transition-opacity duration-150 ease-out",
+          isOpen ? "opacity-100" : "opacity-0"
+        )}
+        onClick={onClose}
+      />
 
-          {/* Menu Panel */}
-          <motion.div 
-            initial={{ x: '-100%', opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '-100%', opacity: 0 }}
-            transition={{ 
-              type: 'spring', 
-              damping: 25, 
-              stiffness: 300,
-              duration: 0.3
-            }}
-            className={cn(
-              "fixed top-0 left-0 z-50 w-80 max-w-[85vw]",
-              "h-[100dvh] bg-background",
-              "border-r border-border",
-              "flex flex-col shadow-strong",
-              "ios-momentum-scroll ios-tap-highlight-none",
-              "md:hidden"
-            )}
-          >
+      {/* Menu Panel */}
+      <div 
+        className={cn(
+          "fixed top-0 left-0 z-50 w-80 max-w-[85vw]",
+          "h-[100dvh] bg-background",
+          "border-r border-border",
+          "flex flex-col shadow-strong",
+          "ios-momentum-scroll ios-tap-highlight-none",
+          "md:hidden transition-transform duration-150 ease-out",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center space-x-3">
@@ -221,32 +207,26 @@ export const MobileHamburgerMenu = ({
             {/* Navigation Items */}
             <div className="flex-1 overflow-y-auto p-4">
               <nav className="space-y-1">
-                {filteredItems.map((item, index) => {
+                {filteredItems.map((item) => {
                   const IconComponent = getIconComponent(item.icon);
                   
                   return (
-                    <motion.div
+                    <Button
                       key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.02, duration: 0.2 }}
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start h-12 px-3 text-left font-medium transition-all duration-150 group",
+                        "hover:bg-secondary rounded-lg",
+                        "touch-manipulation ios-tap-highlight-none"
+                      )}
+                      onClick={() => handleTabChange(item.id)}
                     >
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start h-12 px-3 text-left font-medium transition-colors group",
-                          "hover:bg-secondary rounded-lg",
-                          "touch-manipulation ios-tap-highlight-none"
-                        )}
-                        onClick={() => handleTabChange(item.id)}
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-secondary mr-3 group-hover:bg-primary transition-colors">
-                          <IconComponent className="h-4 w-4 text-muted-foreground group-hover:text-primary-foreground transition-colors shrink-0" />
-                        </div>
-                        <span className="text-foreground group-hover:text-foreground font-medium truncate">{item.label}</span>
-                        <ChevronRight className="h-3 w-3 text-muted-foreground ml-auto opacity-60" />
-                      </Button>
-                    </motion.div>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-secondary mr-3 group-hover:bg-primary transition-colors duration-150">
+                        <IconComponent className="h-4 w-4 text-muted-foreground group-hover:text-primary-foreground transition-colors duration-150 shrink-0" />
+                      </div>
+                      <span className="text-foreground group-hover:text-foreground font-medium truncate">{item.label}</span>
+                      <ChevronRight className="h-3 w-3 text-muted-foreground ml-auto opacity-60" />
+                    </Button>
                   );
                 })}
               </nav>
@@ -268,9 +248,7 @@ export const MobileHamburgerMenu = ({
                 <span className="font-medium">Sair da conta</span>
               </Button>
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      </div>
+    </>
   );
 };

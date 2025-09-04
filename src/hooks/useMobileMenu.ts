@@ -37,6 +37,13 @@ export const useMobileMenu = () => {
         
         const menuItems: MenuItem[] = [
           {
+            id: 'home',
+            label: 'Home',
+            icon: 'Home',
+            href: '/',
+            description: 'Página inicial'
+          },
+          {
             id: 'new-budget',
             label: 'Novo Orçamento',
             icon: 'Plus',
