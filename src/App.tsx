@@ -40,6 +40,7 @@ import ServiceOrderSharePage from "./pages/ServiceOrderSharePage";
 import { ServiceOrderSettings } from "./components/ServiceOrderSettings";
 import HelpCenterPage from "./pages/HelpCenterPage";
 import Security from "./pages/Security";
+import SuportePage from "./pages/SuportePage";
 
 import { CompanyBrandingSettings } from "./components/CompanyBrandingSettings";
 import { useAutoRedirect } from "./hooks/useAutoRedirect";
@@ -243,6 +244,7 @@ const AppContent = () => {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/cookies" element={<CookiesPage />} />
+        <Route path="/suporte" element={<SuportePage />} />
         
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="*" element={<NotFound />} />

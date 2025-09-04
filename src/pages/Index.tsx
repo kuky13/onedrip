@@ -3,12 +3,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Users, BarChart3, Shield, Database, Settings, ArrowRight, CheckCircle, HelpCircle } from 'lucide-react';
+import { FileText, Users, BarChart3, Shield, Database, Settings, ArrowRight, CheckCircle } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
 import { useAppInfo, useMarketingConfig } from '@/hooks/useAppConfig';
 import { useCompanyDataLoader } from '@/hooks/useCompanyDataLoader';
+import SupportButton from '@/components/SupportButton';
 
 // Função para abrir WhatsApp
 const openWhatsApp = (url: string) => {
@@ -196,6 +197,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Support Button for non-logged users */}
+      {!user && <SupportButton variant="floating" />}
+
       {/* Footer */}
       <footer className="bg-gradient-to-t from-muted/20 to-background border-t border-border/30 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
@@ -227,17 +231,6 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Floating Help Button (FAB) */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <ScaleOnHover>
-          <Button asChild className="w-14 h-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-0 group transition-all duration-300 hover:scale-110">
-            <Link to="/central-de-ajuda" className="flex items-center justify-center">
-              <HelpCircle className="h-6 w-6 text-primary-foreground group-hover:scale-110 transition-transform duration-300" />
-              <span className="sr-only">Central de Ajuda</span>
-            </Link>
-          </Button>
-        </ScaleOnHover>
-      </div>
     </div>;
 };
 export default Index;

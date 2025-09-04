@@ -17,6 +17,7 @@ import { useContextualActions } from '@/hooks/useContextualActions';
 import { useAuth } from '@/hooks/useAuth';
 import { openWhatsApp } from '@/utils/whatsappUtils';
 import { Tables, Enums } from '@/integrations/supabase/types';
+import SupportButton from '@/components/SupportButton';
 
 type ServiceOrder = Tables<'service_orders'>;
 type ServiceOrderStatus = Enums<'service_order_status'>;
@@ -563,6 +564,7 @@ const ServiceOrdersPage: React.FC = () => {
               </Card>)}
           </div>}
       </div>
+      <SupportButton variant="floating" />
     </div>;
 };
 export default ServiceOrdersPage;

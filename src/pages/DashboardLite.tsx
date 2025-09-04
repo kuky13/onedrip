@@ -15,6 +15,7 @@ import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import { PageTransition } from '@/components/ui/animations/page-transitions';
 import { IOSSpinner } from '@/components/ui/animations/loading-states';
+import SupportButton from '@/components/SupportButton';
 
 export const DashboardLite = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -174,6 +175,7 @@ export const DashboardLite = () => {
             onTabChange={setActiveTab}
           >
             {renderContent()}
+            <SupportButton variant="floating" />
           </AdaptiveLayout>
         </LayoutProvider>
       </BudgetErrorBoundary>
