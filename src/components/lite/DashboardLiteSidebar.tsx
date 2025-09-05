@@ -47,11 +47,11 @@ export const DashboardLiteSidebar = ({
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: 'home',
+      label: 'Home',
       icon: Home,
       isExternal: true,
-      route: '/painel'
+      route: '/'
     },
     {
       id: 'new-budget',
