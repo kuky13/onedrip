@@ -51,7 +51,7 @@ export const DashboardLiteSidebar = ({
       label: 'Home',
       icon: Home,
       isExternal: true,
-      route: '/'
+      route: '/painel'
     },
     {
       id: 'new-budget',

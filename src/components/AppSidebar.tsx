@@ -26,7 +26,7 @@ export const AppSidebar = ({
   } = useResponsive();
 
   const navigationItems = [
-    { id: 'home', label: 'Home', icon: Home, permission: true, route: '/' },
+    { id: 'home', label: 'Home', icon: Home, permission: true, route: '/painel' },
     { id: 'new-budget', label: 'Novo Orçamento', icon: Plus, permission: true },
     { id: 'help-center', label: 'Central de Ajuda', icon: HelpCircle, permission: true, route: '/central-de-ajuda' },
     { id: 'admin', label: 'Administração', icon: Users, permission: hasRole('admin') }
