@@ -28,7 +28,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     id: 'dashboard',
-    label: 'Painel',
+    label: 'Dashboard',
     icon: Home,
     path: '/painel'
   },

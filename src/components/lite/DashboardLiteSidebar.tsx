@@ -47,8 +47,8 @@ export const DashboardLiteSidebar = ({
 
   const menuItems = [
     {
-      id: 'home',
-      label: 'Home',
+      id: 'dashboard',
+      label: 'Dashboard',
       icon: Home,
       isExternal: true,
       route: '/painel'

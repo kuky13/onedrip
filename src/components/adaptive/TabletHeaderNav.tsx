@@ -34,7 +34,7 @@ export const TabletHeaderNav = ({
   const navItems = [{
     id: 'dashboard',
     icon: Home,
-    label: 'Menu'
+    label: 'Dashboard'
   }, {
     id: 'budgets',
     icon: FileText,
