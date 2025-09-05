@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Trash2, RotateCcw, AlertTriangle } from '@/components/ui/icons';
@@ -15,8 +15,10 @@ interface BudgetData {
   id: string;
   client_name?: string;
   device_type?: string;
+  device_model?: string;
   problem_description?: string;
   total_value?: number;
+  total_price?: number;
   workflow_status?: string;
   created_at?: string;
   expires_at?: string;
@@ -90,7 +92,10 @@ export const TrashManagement = () => {
         }
         
         console.log('Debug - Trashed budgets found:', data?.length || 0, data);
-        return data as DeletedBudget[];
+        return (data as any[])?.map(item => ({
+          ...item,
+          budget_data: item.budget_data as BudgetData
+        })) as DeletedBudget[] || [];
       } catch (error) {
         console.error('TrashManagement: Falha na query:', error);
         throw error;
@@ -263,12 +268,6 @@ export const TrashManagement = () => {
       minute: '2-digit'
     });
   };
-  const formatPrice = (price: number) => {
-    return (price / 100).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-  };
 
   // Filtrar e ordenar dados
   const {
@@ -281,7 +280,7 @@ export const TrashManagement = () => {
     };
 
     // Extrair tipos de dispositivos únicos
-    const types = [...new Set(deletedBudgets.map(item => item.budget_data.device_type).filter(Boolean))];
+    const types = [...new Set(deletedBudgets.map(item => item.budget_data.device_type).filter(Boolean))] as string[];
 
     // Aplicar filtros
     const filtered = deletedBudgets.filter(item => {

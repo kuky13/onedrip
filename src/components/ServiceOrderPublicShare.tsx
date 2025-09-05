@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { AlertCircle, Clock, CheckCircle, Calendar, User, Phone, Building2, Share2, Download, ExternalLink, MapPin, Globe, Mail, Package, Wrench, Truck, Archive } from 'lucide-react';
+import { AlertCircle, CheckCircle, Calendar, Phone, Building2, Share2, ExternalLink, MapPin, Package, Wrench, Truck, Archive } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useCompanyBranding } from '@/hooks/useCompanyBranding';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ interface ServiceOrderData {
   updated_at: string;
   entry_date: string | null;
   exit_date: string | null;
+  sequential_number?: number;
 }
 interface CompanyData {
   name: string;
@@ -77,58 +78,14 @@ const statusOrder = ['opened', 'in_progress', 'completed', 'delivered'];
 interface StatusTimelineProps {
   currentStatus: string;
   themeColor: string;
-  createdAt: string;
-  updatedAt: string;
-  entryDate?: string | null;
-  exitDate?: string | null;
 }
 function StatusTimeline({
   currentStatus,
-  themeColor,
-  createdAt,
-  updatedAt,
-  entryDate,
-  exitDate
+  themeColor
 }: StatusTimelineProps) {
   const currentStatusInfo = getStatusInfo(currentStatus);
   const currentStep = currentStatusInfo.step;
   const progressPercentage = currentStep === 0 ? 0 : currentStep / 4 * 100;
-  const getTimeElapsed = () => {
-    const now = new Date();
-    const startDate = entryDate ? new Date(entryDate) : new Date(createdAt);
-    const endDate = exitDate && (currentStatus === 'delivered' || currentStatus === 'completed') ? new Date(exitDate) : now;
-    
-    const days = differenceInDays(endDate, startDate);
-    const hours = differenceInHours(endDate, startDate) % 24;
-    const minutes = differenceInMinutes(endDate, startDate) % 60;
-    
-    if (days > 0) {
-      return `${days} dia${days > 1 ? 's' : ''} e ${hours}h`;
-    } else if (hours > 0) {
-      return `${hours}h e ${minutes}min`;
-    } else {
-      return `${minutes} minuto${minutes > 1 ? 's' : ''}`;
-    }
-  };
-  const getEstimatedCompletion = () => {
-    if (currentStatus === 'delivered' && exitDate) {
-      return format(new Date(exitDate), 'dd/MM/yyyy', { locale: ptBR });
-    }
-    if (currentStatus === 'delivered') return 'Concluído';
-    
-    const avgDays = {
-      opened: 2,
-      in_progress: 1,
-      completed: 0.5
-    };
-    const daysToAdd = avgDays[currentStatus as keyof typeof avgDays] || 1;
-    const baseDate = entryDate ? new Date(entryDate) : new Date();
-    const estimatedDate = new Date(baseDate);
-    estimatedDate.setDate(estimatedDate.getDate() + daysToAdd);
-    return format(estimatedDate, 'dd/MM/yyyy', {
-      locale: ptBR
-    });
-  };
   return <div className="space-y-6">
       {/* Progress Bar */}
       <div className="space-y-3">
@@ -143,7 +100,7 @@ function StatusTimeline({
 
       {/* Timeline Steps */}
       <div className="space-y-4">
-        {statusOrder.map((status, index) => {
+        {statusOrder.map((status) => {
         const statusInfo = getStatusInfo(status);
         const isActive = status === currentStatus;
         const isCompleted = statusInfo.step <= currentStep && currentStep > 0;
@@ -244,7 +201,14 @@ export function ServiceOrderPublicShare() {
         throw new Error('Token de compartilhamento inválido ou expirado');
       }
       console.log('📋 Ordem de serviço encontrada:', serviceOrderData[0]);
-      setServiceOrder(serviceOrderData[0]);
+      if (serviceOrderData[0]) {
+        const orderData = serviceOrderData[0] as any;
+        setServiceOrder({
+          ...orderData,
+          entry_date: orderData.entry_date || null,
+          exit_date: orderData.exit_date || null
+        });
+      }
 
       // Carregar informações da empresa
       const {
@@ -256,15 +220,17 @@ export function ServiceOrderPublicShare() {
       if (!companyError && companyData && companyData.length > 0) {
         console.log('🏢 Informações da empresa carregadas:', companyData[0]);
         const data = companyData[0];
-        setCompanyInfo({
-          name: data.name,
-          logo_url: data.logo_url,
-          address: data.address,
-          whatsapp_phone: data.whatsapp_phone,
-          description: null,
-          email: null,
-          website: null
-        });
+        if (data) {
+          setCompanyInfo({
+            name: data.name || '',
+            logo_url: data.logo_url || null,
+            address: data.address || null,
+            whatsapp_phone: data.whatsapp_phone || null,
+            description: null,
+            email: null,
+            website: null
+          });
+        }
       } else {
         console.log('⚠️ Informações da empresa não encontradas');
       }
@@ -432,7 +398,7 @@ export function ServiceOrderPublicShare() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <StatusTimeline currentStatus={serviceOrder.status} themeColor={themeColor} createdAt={serviceOrder.created_at} updatedAt={serviceOrder.updated_at} entryDate={serviceOrder.entry_date} exitDate={serviceOrder.exit_date} />
+              <StatusTimeline currentStatus={serviceOrder.status} themeColor={themeColor} />
             </CardContent>
           </Card>
 

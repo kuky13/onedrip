@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,7 @@ export const UnifiedBetaFeaturesSettings = ({ isLite = false }: UnifiedBetaFeatu
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { isAndroid, shouldUseLite } = useDeviceDetection();
+  const { isAndroid } = useDeviceDetection();
 
   // Check if user has required role
   const hasPermission = profile?.role === 'admin' || profile?.role === 'user';
