@@ -198,51 +198,125 @@ export function EmpresaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')}
-              className="mr-2 hover:bg-muted min-h-[44px] px-3 py-2 sm:px-4 sm:py-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
-            </Button>
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <Building2 className="w-8 h-8 text-primary" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80">
+      {/* Professional Header */}
+      <div className="relative bg-gradient-to-r from-card via-card/95 to-card border-b border-border/50 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+        <div className="relative max-w-6xl mx-auto p-6 md:p-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/dashboard')}
+                className="mr-2 hover:bg-muted/50 min-h-[44px] px-3 py-2 rounded-lg transition-all duration-200"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Dashboard
+              </Button>
+              <div className="hidden md:block w-px h-8 bg-border/50" />
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl">
+                  <Building2 className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Dados da Empresa
+                  </h1>
+                  <p className="text-muted-foreground mt-1">
+                    Configure a identidade da sua empresa para documentos e relatórios
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Dados da Empresa
-              </h1>
-              <p className="text-muted-foreground">
-                Configure as informações da sua empresa
-              </p>
-            </div>
+            {empresaData.logo_url && (
+              <div className="hidden lg:block">
+                <div className="p-2 bg-background/50 rounded-lg border border-border/50">
+                  <img
+                    src={empresaData.logo_url}
+                    alt="Logo atual"
+                    className="w-12 h-12 object-contain rounded"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="space-y-6">
-          {/* Company Information Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Building2 className="w-5 h-5" />
-                <span>Informações da Empresa</span>
-              </CardTitle>
-              <CardDescription>
-                Dados básicos da sua empresa que serão utilizados nos documentos e relatórios
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 space-y-8">
+        {/* Progress Indicator */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${empresaData.shop_name ? 'bg-success/20 text-success' : 'bg-muted/20 text-muted-foreground'}`}>
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-medium">Informações Básicas</p>
+                  <p className="text-sm text-muted-foreground">
+                    {empresaData.shop_name ? 'Concluído' : 'Pendente'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${empresaData.logo_url ? 'bg-success/20 text-success' : 'bg-muted/20 text-muted-foreground'}`}>
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-medium">Logo da Empresa</p>
+                  <p className="text-sm text-muted-foreground">
+                    {empresaData.logo_url ? 'Configurado' : 'Opcional'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${empresaData.contact_phone ? 'bg-success/20 text-success' : 'bg-muted/20 text-muted-foreground'}`}>
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-medium">Contato</p>
+                  <p className="text-sm text-muted-foreground">
+                    {empresaData.contact_phone ? 'Configurado' : 'Pendente'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Company Information Card */}
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+          <CardHeader className="pb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-3 text-xl">
+                  <div className="p-2 bg-primary/20 rounded-lg">
+                    <Building2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <span>Informações da Empresa</span>
+                </CardTitle>
+                <CardDescription className="mt-2">
+                  Dados básicos da sua empresa que aparecerão nos documentos PDF, contratos e relatórios
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Company Name */}
-              <div className="space-y-2">
-                <Label htmlFor="shop_name" className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4" />
+              <div className="space-y-3">
+                <Label htmlFor="shop_name" className="flex items-center space-x-2 text-sm font-medium">
+                  <Building2 className="w-4 h-4 text-primary" />
                   <span>Nome da Empresa *</span>
                 </Label>
                 <Input
@@ -250,41 +324,23 @@ export function EmpresaPage() {
                   value={empresaData.shop_name}
                   onChange={(e) => handleInputChange('shop_name', e.target.value)}
                   placeholder="Digite o nome da empresa"
-                  className={cn(empresaErrors.shop_name && "border-destructive")}
+                  className={cn(
+                    "h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20",
+                    empresaErrors.shop_name && "border-destructive focus:ring-destructive/20"
+                  )}
                 />
                 {empresaErrors.shop_name && (
-                  <p className="text-sm text-destructive flex items-center space-x-1">
+                  <p className="text-sm text-destructive flex items-center space-x-1 animate-fade-in">
                     <AlertCircle className="w-4 h-4" />
                     <span>{empresaErrors.shop_name}</span>
                   </p>
                 )}
               </div>
 
-              {/* Address */}
-              <div className="space-y-2">
-                <Label htmlFor="address" className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Endereço Completo *</span>
-                </Label>
-                <Input
-                  id="address"
-                  value={empresaData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Rua, número, bairro, cidade, estado, CEP"
-                  className={cn(empresaErrors.address && "border-destructive")}
-                />
-                {empresaErrors.address && (
-                  <p className="text-sm text-destructive flex items-center space-x-1">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{empresaErrors.address}</span>
-                  </p>
-                )}
-              </div>
-
               {/* Contact Phone */}
-              <div className="space-y-2">
-                <Label htmlFor="contact_phone" className="flex items-center space-x-2">
-                  <Phone className="w-4 h-4" />
+              <div className="space-y-3">
+                <Label htmlFor="contact_phone" className="flex items-center space-x-2 text-sm font-medium">
+                  <Phone className="w-4 h-4 text-primary" />
                   <span>Telefone de Contato *</span>
                 </Label>
                 <Input
@@ -292,117 +348,163 @@ export function EmpresaPage() {
                   value={empresaData.contact_phone}
                   onChange={(e) => handleInputChange('contact_phone', e.target.value)}
                   placeholder="(11) 99999-9999"
-                  className={cn(empresaErrors.contact_phone && "border-destructive")}
+                  className={cn(
+                    "h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20",
+                    empresaErrors.contact_phone && "border-destructive focus:ring-destructive/20"
+                  )}
                 />
                 {empresaErrors.contact_phone && (
-                  <p className="text-sm text-destructive flex items-center space-x-1">
+                  <p className="text-sm text-destructive flex items-center space-x-1 animate-fade-in">
                     <AlertCircle className="w-4 h-4" />
                     <span>{empresaErrors.contact_phone}</span>
                   </p>
                 )}
               </div>
 
+              {/* Address */}
+              <div className="lg:col-span-2 space-y-3">
+                <Label htmlFor="address" className="flex items-center space-x-2 text-sm font-medium">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span>Endereço Completo *</span>
+                </Label>
+                <Input
+                  id="address"
+                  value={empresaData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Rua, número, bairro, cidade, estado, CEP"
+                  className={cn(
+                    "h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20",
+                    empresaErrors.address && "border-destructive focus:ring-destructive/20"
+                  )}
+                />
+                {empresaErrors.address && (
+                  <p className="text-sm text-destructive flex items-center space-x-1 animate-fade-in">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{empresaErrors.address}</span>
+                  </p>
+                )}
+              </div>
+
               {/* CNPJ */}
-              <div className="space-y-2">
-                <Label htmlFor="cnpj" className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4" />
-                  <span>CNPJ</span>
+              <div className="lg:col-span-2 space-y-3">
+                <Label htmlFor="cnpj" className="flex items-center space-x-2 text-sm font-medium">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <span>CNPJ (Opcional)</span>
                 </Label>
                 <Input
                   id="cnpj"
                   value={empresaData.cnpj}
                   onChange={(e) => handleInputChange('cnpj', e.target.value)}
                   placeholder="00.000.000/0000-00"
-                  className={cn(empresaErrors.cnpj && "border-destructive")}
+                  className={cn(
+                    "h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20",
+                    empresaErrors.cnpj && "border-destructive focus:ring-destructive/20"
+                  )}
                 />
                 {empresaErrors.cnpj && (
-                  <p className="text-sm text-destructive flex items-center space-x-1">
+                  <p className="text-sm text-destructive flex items-center space-x-1 animate-fade-in">
                     <AlertCircle className="w-4 h-4" />
                     <span>{empresaErrors.cnpj}</span>
                   </p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Logo Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <ImageIcon className="w-5 h-5" />
-                <span>Logo da Empresa</span>
-              </CardTitle>
-              <CardDescription>
-                Faça upload da logo da sua empresa (máximo 3MB)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Current Logo */}
-              {empresaData.logo_url && (
+        {/* Logo Card */}
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-3 text-xl">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <ImageIcon className="w-5 h-5 text-primary" />
+              </div>
+              <span>Logo da Empresa</span>
+            </CardTitle>
+            <CardDescription>
+              Adicione a logo da sua empresa para personalizar documentos (máximo 3MB)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Current Logo Preview */}
+            {empresaData.logo_url && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Logo atual:</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveLogo}
+                    className="text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remover
+                  </Button>
+                </div>
+                <div className="border border-border/50 rounded-lg p-6 bg-gradient-to-br from-background to-muted/20">
+                  <img
+                    src={empresaData.logo_url}
+                    alt="Logo da empresa"
+                    className="max-w-xs max-h-32 object-contain mx-auto rounded-lg shadow-soft"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upload Area */}
+            <div className="space-y-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              <div 
+                className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-gradient-to-br from-muted/20 to-muted/10 hover:from-muted/30 hover:to-muted/20 transition-all duration-300 cursor-pointer group"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Logo atual:</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRemoveLogo}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remover
-                    </Button>
+                  <div className="mx-auto w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                    {uploadingLogo ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+                    ) : (
+                      <Upload className="w-6 h-6 text-primary" />
+                    )}
                   </div>
-                  <div className="border rounded-lg p-4 bg-muted/50">
-                    <img
-                      src={empresaData.logo_url}
-                      alt="Logo da empresa"
-                      className="max-w-xs max-h-32 object-contain mx-auto"
-                    />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {uploadingLogo ? 'Enviando logo...' : 'Clique para enviar logo'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG ou JPEG até 3MB
+                    </p>
                   </div>
                 </div>
-              )}
-
-              {/* Upload Logo */}
-              <div className="space-y-4">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingLogo}
-                  className="w-full"
-                >
-                  {uploadingLogo ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                  ) : (
-                    <Upload className="w-4 h-4 mr-2" />
-                  )}
-                  {uploadingLogo ? 'Enviando...' : 'Enviar Logo'}
-                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button
-              onClick={handleEmpresaSubmit}
-              disabled={isSaving}
-              className="min-w-[120px]"
-            >
-              {isSaving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-              ) : (
+        {/* Save Button */}
+        <div className="flex justify-end pt-4">
+          <Button
+            onClick={handleEmpresaSubmit}
+            disabled={isSaving}
+            className="min-w-[160px] h-11 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-soft hover:shadow-medium transition-all duration-200"
+          >
+            {isSaving ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-2" />
+                Salvando...
+              </>
+            ) : (
+              <>
                 <Save className="w-4 h-4 mr-2" />
-              )}
-              {isSaving ? 'Salvando...' : 'Salvar Dados'}
-            </Button>
-          </div>
+                Salvar Dados
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>

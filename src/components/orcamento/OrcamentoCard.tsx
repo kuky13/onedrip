@@ -41,7 +41,7 @@ interface Profile {
 
 interface OrcamentoCardProps {
   budget: Budget;
-  profile: Profile;
+  profile?: Profile;
   onShareWhatsApp: (budget: Budget) => void;
   onEdit: (budget: Budget) => void;
   onDelete: (budget: Budget) => void;
@@ -221,18 +221,22 @@ export const OrcamentoCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+    <div className="group bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-6 hover:shadow-medium transition-all duration-300 hover:border-primary/20 hover:bg-gradient-to-br hover:from-card hover:to-primary/5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-blue-600 font-semibold text-xs sm:text-sm">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center flex-shrink-0 border border-primary/20">
+            <span className="text-primary font-semibold text-sm">
               {localBudget.client_name?.charAt(0)?.toUpperCase() || 'C'}
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{localBudget.client_name}</h3>
-            <p className="text-xs sm:text-sm text-gray-500">{formatDate(localBudget.created_at)}</p>
+            <h3 className="font-semibold text-foreground text-base truncate group-hover:text-primary transition-colors duration-200">
+              {localBudget.client_name || 'Cliente'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {localBudget.created_at ? formatDate(localBudget.created_at) : 'Data não informada'}
+            </p>
           </div>
         </div>
         <Button
@@ -240,9 +244,9 @@ export const OrcamentoCard = ({
           size="sm"
           onClick={refreshBudgetData}
           disabled={isRefreshing}
-          className="text-gray-500 hover:text-gray-700 flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9 p-0"
+          className="text-muted-foreground hover:text-primary flex-shrink-0 h-8 w-8 p-0 hover:bg-primary/10 transition-all duration-200"
         >
-          <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
@@ -253,25 +257,37 @@ export const OrcamentoCard = ({
         onClose={() => setShowToast(false)} 
       />
 
-      {/* Client Info */}
-      <div className="mb-4 space-y-2">
-        {localBudget.client_email && (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-            <span className="text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">Email:</span>
-            <span className="text-xs sm:text-sm text-gray-900 break-all">{localBudget.client_email}</span>
+      {/* Device & Service Info */}
+      <div className="mb-4 space-y-3">
+        {localBudget.device_model && (
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-primary/40 rounded-full" />
+            <span className="text-sm text-foreground font-medium">
+              {localBudget.device_model}
+            </span>
           </div>
         )}
+        
+        {(localBudget.part_type || localBudget.issue) && (
+          <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+            <p className="text-xs text-muted-foreground font-medium mb-1">Serviço:</p>
+            <p className="text-sm text-foreground">
+              {localBudget.part_type || localBudget.issue || 'Serviço não especificado'}
+            </p>
+          </div>
+        )}
+
         {localBudget.client_phone && (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-            <span className="text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">Telefone:</span>
-            <span className="text-xs sm:text-sm text-gray-900">{localBudget.client_phone}</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MessageCircle className="h-3 w-3" />
+            <span>{localBudget.client_phone}</span>
           </div>
         )}
       </div>
 
       {/* Status Badge - Advanced Features */}
       {profile?.advanced_features_enabled && (
-        <div className="mb-3">
+        <div className="mb-4">
           <BudgetLiteStatusBadge 
             status={localBudget.workflow_status || 'pending'} 
             isPaid={localBudget.is_paid || false} 
@@ -281,81 +297,79 @@ export const OrcamentoCard = ({
         </div>
       )}
 
-      {/* Service/Issue */}
-      <div className="mb-4">
-        <p className="text-sm text-muted-foreground font-medium mb-1">Serviço:</p>
-        <p className="text-sm">{localBudget.issue || 'Problema não informado'}</p>
-        <div className="w-full h-px bg-border mt-3"></div>
-      </div>
-
-      {/* Price */}
-      <div className="mb-4 sm:mb-6">
-        <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-          {formatPrice(localBudget.total_price || 0)}
-        </div>
-        {localBudget.installments && localBudget.installments > 1 && (
-          <div className="text-xs sm:text-sm text-gray-600">
-            {localBudget.installments}x de {formatPrice(Math.round((localBudget.total_price || 0) / localBudget.installments))}
+      {/* Price Section */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg border border-primary/10">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-foreground mb-1">
+            {formatPrice(localBudget.cash_price || localBudget.total_price || 0)}
           </div>
-        )}
-        <div className="w-full h-px bg-border mt-3"></div>
+          {localBudget.installments && localBudget.installments > 1 && (
+            <div className="text-sm text-muted-foreground">
+              {localBudget.installments}x de {formatPrice(Math.round((localBudget.cash_price || localBudget.total_price || 0) / localBudget.installments))}
+            </div>
+          )}
+          {localBudget.warranty_months && (
+            <div className="text-xs text-primary font-medium mt-1">
+              Garantia: {localBudget.warranty_months} {localBudget.warranty_months === 1 ? 'mês' : 'meses'}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-2 sm:flex gap-2 pt-4">
+      <div className="grid grid-cols-2 gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onViewDetails(budget)}
-          className="flex-1 h-9 text-xs sm:text-sm"
+          className="h-10 border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
         >
-          <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">Ver</span>
-          <span className="sm:hidden">Ver</span>
+          <Eye className="h-4 w-4 mr-2" />
+          Visualizar
         </Button>
         
         <Button
           variant="outline"
           size="sm"
           onClick={() => openDialog('whatsapp')}
-          className="flex-1 h-9 text-xs sm:text-sm text-green-600 hover:text-green-700"
+          className="h-10 border-border/50 hover:border-success/50 hover:bg-success/5 hover:text-success transition-all duration-200"
         >
-          <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">WhatsApp</span>
-          <span className="sm:hidden">Zap</span>
+          <MessageCircle className="h-4 w-4 mr-2" />
+          WhatsApp
         </Button>
         
         <Button
           variant="outline"
           size="sm"
           onClick={() => openDialog('pdf')}
-          className="flex-1 h-9 text-xs sm:text-sm text-blue-600 hover:text-blue-700"
+          className="h-10 border-border/50 hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-200"
         >
-          <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">PDF</span>
-          <span className="sm:hidden">PDF</span>
+          <FileText className="h-4 w-4 mr-2" />
+          Gerar PDF
         </Button>
         
         <Button
           variant="outline"
           size="sm"
           onClick={() => onEdit(budget)}
-          className="flex-1 h-9 text-xs sm:text-sm text-blue-600 hover:text-blue-700"
+          className="h-10 border-border/50 hover:border-accent/50 hover:bg-accent/5 hover:text-accent transition-all duration-200"
         >
-          <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">Editar</span>
-          <span className="sm:hidden">Edit</span>
+          <Edit className="h-4 w-4 mr-2" />
+          Editar
         </Button>
-        
+      </div>
+
+      {/* Delete Button - Separate row for emphasis */}
+      <div className="mt-3 pt-3 border-t border-border/30">
         <Button
           variant="outline"
           size="sm"
           onClick={() => openDialog('delete')}
           disabled={isDeleting}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 h-9 px-2 sm:px-3 col-span-2 sm:col-span-1 sm:flex-none"
+          className="w-full h-9 text-destructive border-destructive/20 hover:bg-destructive/5 hover:border-destructive/50 disabled:opacity-50 transition-all duration-200"
         >
-          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="ml-1 sm:hidden">Excluir</span>
+          <Trash2 className="h-4 w-4 mr-2" />
+          {isDeleting ? 'Excluindo...' : 'Excluir Orçamento'}
         </Button>
       </div>
 

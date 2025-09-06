@@ -15,7 +15,7 @@ import PDFTestComponent from '@/components/orcamento/PDFTestComponent';
 
 export const OrcamentoListPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const { handleSingleDeletion, isDeleting } = useBudgetDeletion();
   
@@ -216,82 +216,196 @@ export const OrcamentoListPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Orçamentos</h1>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <TestPDFButton className="w-full sm:w-auto" />
-          <Button onClick={handleNewBudget} className="w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Orçamento
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80">
+      {/* Professional Header */}
+      <div className="relative bg-gradient-to-r from-card via-card/95 to-card border-b border-border/50 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+        <div className="relative max-w-7xl mx-auto p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-3 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl">
+                  <Plus className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Orçamentos
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Gerencie todos os seus orçamentos e propostas
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <TestPDFButton className="w-full sm:w-auto" />
+              <Button 
+                onClick={handleNewBudget} 
+                className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-soft hover:shadow-medium transition-all duration-200"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Orçamento
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* PDF Test Component */}
-      <div className="mb-6">
-        <PDFTestComponent />
-      </div>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/20 rounded-lg">
+                  <Plus className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{budgets.length}</p>
+                  <p className="text-sm text-muted-foreground">Total de Orçamentos</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-success/20 rounded-lg">
+                  <Plus className="w-5 h-5 text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{budgets.filter(b => b.status === 'pending').length}</p>
+                  <p className="text-sm text-muted-foreground">Pendentes</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-accent/20 rounded-lg">
+                  <Plus className="w-5 h-5 text-accent" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{budgets.filter(b => b.status === 'approved').length}</p>
+                  <p className="text-sm text-muted-foreground">Aprovados</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-muted/20 rounded-lg">
+                  <Plus className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {budgets.reduce((acc, b) => acc + (b.cash_price || 0), 0) / 100}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Valor Total (R$)</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <OrcamentoSearch
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onClearSearch={handleClearSearch}
-        />
-      </div>
+        {/* PDF Test Component */}
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+          <CardContent className="p-6">
+            <PDFTestComponent />
+          </CardContent>
+        </Card>
 
-      {/* Results count */}
-      <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-semibold text-foreground">
-          {filteredBudgets.length} orçamento{filteredBudgets.length !== 1 ? 's' : ''}
-          {searchTerm && ` encontrado${filteredBudgets.length !== 1 ? 's' : ''}`}
-        </h3>
-      </div>
+        {/* Search */}
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+          <CardContent className="p-6">
+            <OrcamentoSearch
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onClearSearch={handleClearSearch}
+            />
+          </CardContent>
+        </Card>
 
-      {/* Budget grid */}
-      {filteredBudgets.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-sm sm:text-base">
-            {searchTerm ? 'Nenhum orçamento encontrado' : 'Nenhum orçamento cadastrado'}
-          </p>
+        {/* Results count */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">
+            {filteredBudgets.length} orçamento{filteredBudgets.length !== 1 ? 's' : ''}
+            {searchTerm && ` encontrado${filteredBudgets.length !== 1 ? 's' : ''}`}
+          </h3>
           {searchTerm && (
-            <button
+            <Button
+              variant="outline"
               onClick={handleClearSearch}
-              className="mt-3 text-primary hover:underline text-sm transition-colors"
+              size="sm"
+              className="text-primary hover:text-primary"
             >
               Limpar busca
-            </button>
+            </Button>
           )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-          {filteredBudgets.map(budget => (
-            <OrcamentoCard
-              key={budget.id}
-              budget={budget}
-              onShareWhatsApp={handleShareWhatsApp}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onViewDetails={handleViewDetails}
-              isDeleting={isDeleting}
-            />
-          ))}
-        </div>
-      )}
 
-      {/* Modal de Edição */}
-      <EditBudgetModal 
-        budget={editingBudget} 
-        open={!!editingBudget} 
-        onOpenChange={(open) => {
-          if (!open) {
-            handleEditComplete();
-          }
-        }} 
-      />
+        {/* Budget grid */}
+        {filteredBudgets.length === 0 ? (
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 shadow-soft">
+            <CardContent className="p-12">
+              <div className="text-center space-y-4">
+                <div className="mx-auto w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Plus className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">
+                    {searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum orçamento ainda'}
+                  </h3>
+                  <p className="text-muted-foreground mt-2">
+                    {searchTerm 
+                      ? 'Tente ajustar sua busca ou limpar os filtros.'
+                      : 'Crie seu primeiro orçamento para começar.'
+                    }
+                  </p>
+                </div>
+                {!searchTerm && (
+                  <Button 
+                    onClick={handleNewBudget}
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Primeiro Orçamento
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredBudgets.map(budget => (
+              <div key={budget.id} className="transform transition-all duration-200 hover:scale-[1.02]">
+                <OrcamentoCard
+                  budget={budget}
+                  profile={profile}
+                  onShareWhatsApp={handleShareWhatsApp}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onViewDetails={handleViewDetails}
+                  isDeleting={isDeleting}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modal de Edição */}
+        <EditBudgetModal 
+          budget={editingBudget} 
+          open={!!editingBudget} 
+          onOpenChange={(open) => {
+            if (!open) {
+              handleEditComplete();
+            }
+          }} 
+        />
+      </div>
     </div>
   );
 };
