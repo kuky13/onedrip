@@ -9,6 +9,7 @@ import { OrcamentoSearch } from '@/components/orcamento/OrcamentoSearch';
 import { OrcamentoCard } from '@/components/orcamento/OrcamentoCard';
 import { EditBudgetModal } from '@/components/EditBudgetModal';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import TestPDFButton from '@/components/orcamento/TestPDFButton';
 import PDFTestComponent from '@/components/orcamento/PDFTestComponent';
@@ -383,7 +384,6 @@ export const OrcamentoListPage = () => {
               <div key={budget.id} className="transform transition-all duration-200 hover:scale-[1.02]">
                 <OrcamentoCard
                   budget={budget}
-                  profile={profile}
                   onShareWhatsApp={handleShareWhatsApp}
                   onEdit={handleEdit}
                   onDelete={handleDelete}

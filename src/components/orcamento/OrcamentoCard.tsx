@@ -41,7 +41,6 @@ interface Profile {
 
 interface OrcamentoCardProps {
   budget: Budget;
-  profile?: Profile;
   onShareWhatsApp: (budget: Budget) => void;
   onEdit: (budget: Budget) => void;
   onDelete: (budget: Budget) => void;
@@ -51,7 +50,6 @@ interface OrcamentoCardProps {
 
 export const OrcamentoCard = ({
   budget,
-  profile,
   onShareWhatsApp,
   onEdit,
   onDelete,
@@ -286,16 +284,14 @@ export const OrcamentoCard = ({
       </div>
 
       {/* Status Badge - Advanced Features */}
-      {profile?.advanced_features_enabled && (
-        <div className="mb-4">
-          <BudgetLiteStatusBadge 
-            status={localBudget.workflow_status || 'pending'} 
-            isPaid={localBudget.is_paid || false} 
-            isDelivered={localBudget.is_delivered || false} 
-            expiresAt={localBudget.expires_at} 
-          />
-        </div>
-      )}
+      <div className="mb-4">
+        <BudgetLiteStatusBadge 
+          status={localBudget.workflow_status || 'pending'} 
+          isPaid={localBudget.is_paid || false} 
+          isDelivered={localBudget.is_delivered || false} 
+          expiresAt={localBudget.expires_at} 
+        />
+      </div>
 
       {/* Price Section */}
       <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg border border-primary/10">
