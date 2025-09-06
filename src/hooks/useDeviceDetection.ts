@@ -20,8 +20,6 @@ export interface DeviceInfo {
   hasHover: boolean;
   prefersReducedMotion: boolean;
   colorScheme: 'light' | 'dark';
-  isStandalone: boolean;
-  shouldUseLite: boolean;
 }
 
 const getDeviceType = (width: number): DeviceType => {
@@ -89,9 +87,7 @@ export const useDeviceDetection = (): DeviceInfo => {
       orientation: getOrientation(width, height),
       hasHover: hasHoverCapability(),
       prefersReducedMotion: prefersReducedMotion(),
-      colorScheme: getColorScheme(),
-      isStandalone: window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone,
-      shouldUseLite: deviceType === 'mobile' || platform === 'ios' || platform === 'android'
+      colorScheme: getColorScheme()
     };
   });
 
@@ -118,9 +114,7 @@ export const useDeviceDetection = (): DeviceInfo => {
         orientation: getOrientation(width, height),
         hasHover: hasHoverCapability(),
         prefersReducedMotion: prefersReducedMotion(),
-        colorScheme: getColorScheme(),
-        isStandalone: window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone,
-        shouldUseLite: deviceType === 'mobile' || platform === 'ios' || platform === 'android'
+        colorScheme: getColorScheme()
       });
     };
 

@@ -89,11 +89,6 @@ export const MobileHamburgerMenu = ({
       navigate('/suporte');
       return;
     }
-    if (tab === 'dashboard') {
-      onClose();
-      navigate('/painel');
-      return;
-    }
     onTabChange(tab);
     onClose();
   };

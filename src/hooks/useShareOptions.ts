@@ -216,7 +216,7 @@ export const useShareOptions = ({
       options.push({
         id: 'whatsapp-business',
         name: 'WhatsApp Business',
-        icon: MessageCircle,
+        icon: <MessageCircle className="h-5 w-5" />,
         color: '#25D366',
         action: shareWhatsAppBusiness,
         description: 'Compartilhar via WhatsApp Business',
@@ -229,7 +229,7 @@ export const useShareOptions = ({
     options.push({
       id: 'whatsapp',
       name: 'WhatsApp',
-      icon: MessageCircle,
+      icon: <MessageCircle className="h-5 w-5" />,
       color: '#25D366',
       action: shareWhatsApp,
       description: 'Compartilhar via WhatsApp',
@@ -242,7 +242,7 @@ export const useShareOptions = ({
       options.push({
         id: 'native',
         name: isIOS ? 'Compartilhar (iOS)' : 'Compartilhar',
-        icon: Share,
+        icon: <Share className="h-5 w-5" />,
         color: '#007AFF',
         action: shareNative,
         description: 'Usar o menu de compartilhamento do sistema',
@@ -255,7 +255,7 @@ export const useShareOptions = ({
     options.push({
       id: 'email',
       name: 'Email',
-      icon: Mail,
+      icon: <Mail className="h-5 w-5" />,
       color: '#EA4335',
       action: shareEmail,
       description: 'Enviar por email',
@@ -268,7 +268,7 @@ export const useShareOptions = ({
       options.push({
         id: 'copy',
         name: 'Copiar',
-        icon: Copy,
+        icon: <Copy className="h-5 w-5" />,
         color: '#6B7280',
         action: copyToClipboard,
         description: 'Copiar para área de transferência',

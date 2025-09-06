@@ -1,5 +1,6 @@
 import React from 'react';
 import { BudgetLiteList } from './BudgetLiteList';
+import { BudgetLiteListiOS } from './BudgetLiteListiOS';
 import { BudgetViewLite } from './BudgetViewLite';
 import { NewBudgetLite } from './NewBudgetLite';
 import { DataManagementLite } from './DataManagementLite';
@@ -117,7 +118,16 @@ export const DashboardLiteContent = ({
     case 'budgets':
     case 'list':
     default:
-      // Usar lista padrão de orçamentos
+      // Sempre usar versão iOS otimizada (agora é a principal)
+      if (activeView === 'budgets' || activeView === 'list' || !activeView) {
+        return (
+          <BudgetLiteListiOS
+            userId={userId || ''}
+            profile={profile}
+          />
+        );
+      }
+      
       return (
         <BudgetLiteList
           budgets={budgets}
