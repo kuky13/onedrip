@@ -902,7 +902,51 @@ export type Database = {
         }
         Relationships: []
       }
-
+      pix_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          expires_at: string | null
+          external_reference: string | null
+          id: string
+          mercado_pago_id: string | null
+          plan_type: string
+          qr_code: string | null
+          qr_code_base64: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          expires_at?: string | null
+          external_reference?: string | null
+          id?: string
+          mercado_pago_id?: string | null
+          plan_type: string
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          expires_at?: string | null
+          external_reference?: string | null
+          id?: string
+          mercado_pago_id?: string | null
+          plan_type?: string
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ranking_invaders: {
         Row: {
           created_at: string
@@ -1673,6 +1717,54 @@ export type Database = {
           recorded_at?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_cookie_preferences: {
+        Row: {
+          analytics: boolean
+          auto_cleanup: boolean
+          created_at: string
+          essential: boolean
+          expiration_days: number
+          functional: boolean
+          granular: Json
+          id: string
+          marketing: boolean
+          performance: boolean
+          social: boolean
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          analytics?: boolean
+          auto_cleanup?: boolean
+          created_at?: string
+          essential?: boolean
+          expiration_days?: number
+          functional?: boolean
+          granular?: Json
+          id?: string
+          marketing?: boolean
+          performance?: boolean
+          social?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          analytics?: boolean
+          auto_cleanup?: boolean
+          created_at?: string
+          essential?: boolean
+          expiration_days?: number
+          functional?: boolean
+          granular?: Json
+          id?: string
+          marketing?: boolean
+          performance?: boolean
+          social?: boolean
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2924,11 +3016,9 @@ export type Database = {
       get_top_rankings: {
         Args: Record<PropertyKey, never>
         Returns: {
-          avg_budget_value: number
-          rank_position: number
-          total_budgets: number
-          total_value: number
-          user_id: string
+          created_at: string
+          id: string
+          score: number
           user_name: string
         }[]
       }
