@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import { getSecureItem } from '@/utils/secureStorage';
 import { cleanupAuthState, forceReload } from '@/utils/authCleanup';
+import { canExecuteOnlineOperation, executeWithOfflineFallback, useNetworkStatus } from '@/utils/networkUtils';
 
 export type UserRole = 'admin' | 'manager' | 'user';
 
@@ -26,6 +27,8 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   isInitialized: boolean;
+  isOnline: boolean;
+  isSupabaseReachable: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, userData: { name: string; role?: string }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const { showSuccess, showError } = useToast();
+  const networkStatus = useNetworkStatus();
 
   // Profile query using React Query
   const { data: profile } = useQuery({
@@ -218,6 +222,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔑 Fazendo login...');
       
+      // Verificar conectividade antes de tentar login
+      const canExecute = await canExecuteOnlineOperation();
+      if (!canExecute) {
+        setTimeout(() => {
+          showError({
+            title: 'Sem conexão',
+            description: 'Não é possível fazer login sem conexão com a internet. Verifique sua conexão e tente novamente.',
+          });
+        }, 0);
+        return { error: new Error('No internet connection') };
+      }
+      
       // Limpar estado anterior antes do login
       cleanupAuthState();
       
@@ -300,6 +316,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, userData: { name: string; role?: string }) => {
     try {
+      // Verificar conectividade antes de tentar cadastro
+      const canExecute = await canExecuteOnlineOperation();
+      if (!canExecute) {
+        setTimeout(() => {
+          showError({
+            title: 'Sem conexão',
+            description: 'Não é possível fazer cadastro sem conexão com a internet. Verifique sua conexão e tente novamente.',
+          });
+        }, 0);
+        return { error: new Error('No internet connection') };
+      }
+      
       // Limpar estado anterior
       cleanupAuthState();
       
@@ -362,6 +390,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const requestPasswordReset = async (email: string) => {
     try {
+      // Verificar conectividade antes de tentar reset
+      const canExecute = await canExecuteOnlineOperation();
+      if (!canExecute) {
+        setTimeout(() => {
+          showError({
+            title: 'Sem conexão',
+            description: 'Não é possível solicitar redefinição de senha sem conexão com a internet.',
+          });
+        }, 0);
+        return { error: new Error('No internet connection') };
+      }
+      
       const redirectUrl = `${window.location.origin}/verify`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
@@ -534,6 +574,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     profile,
     loading,
     isInitialized,
+    isOnline: networkStatus.isOnline,
+    isSupabaseReachable: networkStatus.isSupabaseReachable,
     signIn,
     signUp,
     signOut,

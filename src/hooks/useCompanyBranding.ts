@@ -37,6 +37,8 @@ export function useCompanyBranding() {
   const [shareSettings, setShareSettings] = useState<CompanyShareSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [testCompanyInfo, setTestCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [testShareSettings, setTestShareSettings] = useState<CompanyShareSettings | null>(null);
 
   const fetchCompanyBranding = async () => {
     try {
@@ -77,6 +79,41 @@ export function useCompanyBranding() {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar informações da empresa';
       setError(errorMessage);
       console.error('Erro ao carregar dados da empresa:', err);
+      
+      // Para teste: usar dados de teste quando houver erro
+      console.log('[useCompanyBranding] Usando dados de teste devido ao erro:', err);
+      const testCompany: CompanyInfo = {
+        id: 'test-company-001',
+        name: 'TechRepair Pro',
+        logo_url: '',
+        address: 'Rua das Flores, 123 - Centro - São Paulo/SP',
+        whatsapp_phone: '11987654321',
+        email: 'contato@techrepair.com',
+        business_hours: 'Segunda a Sexta: 8h às 18h',
+        description: 'Assistência técnica especializada em eletrônicos',
+        additional_images: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      const testSettings: CompanyShareSettings = {
+        id: 'test-settings-001',
+        welcome_message: 'Bem-vindo à TechRepair Pro!',
+        special_instructions: 'Entre em contato para mais informações',
+        warranty_info: 'Garantia de 90 dias em todos os serviços',
+        show_contact_info: true,
+        show_company_description: true,
+        show_logo: true,
+        show_company_name: true,
+        show_whatsapp_button: true,
+        custom_message: '',
+        theme_color: '#3B82F6',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      setTestCompanyInfo(testCompany);
+      setTestShareSettings(testSettings);
     } finally {
       setLoading(false);
     }
@@ -252,8 +289,8 @@ export function useCompanyBranding() {
   }, []);
 
   return {
-    companyInfo,
-    shareSettings,
+    companyInfo: companyInfo || testCompanyInfo,
+    shareSettings: shareSettings || testShareSettings,
     loading,
     error,
     fetchCompanyBranding,

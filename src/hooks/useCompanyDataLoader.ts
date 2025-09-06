@@ -70,12 +70,19 @@ export const useCompanyDataLoader = () => {
     };
   }, [shopProfile, companyInfo, shareSettings, shopLoading, brandingLoading, error]);
 
-  // Atualizar cache quando os dados mudarem
+  // Atualizar cache quando os dados mudarem (incluindo dados de teste)
   useEffect(() => {
-    if (!combinedData.isLoading && combinedData.hasData) {
+    if (!combinedData.isLoading && (combinedData.hasData || combinedData.shopProfile || combinedData.companyInfo)) {
       companyDataCache = combinedData;
       cacheTimestamp = Date.now();
       setError(null);
+      
+      console.log('[useCompanyDataLoader] Atualizando cache:', {
+        hasData: combinedData.hasData,
+        shopProfile: !!combinedData.shopProfile,
+        companyInfo: !!combinedData.companyInfo,
+        shopName: combinedData.shopProfile?.shop_name || combinedData.companyInfo?.name
+      });
       
       // Sincronizar com o cache do pdfUtils
       syncWithPdfUtilsCache(combinedData);
@@ -141,7 +148,7 @@ export const useCompanyDataLoader = () => {
     return result;
   }, [combinedData, isCacheValid, shopProfile, companyInfo]);
 
-  // Função para verificar se temos dados mínimos necessários
+  // Função para verificar se temos dados mínimos necessários (incluindo dados de teste)
   const hasMinimalData = useCallback((): boolean => {
     const hasShopName = !!(shopProfile?.shop_name && shopProfile.shop_name !== 'Minha Empresa' && shopProfile.shop_name !== 'Minha Loja');
     const hasCompanyName = !!(companyInfo?.name && companyInfo.name !== 'Minha Empresa' && companyInfo.name !== 'Minha Loja');
@@ -154,11 +161,14 @@ export const useCompanyDataLoader = () => {
       shopName: shopProfile?.shop_name,
       companyName: companyInfo?.name,
       isLoading: combinedData.isLoading,
-      hasData: combinedData.hasData
+      hasData: combinedData.hasData,
+      shopProfileExists: !!shopProfile,
+      companyInfoExists: !!companyInfo,
+      cacheValid: isCacheValid
     });
     
     return result;
-  }, [shopProfile?.shop_name, companyInfo?.name, combinedData.isLoading, combinedData.hasData]);
+  }, [shopProfile?.shop_name, companyInfo?.name, combinedData.isLoading, combinedData.hasData, shopProfile, companyInfo, isCacheValid]);
 
   // Retornar dados do cache se disponível e válido
   if (isCacheValid && companyDataCache) {

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSecureFileUpload } from '@/hooks/useSecurity';
 import { toast } from 'sonner';
 import { validateInput, logSecurityEvent } from '@/utils/security/inputValidation';
+import { canExecuteOnlineOperation, useNetworkStatus } from '@/utils/networkUtils';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 type ServiceOrderAttachment = Tables<'service_order_attachments'>;
@@ -35,6 +36,7 @@ interface UseSecureServiceOrderAttachmentsReturn {
 export const useSecureServiceOrderAttachments = (): UseSecureServiceOrderAttachmentsReturn => {
   const queryClient = useQueryClient();
   const validateFile = useSecureFileUpload('COMPANY_LOGO'); // Usar configuração similar
+  const networkStatus = useNetworkStatus();
   
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
@@ -76,6 +78,11 @@ export const useSecureServiceOrderAttachments = (): UseSecureServiceOrderAttachm
     description?: string
   ): Promise<ServiceOrderAttachment | null> => {
     try {
+      // Verificar conectividade antes de iniciar
+      if (!canExecuteOnlineOperation(networkStatus)) {
+        throw new Error('Operação requer conexão com a internet. Verifique sua conectividade.');
+      }
+
       setIsUploading(true);
       setError(null);
       setUploadProgress({
@@ -245,13 +252,18 @@ export const useSecureServiceOrderAttachments = (): UseSecureServiceOrderAttachm
       // Limpar progresso após 3 segundos
       setTimeout(() => setUploadProgress(null), 3000);
     }
-  }, [validateFile, queryClient]);
+  }, [validateFile, queryClient, networkStatus]);
 
   /**
    * Exclusão segura de anexo
    */
   const deleteAttachment = useCallback(async (attachmentId: string): Promise<boolean> => {
     try {
+      // Verificar conectividade antes de iniciar
+      if (!canExecuteOnlineOperation(networkStatus)) {
+        throw new Error('Operação requer conexão com a internet. Verifique sua conectividade.');
+      }
+
       setError(null);
 
       // 1. Validar ID do anexo
@@ -329,7 +341,7 @@ export const useSecureServiceOrderAttachments = (): UseSecureServiceOrderAttachm
       toast.error(`Erro ao deletar anexo: ${errorMessage}`);
       return false;
     }
-  }, [queryClient]);
+  }, [queryClient, networkStatus]);
 
   return {
     uploadAttachment,

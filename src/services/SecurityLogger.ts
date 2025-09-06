@@ -1,4 +1,5 @@
 import { supabase } from '../integrations/supabase/client';
+import { canExecuteOnlineOperation, useNetworkStatus } from '../utils/networkUtils';
 
 interface AccessLogEntry {
   user_id: string;
@@ -182,6 +183,13 @@ class SecurityLogger {
       return;
     }
 
+    // Verificar conectividade antes de tentar processar
+    const networkStatus = { isOnline: navigator.onlineEvent !== false, isSupabaseConnected: true };
+    if (!canExecuteOnlineOperation(networkStatus)) {
+      console.log('⚠️ [SecurityLogger] Offline - adiando processamento da fila');
+      return;
+    }
+
     this.isProcessing = true;
     const batch = this.logQueue.splice(0, this.BATCH_SIZE);
 
@@ -198,8 +206,14 @@ class SecurityLogger {
 
         if (accessError) {
           console.error('❌ [SecurityLogger] Erro ao inserir access_logs:', accessError);
-          // Recolocar na fila para tentar novamente
-          this.logQueue.unshift(...accessLogs);
+          // Verificar se é erro de conectividade
+          if (this.isNetworkError(accessError)) {
+            console.log('🌐 [SecurityLogger] Erro de rede detectado - recolocando access_logs na fila');
+            this.logQueue.unshift(...accessLogs);
+          } else {
+            console.error('💾 [SecurityLogger] Erro de dados - salvando access_logs localmente');
+            this.saveToLocalStorage('access_logs', accessLogs);
+          }
         } else {
           console.log(`✅ [SecurityLogger] ${accessLogs.length} access_logs inseridos`);
         }
@@ -213,16 +227,29 @@ class SecurityLogger {
 
         if (activityError) {
           console.error('❌ [SecurityLogger] Erro ao inserir user_activity_logs:', activityError);
-          // Recolocar na fila para tentar novamente
-          this.logQueue.unshift(...activityLogs);
+          // Verificar se é erro de conectividade
+          if (this.isNetworkError(activityError)) {
+            console.log('🌐 [SecurityLogger] Erro de rede detectado - recolocando user_activity_logs na fila');
+            this.logQueue.unshift(...activityLogs);
+          } else {
+            console.error('💾 [SecurityLogger] Erro de dados - salvando user_activity_logs localmente');
+            this.saveToLocalStorage('user_activity_logs', activityLogs);
+          }
         } else {
           console.log(`✅ [SecurityLogger] ${activityLogs.length} user_activity_logs inseridos`);
         }
       }
     } catch (error) {
       console.error('❌ [SecurityLogger] Erro geral ao processar fila:', error);
-      // Recolocar todos os logs na fila
-      this.logQueue.unshift(...batch);
+      
+      // Verificar se é erro de conectividade
+      if (this.isNetworkError(error)) {
+        console.log('🌐 [SecurityLogger] Erro de rede geral - recolocando todos os logs na fila');
+        this.logQueue.unshift(...batch);
+      } else {
+        console.error('💾 [SecurityLogger] Erro geral - salvando logs localmente');
+        this.saveToLocalStorage('mixed_logs', batch);
+      }
     } finally {
       this.isProcessing = false;
     }
@@ -235,6 +262,11 @@ class SecurityLogger {
     this.flushTimer = setInterval(() => {
       this.flushQueue();
     }, this.FLUSH_INTERVAL);
+    
+    // Tentar recuperar logs locais na inicialização
+    setTimeout(() => {
+      this.recoverLocalLogs();
+    }, 2000); // Aguardar 2 segundos para garantir que a aplicação inicializou
   }
 
   /**
@@ -292,6 +324,110 @@ class SecurityLogger {
       flushInterval: this.FLUSH_INTERVAL,
       batchSize: this.BATCH_SIZE
     };
+  }
+
+  /**
+   * Verifica se o erro é relacionado à conectividade de rede
+   */
+  private isNetworkError(error: any): boolean {
+    if (!error) return false;
+    
+    // Verificar mensagens de erro comuns de rede
+    const errorMessage = error.message || error.toString() || '';
+    const networkErrorPatterns = [
+      'Failed to fetch',
+      'NetworkError',
+      'fetch',
+      'NETWORK_ERROR',
+      'CONNECTION_ERROR',
+      'TIMEOUT',
+      'net::ERR_',
+      'offline'
+    ];
+    
+    return networkErrorPatterns.some(pattern => 
+      errorMessage.toLowerCase().includes(pattern.toLowerCase())
+    );
+  }
+
+  /**
+   * Salva logs no localStorage como fallback
+   */
+  private saveToLocalStorage(type: string, logs: any[]): void {
+    try {
+      const key = `security_logs_${type}_${Date.now()}`;
+      const data = {
+        type,
+        logs,
+        timestamp: new Date().toISOString(),
+        count: logs.length
+      };
+      
+      localStorage.setItem(key, JSON.stringify(data));
+      console.log(`💾 [SecurityLogger] ${logs.length} logs salvos localmente: ${key}`);
+      
+      // Limitar o número de entradas no localStorage (máximo 50)
+      this.cleanupLocalStorage();
+    } catch (error) {
+      console.error('❌ [SecurityLogger] Erro ao salvar no localStorage:', error);
+    }
+  }
+
+  /**
+   * Limpa entradas antigas do localStorage
+   */
+  private cleanupLocalStorage(): void {
+    try {
+      const keys = Object.keys(localStorage).filter(key => key.startsWith('security_logs_'));
+      
+      if (keys.length > 50) {
+        // Ordenar por timestamp e remover os mais antigos
+        keys.sort().slice(0, keys.length - 50).forEach(key => {
+          localStorage.removeItem(key);
+        });
+        console.log(`🧹 [SecurityLogger] ${keys.length - 50} entradas antigas removidas do localStorage`);
+      }
+    } catch (error) {
+      console.error('❌ [SecurityLogger] Erro ao limpar localStorage:', error);
+    }
+  }
+
+  /**
+   * Recupera logs salvos localmente e tenta enviá-los novamente
+   */
+  public async recoverLocalLogs(): Promise<void> {
+    try {
+      const keys = Object.keys(localStorage).filter(key => key.startsWith('security_logs_'));
+      
+      if (keys.length === 0) {
+        console.log('📭 [SecurityLogger] Nenhum log local para recuperar');
+        return;
+      }
+      
+      console.log(`🔄 [SecurityLogger] Recuperando ${keys.length} entradas de logs locais`);
+      
+      for (const key of keys) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key) || '{}');
+          if (data.logs && Array.isArray(data.logs)) {
+            // Adicionar logs de volta à fila
+            this.logQueue.push(...data.logs);
+            localStorage.removeItem(key);
+            console.log(`✅ [SecurityLogger] ${data.logs.length} logs recuperados de ${key}`);
+          }
+        } catch (error) {
+          console.error(`❌ [SecurityLogger] Erro ao recuperar ${key}:`, error);
+          localStorage.removeItem(key); // Remove entrada corrompida
+        }
+      }
+      
+      // Tentar processar os logs recuperados
+      if (this.logQueue.length > 0) {
+        await this.flushQueue();
+      }
+    } catch (error) {
+      console.error('❌ [SecurityLogger] Erro ao recuperar logs locais:', error);
+    }
   }
 
   /**

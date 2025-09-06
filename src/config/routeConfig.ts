@@ -45,7 +45,9 @@ export const ROUTE_CONFIG = {
     '/reset-email',
     '/service-orders',
     '/service-orders/*',
-    '/msg'
+    '/msg',
+    '/orcamento',
+    '/orcamento/*'
   ],
 
   // Rotas que requerem licença válida
@@ -54,7 +56,9 @@ export const ROUTE_CONFIG = {
     '/painel',
     '/service-orders',
     '/service-orders/*',
-    '/msg'
+    '/msg',
+    '/orcamento',
+    '/orcamento/*'
   ],
 
   // Rotas que requerem email confirmado
@@ -63,7 +67,9 @@ export const ROUTE_CONFIG = {
     '/painel',
     '/service-orders',
     '/service-orders/*',
-    '/msg'
+    '/msg',
+    '/orcamento',
+    '/orcamento/*'
   ],
 
   // Redirecionamentos padrão

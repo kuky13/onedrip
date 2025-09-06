@@ -1,6 +1,7 @@
 
 // Consolidated toast hook - replaces both useToast and useEnhancedToast
 import { toast } from "sonner";
+import { useCallback } from "react";
 
 export interface EnhancedToastOptions {
   title: string;
@@ -47,10 +48,7 @@ export const useToast = () => {
     }
   };
 
-  const showSuccess = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
-    setTimeout(() => toast.dismiss(), 0);
-    
+  const showSuccess = useCallback((options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
       toast.success(enhancedOptions.title, {
@@ -69,12 +67,9 @@ export const useToast = () => {
         description: simpleOptions.description,
       });
     }
-  };
+  }, []);
 
-  const showError = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
-    setTimeout(() => toast.dismiss(), 0);
-    
+  const showError = useCallback((options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
       // Toast error logged
@@ -94,12 +89,9 @@ export const useToast = () => {
         description: simpleOptions.description,
       });
     }
-  };
+  }, []);
 
-  const showInfo = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
-    setTimeout(() => toast.dismiss(), 0);
-    
+  const showInfo = useCallback((options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
       toast.info(enhancedOptions.title, {
@@ -114,19 +106,15 @@ export const useToast = () => {
       });
     } else {
       const simpleOptions = options as Omit<ToastOptions, 'variant'>;
-      toast(simpleOptions.title, {
+      toast.info(simpleOptions.title, {
         description: simpleOptions.description,
       });
     }
-  };
+  }, []);
 
-  const showWarning = (options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
-    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
-    setTimeout(() => toast.dismiss(), 0);
-    
+  const showWarning = useCallback((options: EnhancedToastOptions | Omit<ToastOptions, 'variant'>) => {
     if ('duration' in options || 'action' in options) {
       const enhancedOptions = options as EnhancedToastOptions;
-      // Toast warning logged
       toast.warning(enhancedOptions.title, {
         description: enhancedOptions.description,
         duration: enhancedOptions.duration || 5000,
@@ -143,21 +131,15 @@ export const useToast = () => {
         description: simpleOptions.description,
       });
     }
-  };
+  }, []);
 
-  const showLoading = (title: string, promise: Promise<any>) => {
-    // Dismiss all existing toasts before showing new one - wrapped in setTimeout to avoid setState during render
-    setTimeout(() => toast.dismiss(), 0);
-    
+  const showLoading = useCallback((title: string, promise: Promise<any>) => {
     return toast.promise(promise, {
       loading: title,
-      success: 'Operação concluída com sucesso!',
-      error: (err) => {
-        // Promise toast error logged
-        return 'Ocorreu um erro durante a operação';
-      },
+      success: "Operação concluída com sucesso!",
+      error: "Erro ao executar operação",
     });
-  };
+  }, []);
 
   return {
     toast: customToast,

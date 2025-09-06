@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Dados da Empresa</title>
+</head>
+<body>
+    <h1>Teste de Dados da Empresa</h1>
+    <button onclick="createTestData()">Criar Dados de Teste</button>
+    <button onclick="checkData()">Verificar Dados</button>
+    <button onclick="clearData()">Limpar Dados</button>
+    <div id="output"></div>
+
+    <script>
+        function createTestData() {
+            // Dados de teste da empresa (shop_profiles - página /empresa)
+            const testShopProfile = {
+                id: 'test-shop-001',
+                shop_name: 'TechRepair Pro',
+                address: 'Rua das Flores, 123 - Centro - São Paulo/SP',
+                contact_phone: '(11) 98765-4321',
+                cnpj: '12.345.678/0001-90',
+                logo_url: '',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                owner_id: 'test-user'
+            };
+
+            // Dados de teste da empresa (company_info - configurações antigas)
+            const testCompanyInfo = {
+                id: 'test-company-001',
+                name: 'TechRepair Pro',
+                address: 'Rua das Flores, 123 - Centro - São Paulo/SP',
+                whatsapp_phone: '(11) 98765-4321',
+                email: 'contato@techrepair.com',
+                logo_url: '',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                owner_id: 'test-user'
+            };
+
+            // Orçamento de teste
+            const testBudget = {
+                id: 'test-budget-001',
+                client_name: 'João Silva',
+                client_email: 'joao@email.com',
+                client_phone: '(11) 99999-9999',
+                device_type: 'Smartphone',
+                device_model: 'iPhone 12',
+                part_type: 'Tela',
+                part_quality: 'Original',
+                total_price: 350.00,
+                installment_price: 175.00,
+                installments: 2,
+                created_at: new Date().toISOString(),
+                warranty_months: 3,
+                notes: 'Troca de tela com garantia',
+                owner_id: 'test-user'
+            };
+
+            // Salvar shop_profiles no localStorage
+            const existingShopProfiles = JSON.parse(localStorage.getItem('shop_profiles') || '[]');
+            const filteredShopProfiles = existingShopProfiles.filter(s => s.id !== testShopProfile.id);
+            filteredShopProfiles.push(testShopProfile);
+            localStorage.setItem('shop_profiles', JSON.stringify(filteredShopProfiles));
+
+            // Salvar company_info no localStorage
+            const existingCompanyInfo = JSON.parse(localStorage.getItem('company_info') || '[]');
+            const filteredCompanyInfo = existingCompanyInfo.filter(c => c.id !== testCompanyInfo.id);
+            filteredCompanyInfo.push(testCompanyInfo);
+            localStorage.setItem('company_info', JSON.stringify(filteredCompanyInfo));
+
+            // Salvar orçamento no localStorage
+            const existingBudgets = JSON.parse(localStorage.getItem('budgets') || '[]');
+            const filteredBudgets = existingBudgets.filter(b => b.id !== testBudget.id);
+            filteredBudgets.push(testBudget);
+            localStorage.setItem('budgets', JSON.stringify(filteredBudgets));
+
+            document.getElementById('output').innerHTML = '<p style="color: green;">✅ Dados de teste criados com sucesso!</p>';
+            console.log('Dados de teste criados:', { testShopProfile, testCompanyInfo, testBudget });
+        }
+
+        function checkData() {
+            const shopProfiles = JSON.parse(localStorage.getItem('shop_profiles') || '[]');
+            const companyInfo = JSON.parse(localStorage.getItem('company_info') || '[]');
+            const budgets = JSON.parse(localStorage.getItem('budgets') || '[]');
+
+            const output = `
+                <h3>Dados no localStorage:</h3>
+                <p><strong>Shop Profiles:</strong> ${shopProfiles.length} registros</p>
+                <p><strong>Company Info:</strong> ${companyInfo.length} registros</p>
+                <p><strong>Budgets:</strong> ${budgets.length} registros</p>
+                <pre>${JSON.stringify({ shopProfiles, companyInfo, budgets }, null, 2)}</pre>
+            `;
+            document.getElementById('output').innerHTML = output;
+            console.log('Dados verificados:', { shopProfiles, companyInfo, budgets });
+        }
+
+        function clearData() {
+            localStorage.removeItem('shop_profiles');
+            localStorage.removeItem('company_info');
+            localStorage.removeItem('budgets');
+            document.getElementById('output').innerHTML = '<p style="color: red;">🗑️ Dados limpos!</p>';
+            console.log('Dados limpos do localStorage');
+        }
+    </script>
+</body>
+</html>

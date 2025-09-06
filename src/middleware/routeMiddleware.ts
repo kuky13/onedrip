@@ -7,6 +7,7 @@ import { multiTabCache } from '@/services/multiTabCache';
 import { supabase } from '@/integrations/supabase/client';
 import { ROUTE_CONFIG, isPublicRoute, requiresAuth, requiresLicense, requiresEmailConfirmation } from '@/config/routeConfig';
 import { securityLogger } from '@/services/SecurityLogger';
+import { canExecuteOnlineOperation } from '@/utils/networkUtils';
 import type { User } from '@supabase/supabase-js';
 
 interface RouteProtection {
@@ -34,6 +35,15 @@ interface LicenseCheckResult {
   lastCheck: number;
 }
 
+interface OfflineLicenseCache {
+  [userId: string]: {
+    status: 'active' | 'inactive' | 'expired' | 'not_found';
+    expiresAt?: string;
+    cachedAt: number;
+    lastOnlineCheck: number;
+  };
+}
+
 interface RouteConfig {
   [path: string]: RouteProtection;
 }
@@ -43,10 +53,13 @@ class RouteMiddleware {
   private routeConfig: RouteConfig = {};
   private navigationState: NavigationState | null = null;
   private readonly CACHE_KEY = 'navigation-state';
+  private readonly LICENSE_CACHE_KEY = 'offline-license-cache';
   private lastStateCheck = 0;
   private pendingChecks = new Set<string>();
   // Configurações centralizadas
   private readonly config = ROUTE_CONFIG;
+  // Cache offline para licenças
+  private readonly OFFLINE_LICENSE_TTL = 24 * 60 * 60 * 1000; // 24 horas
 
   private constructor() {
     this.setupDefaultRoutes();
@@ -402,9 +415,20 @@ class RouteMiddleware {
   }
 
   /**
-   * Verifica o status detalhado da licença do usuário usando a função RPC
+   * Verifica o status detalhado da licença do usuário usando a função RPC com fallback offline
    */
   private async checkLicenseStatus(userId: string): Promise<LicenseCheckResult> {
+    const now = Date.now();
+    
+    // Verificar se podemos executar operações online
+    const canGoOnline = canExecuteOnlineOperation();
+    
+    // Se estivermos offline, tentar usar cache
+    if (!canGoOnline) {
+      console.log('🌐 Offline - usando cache de licença');
+      return this.getOfflineLicenseStatus(userId);
+    }
+    
     try {
       // Usar a função RPC get_user_license_status (read-only para evitar loops)
       const { data: licenseData, error } = await supabase
@@ -412,7 +436,15 @@ class RouteMiddleware {
       
       if (error) {
         console.error('❌ [RouteMiddleware] Erro na função RPC validate_user_license_complete:', error);
-        const result = { status: 'not_found' as const, lastCheck: Date.now() };
+        
+        // Em caso de erro, tentar usar cache offline
+        const cachedResult = this.getOfflineLicenseStatus(userId);
+        if (cachedResult.status !== 'not_found') {
+          console.log('🔄 Usando cache offline devido a erro RPC');
+          return cachedResult;
+        }
+        
+        const result = { status: 'not_found' as const, lastCheck: now };
         
         // Registrar erro na verificação de licença
         try {
@@ -456,8 +488,11 @@ class RouteMiddleware {
       const result = {
         status,
         expiresAt: licenseData.expires_at,
-        lastCheck: Date.now()
+        lastCheck: now
       };
+      
+      // Salvar no cache offline para uso futuro
+      this.saveOfflineLicenseStatus(userId, result);
       
       // Log da verificação de licença
       console.log(`🔍 [RouteMiddleware] Verificação de licença para usuário ${userId}: ${result.status} (RPC: has_license=${licenseData.has_license}, is_valid=${licenseData.is_valid}, requires_activation=${licenseData.requires_activation}, requires_renewal=${licenseData.requires_renewal})`);
@@ -472,7 +507,18 @@ class RouteMiddleware {
       return result;
     } catch (error) {
       console.error('❌ Erro ao verificar status da licença:', error);
-      const result = { status: 'not_found' as const, lastCheck: Date.now() };
+      
+      // Em caso de erro de conectividade, tentar usar cache offline
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.log('🌐 Erro de conectividade - tentando cache offline');
+        const cachedResult = this.getOfflineLicenseStatus(userId);
+        if (cachedResult.status !== 'not_found') {
+          console.log('✅ Usando cache offline devido a erro de conectividade');
+          return cachedResult;
+        }
+      }
+      
+      const result = { status: 'not_found' as const, lastCheck: now };
       
       // Registrar erro na verificação de licença
       try {
@@ -482,6 +528,70 @@ class RouteMiddleware {
       }
       
       return result;
+    }
+  }
+
+  /**
+   * Obtém o status da licença do cache offline
+   */
+  private getOfflineLicenseStatus(userId: string): LicenseCheckResult {
+    try {
+      const cache = multiTabCache.get<OfflineLicenseCache>(this.LICENSE_CACHE_KEY) || {};
+      const userCache = cache[userId];
+      
+      if (!userCache) {
+        console.log('📭 Nenhum cache offline encontrado para o usuário');
+        return { status: 'not_found', lastCheck: Date.now() };
+      }
+      
+      const now = Date.now();
+      const cacheAge = now - userCache.cachedAt;
+      
+      // Verificar se o cache não está muito antigo (24 horas)
+      if (cacheAge > this.OFFLINE_LICENSE_TTL) {
+        console.log('⏰ Cache offline expirado');
+        return { status: 'not_found', lastCheck: now };
+      }
+      
+      // Se a licença estava ativa e ainda não expirou, considerar válida
+      if (userCache.status === 'active' && userCache.expiresAt) {
+        const expiresAt = new Date(userCache.expiresAt).getTime();
+        if (now > expiresAt) {
+          console.log('📅 Licença expirou desde o último cache');
+          return { status: 'expired', expiresAt: userCache.expiresAt, lastCheck: now };
+        }
+      }
+      
+      console.log(`✅ Usando cache offline: ${userCache.status}`);
+      return {
+        status: userCache.status,
+        expiresAt: userCache.expiresAt,
+        lastCheck: now
+      };
+    } catch (error) {
+      console.error('❌ Erro ao acessar cache offline de licença:', error);
+      return { status: 'not_found', lastCheck: Date.now() };
+    }
+  }
+
+  /**
+   * Salva o status da licença no cache offline
+   */
+  private saveOfflineLicenseStatus(userId: string, result: LicenseCheckResult): void {
+    try {
+      const cache = multiTabCache.get<OfflineLicenseCache>(this.LICENSE_CACHE_KEY) || {};
+      
+      cache[userId] = {
+        status: result.status,
+        expiresAt: result.expiresAt,
+        cachedAt: Date.now(),
+        lastOnlineCheck: result.lastCheck
+      };
+      
+      multiTabCache.set(this.LICENSE_CACHE_KEY, cache, this.OFFLINE_LICENSE_TTL);
+      console.log(`💾 Cache offline salvo para usuário: ${result.status}`);
+    } catch (error) {
+      console.error('❌ Erro ao salvar cache offline de licença:', error);
     }
   }
 
