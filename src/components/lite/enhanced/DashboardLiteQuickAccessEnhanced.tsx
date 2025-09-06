@@ -7,7 +7,6 @@ import { StaggerContainer } from '@/components/ui/animations/page-transitions';
 import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
 
 interface DashboardLiteQuickAccessEnhancedProps {
-  onTabChange: (tab: string) => void;
   hasPermission: (permission: string) => boolean;
 }
 
@@ -25,7 +24,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'new-budget',
   label: 'Novo Orçamento',
   icon: PlusCircle,
-  tab: 'new-budget',
+  tab: '/budgets/new',
   permission: 'create_budgets',
   gradient: 'from-green-500 to-emerald-500',
   iconColor: 'text-green-600'
@@ -33,7 +32,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'budgets',
   label: 'Ver Orçamentos',
   icon: List,
-  tab: 'budgets',
+  tab: '/budgets',
   permission: 'view_own_budgets',
   gradient: 'from-blue-500 to-cyan-500',
   iconColor: 'text-blue-600'
@@ -41,7 +40,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'service-orders',
   label: 'Ordens de Serviço VIP',
   icon: Wrench,
-  tab: 'service-orders',
+  tab: '/service-orders',
   permission: null,
   gradient: 'from-amber-500 to-yellow-500',
   iconColor: 'text-amber-600'
@@ -49,7 +48,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'clients',
   label: 'Clientes',
   icon: Users,
-  tab: 'clients',
+  tab: '/clients',
   permission: null,
   gradient: 'from-purple-500 to-indigo-500',
   iconColor: 'text-purple-600'
@@ -57,7 +56,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'data-management',
   label: 'Lixeira',
   icon: Database,
-  tab: 'data-management',
+  tab: '/data-management',
   permission: null,
   gradient: 'from-orange-500 to-red-500',
   iconColor: 'text-orange-600'
@@ -65,7 +64,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'settings',
   label: 'Configurações',
   icon: Settings,
-  tab: 'settings',
+  tab: '/settings',
   permission: null,
   gradient: 'from-gray-500 to-slate-500',
   iconColor: 'text-gray-600'
@@ -73,24 +72,19 @@ const quickAccessActions: QuickAccessAction[] = [{
   id: 'admin',
   label: 'Painel Admin',
   icon: Shield,
-  tab: 'admin',
+  tab: '/admin',
   permission: 'manage_users',
   gradient: 'from-red-500 to-pink-500',
   iconColor: 'text-red-600'
 }];
 
 export const DashboardLiteQuickAccessEnhanced = ({
-  onTabChange,
   hasPermission
 }: DashboardLiteQuickAccessEnhancedProps) => {
   const navigate = useNavigate();
   
   const handleActionClick = (action: QuickAccessAction) => {
-    if (action.id === 'service-orders') {
-      navigate('/service-orders');
-    } else {
-      onTabChange(action.tab);
-    }
+    navigate(action.tab);
   };
 
   const availableActions = quickAccessActions.filter(action => 

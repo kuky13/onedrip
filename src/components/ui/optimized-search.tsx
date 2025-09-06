@@ -96,9 +96,10 @@ export function OptimizedSearch<T>({
   const {
     searchTerm,
     setSearchTerm,
+    debouncedSearchTerm,
+    isSearching,
     searchResult,
     clearSearch,
-    isSearching,
     options,
     updateOptions
   } = useOptimizedSearch(data, searchOptions);

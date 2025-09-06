@@ -17,8 +17,8 @@ import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu';
 import { useMobileMenuContext } from '@/components/mobile/MobileMenuProvider';
 interface AdaptiveLayoutProps {
   children: ReactNode;
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 // Enhanced Mobile Layout with better responsiveness

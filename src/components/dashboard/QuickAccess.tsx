@@ -6,7 +6,6 @@ import { PlusCircle, List, Settings, Shield, Database, type LucideIcon } from 'l
 import { useNavigate } from 'react-router-dom';
 
 interface QuickAccessProps {
-  onTabChange: (tab: string) => void;
   hasPermission: (permission: string) => boolean;
 }
 
@@ -20,18 +19,18 @@ interface QuickAccessButton {
 }
 
 const quickAccessButtons: QuickAccessButton[] = [
-  { label: 'Novo Orçamento', icon: PlusCircle, tab: 'new-budget', permission: 'create_budgets', iconColorClass: 'text-green-500', shortcut: 'Ctrl+N' },
-  { label: 'Ver Orçamentos', icon: List, tab: 'budgets', permission: 'view_own_budgets', iconColorClass: 'text-blue-500', shortcut: 'Ctrl+B' },
-  { label: 'Gestão de Dados', icon: Database, tab: 'data-management', permission: null, iconColorClass: 'text-purple-500', shortcut: 'Ctrl+D' },
-  { label: 'Configurações', icon: Settings, tab: 'settings', permission: null, iconColorClass: 'text-slate-500', shortcut: 'Ctrl+,' },
-  { label: 'Painel Admin', icon: Shield, tab: 'admin', permission: 'manage_users', iconColorClass: 'text-red-500', shortcut: 'Ctrl+A' },
+  { label: 'Novo Orçamento', icon: PlusCircle, tab: '/budgets/new', permission: 'create_budgets', iconColorClass: 'text-green-500', shortcut: 'Ctrl+N' },
+  { label: 'Ver Orçamentos', icon: List, tab: '/budgets', permission: 'view_own_budgets', iconColorClass: 'text-blue-500', shortcut: 'Ctrl+B' },
+  { label: 'Gestão de Dados', icon: Database, tab: '/data-management', permission: null, iconColorClass: 'text-purple-500', shortcut: 'Ctrl+D' },
+  { label: 'Configurações', icon: Settings, tab: '/settings', permission: null, iconColorClass: 'text-slate-500', shortcut: 'Ctrl+,' },
+  { label: 'Painel Admin', icon: Shield, tab: '/admin', permission: 'manage_users', iconColorClass: 'text-red-500', shortcut: 'Ctrl+A' },
 ];
 
-export const QuickAccess = ({ onTabChange, hasPermission }: QuickAccessProps) => {
+export const QuickAccess = ({ hasPermission }: QuickAccessProps) => {
   const navigate = useNavigate();
 
   const handleButtonClick = (btn: QuickAccessButton) => {
-    onTabChange(btn.tab);
+    navigate(btn.tab);
   };
 
   return (

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -8,13 +9,15 @@ import { Plus, BarChart3, Users, CreditCard, Settings, HelpCircle } from 'lucide
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MobileQuickAccessProps {
-  onTabChange: (tab: string) => void;
-  activeTab: string;
+  onTabChange?: (tab: string) => void;
+  activeTab?: string;
 }
 
 export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessProps) => {
   const { hasPermission } = useAuth();
   const { currentBreakpoint, isLandscape, isCompactHeight } = useResponsive();
+  const navigate = useNavigate();
+  const location = useLocation();
   const screenSize = currentBreakpoint;
   const orientation = isLandscape ? 'landscape' : 'portrait';
   const density = isCompactHeight ? 'compact' : 'comfortable';
@@ -27,7 +30,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: Plus, 
       color: 'bg-primary text-primary-foreground',
       permission: null,
-      priority: 1
+      priority: 1,
+      route: '/budgets/new'
     },
     { 
       id: 'analytics', 
@@ -35,7 +39,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: BarChart3, 
       color: 'bg-blue-500 text-white',
       permission: 'analytics',
-      priority: 2
+      priority: 2,
+      route: '/dashboard'
     },
     { 
       id: 'customers', 
@@ -43,7 +48,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: Users, 
       color: 'bg-green-500 text-white',
       permission: 'customers',
-      priority: 3
+      priority: 3,
+      route: '/data-management'
     },
     { 
       id: 'billing', 
@@ -51,7 +57,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: CreditCard, 
       color: 'bg-orange-500 text-white',
       permission: 'billing',
-      priority: 4
+      priority: 4,
+      route: '/budgets'
     },
     { 
       id: 'settings', 
@@ -59,7 +66,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: Settings, 
       color: 'bg-gray-500 text-white',
       permission: null,
-      priority: 5
+      priority: 5,
+      route: '/settings'
     },
     { 
       id: 'help', 
@@ -67,7 +75,8 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
       icon: HelpCircle, 
       color: 'bg-purple-500 text-white',
       permission: null,
-      priority: 6
+      priority: 6,
+      route: '/central-de-ajuda'
     }
   ];
 
@@ -165,7 +174,7 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
           >
             {visibleActions.map((action, index) => {
               const Icon = action.icon;
-              const isActive = activeTab === action.id;
+              const isActive = location.pathname === action.route || activeTab === action.id;
               
               return (
                 <motion.div
@@ -183,7 +192,13 @@ export const MobileQuickAccess = ({ onTabChange, activeTab }: MobileQuickAccessP
                 >
                   <Button
                     variant="outline"
-                    onClick={() => onTabChange(action.id)}
+                    onClick={() => {
+                      if (action.route) {
+                        navigate(action.route);
+                      } else if (onTabChange) {
+                        onTabChange(action.id);
+                      }
+                    }}
                     className={cn(
                       "flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-3 sm:p-4",
                       "transition-all duration-300 hover:shadow-lg active:scale-95",

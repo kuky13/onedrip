@@ -221,7 +221,6 @@ export const getBrandFiles = () => {
     
     // Componentes diversos
     'src/components/SiteSettingsContent.tsx',
-    'src/components/lite/DashboardLiteHeader.tsx',
     'src/components/adaptive/AdaptiveLayout.tsx'
   ];
 };

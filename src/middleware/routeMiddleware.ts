@@ -82,6 +82,16 @@ class RouteMiddleware {
         requiresEmailVerification: true, 
         requiresLicense: true,
         allowedRoles: ['admin', 'super_admin']
+      },
+      '/settings': { 
+        requiresAuth: true, 
+        requiresEmailVerification: true, 
+        requiresLicense: true
+      },
+      '/security': { 
+        requiresAuth: true, 
+        requiresEmailVerification: true, 
+        requiresLicense: true
       }
     };
   }

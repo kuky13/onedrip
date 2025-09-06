@@ -1,12 +1,13 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator, useSidebar } from '@/components/ui/sidebar';
-import { Plus, Users, HelpCircle, Home } from 'lucide-react';
+import { Plus, Users, HelpCircle, Home, Settings, Database, FileText } from 'lucide-react';
 
 interface AppSidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 export const AppSidebar = ({
@@ -24,12 +25,17 @@ export const AppSidebar = ({
   const {
     isDesktop
   } = useResponsive();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navigationItems = [
-    { id: 'home', label: 'Home', icon: Home, permission: true, route: '/' },
-    { id: 'new-budget', label: 'Novo Orçamento', icon: Plus, permission: true },
+    { id: 'home', label: 'Home', icon: Home, permission: true, route: '/dashboard' },
+    { id: 'budgets', label: 'Orçamentos', icon: FileText, permission: true, route: '/budgets' },
+    { id: 'new-budget', label: 'Novo Orçamento', icon: Plus, permission: true, route: '/budgets/new' },
+    { id: 'data-management', label: 'Gestão de Dados', icon: Database, permission: true, route: '/data-management' },
+    { id: 'settings', label: 'Configurações', icon: Settings, permission: true, route: '/settings' },
     { id: 'help-center', label: 'Central de Ajuda', icon: HelpCircle, permission: true, route: '/central-de-ajuda' },
-    { id: 'admin', label: 'Administração', icon: Users, permission: hasRole('admin') }
+    { id: 'admin', label: 'Administração', icon: Users, permission: hasRole('admin'), route: '/admin' }
   ];
 
   const isCollapsed = state === "collapsed";
@@ -124,12 +130,12 @@ export const AppSidebar = ({
                 <SidebarMenuButton 
                   onClick={() => {
                     if (item.route) {
-                      window.location.href = item.route;
-                    } else {
+                      navigate(item.route);
+                    } else if (onTabChange) {
                       onTabChange(item.id);
                     }
                   }} 
-                  isActive={activeTab === item.id} 
+                  isActive={location.pathname === item.route || activeTab === item.id} 
                   className={cn(
                     "h-12 text-base font-medium rounded-lg transition-all duration-150 ease-out",
                     "hover:bg-accent/50 hover:text-accent-foreground",

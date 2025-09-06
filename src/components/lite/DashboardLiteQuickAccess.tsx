@@ -1,9 +1,10 @@
 import React from 'react';
 import { PlusCircle, List, Settings, Shield, Database, Users } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardLiteQuickAccessProps {
-  onTabChange: (tab: string) => void;
+  onTabChange?: (tab: string) => void;
   hasPermission: (permission: string) => boolean;
 }
 
@@ -11,25 +12,32 @@ interface QuickAccessButton {
   label: string;
   icon: typeof PlusCircle;
   tab: string;
+  route?: string;
   permission: string | null;
   iconColorClass: string;
 }
 
 const quickAccessButtons: QuickAccessButton[] = [
-  { label: 'Novo Orçamento', icon: PlusCircle, tab: 'new-budget', permission: 'create_budgets', iconColorClass: 'text-green-500' },
-  { label: 'Ver Orçamentos', icon: List, tab: 'budgets', permission: 'view_own_budgets', iconColorClass: 'text-blue-500' },
-  { label: 'Clientes', icon: Users, tab: 'clients', permission: null, iconColorClass: 'text-indigo-500' },
-  { label: 'Gestão de Dados', icon: Database, tab: 'data-management', permission: null, iconColorClass: 'text-purple-500' },
-  { label: 'Configurações', icon: Settings, tab: 'settings', permission: null, iconColorClass: 'text-gray-500' },
-  { label: 'Painel Admin', icon: Shield, tab: 'admin', permission: 'manage_users', iconColorClass: 'text-red-500' },
+  { label: 'Novo Orçamento', icon: PlusCircle, tab: 'new-budget', route: '/budgets/new', permission: 'create_budgets', iconColorClass: 'text-green-500' },
+  { label: 'Ver Orçamentos', icon: List, tab: 'budgets', route: '/budgets', permission: 'view_own_budgets', iconColorClass: 'text-blue-500' },
+  { label: 'Clientes', icon: Users, tab: 'clients', route: '/clients', permission: null, iconColorClass: 'text-indigo-500' },
+  { label: 'Gestão de Dados', icon: Database, tab: 'data-management', route: '/data-management', permission: null, iconColorClass: 'text-purple-500' },
+  { label: 'Configurações', icon: Settings, tab: 'settings', route: '/settings', permission: null, iconColorClass: 'text-gray-500' },
+  { label: 'Painel Admin', icon: Shield, tab: 'admin', route: '/admin', permission: 'manage_users', iconColorClass: 'text-red-500' },
 ];
 
 export const DashboardLiteQuickAccess = ({ 
   onTabChange, 
   hasPermission 
 }: DashboardLiteQuickAccessProps) => {
+  const navigate = useNavigate();
+  
   const handleButtonClick = (btn: QuickAccessButton) => {
-    onTabChange(btn.tab);
+    if (btn.route) {
+      navigate(btn.route);
+    } else if (onTabChange) {
+      onTabChange(btn.tab);
+    }
   };
 
   return (
