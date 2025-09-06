@@ -14,13 +14,7 @@ import { SignPage } from "./pages/SignPage";
 import { PlansPage } from "./plans/PlansPage";
 import { PurchaseSuccessPage } from "./pages/PurchaseSuccessPage";
 
-
-import { DashboardHome } from "./pages/dashboard/DashboardHome";
-import { BudgetsPage } from "./pages/BudgetsPage";
-import { BudgetFormPage } from "./pages/budgets/BudgetFormPage";
-import { DataManagementPage } from "./pages/data-management/DataManagementPage";
-import { SettingsPage } from "./pages/settings/SettingsPage";
-import { AdminPage } from "./pages/admin/AdminPage";
+import { DashboardLite } from "./pages/DashboardLite";
 import { CookiePage } from "./pages/CookiePage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
@@ -50,7 +44,6 @@ import SuportePage from "./pages/SuportePage";
 
 import { CompanyBrandingSettings } from "./components/CompanyBrandingSettings";
 import { useAutoRedirect } from "./hooks/useAutoRedirect";
-import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -126,10 +119,6 @@ const AppContent = () => {
       <SmartNavigation>
         <Routes>
           <Route path="/" element={<Index />} />
-          
-          {/* Redirecionamentos automáticos para compatibilidade */}
-          <Route path="/dashboard-lite" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/painel-lite" element={<Navigate to="/painel" replace />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/licenca" element={<LicensePage />} />
         <Route path="/verify-licenca" element={<VerifyLicensePage />} />
@@ -162,7 +151,7 @@ const AppContent = () => {
           path="/dashboard" 
           element={
             <UnifiedProtectionGuard>
-              <DashboardHome />
+              <DashboardLite />
             </UnifiedProtectionGuard>
           } 
         />
@@ -170,55 +159,7 @@ const AppContent = () => {
           path="/painel" 
           element={
             <UnifiedProtectionGuard>
-              <DashboardHome />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/budgets" 
-          element={
-            <UnifiedProtectionGuard>
-              <BudgetsPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/budgets/new" 
-          element={
-            <UnifiedProtectionGuard>
-              <BudgetFormPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/budgets/:id/edit" 
-          element={
-            <UnifiedProtectionGuard>
-              <BudgetFormPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/data-management" 
-          element={
-            <UnifiedProtectionGuard>
-              <DataManagementPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/settings" 
-          element={
-            <UnifiedProtectionGuard>
-              <SettingsPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/admin" 
-          element={
-            <UnifiedProtectionGuard>
-              <AdminPage />
+              <DashboardLite />
             </UnifiedProtectionGuard>
           } 
         />

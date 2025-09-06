@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardLiteSidebarProps {
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -21,7 +21,6 @@ export const DashboardLiteSidebar = ({
 }: DashboardLiteSidebarProps) => {
   const { profile, hasPermission } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
@@ -29,12 +28,15 @@ export const DashboardLiteSidebar = ({
   };
 
   const handleItemClick = (item: any) => {
-    if (item.route) {
-      navigate(item.route);
+    if (item.isExternal) {
+      if (item.route) {
+        navigate(item.route);
+      } else {
+        navigate('/msg');
+      }
       onClose();
-    } else if (onTabChange) {
-      onTabChange(item.id);
-      onClose();
+    } else {
+      handleTabChange(item.id);
     }
   };
 
@@ -48,27 +50,26 @@ export const DashboardLiteSidebar = ({
       id: 'home',
       label: 'Home',
       icon: Home,
+      isExternal: true,
       route: '/'
     },
     {
       id: 'new-budget',
       label: 'Novo Orçamento',
       icon: PlusCircle,
-      permission: 'create_budgets',
-      route: '/budgets/new'
+      permission: 'create_budgets'
     },
     {
       id: 'notifications',
       label: 'Notificações',
       icon: Bell,
-      route: '/notifications'
+      isExternal: true
     },
     {
       id: 'admin',
       label: 'Painel Admin',
       icon: Shield,
-      permission: 'manage_users',
-      route: '/admin'
+      permission: 'manage_users'
     },
   ];
 
@@ -97,7 +98,7 @@ export const DashboardLiteSidebar = ({
               return (
                 <Button
                   key={item.id}
-                  variant={(activeTab === item.id || location.pathname === item.route) ? "default" : "ghost"}
+                  variant={activeTab === item.id ? "default" : "ghost"}
                   className="w-full justify-start gap-3"
                   onClick={() => handleItemClick(item)}
                 >
@@ -113,7 +114,7 @@ export const DashboardLiteSidebar = ({
             <Button
               variant="ghost"
               className="w-full justify-start gap-3"
-              onClick={() => navigate('/settings')}
+              onClick={() => handleTabChange('settings')}
             >
               <Settings className="h-4 w-4" />
               Configurações

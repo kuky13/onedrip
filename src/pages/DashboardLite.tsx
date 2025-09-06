@@ -1,25 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyDataLoader } from '@/hooks/useCompanyDataLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { AdaptiveLayout } from '@/components/adaptive/AdaptiveLayout';
+import { DashboardLiteContent } from '@/components/lite/DashboardLiteContent';
 import { DashboardLiteStatsEnhanced } from '@/components/lite/enhanced/DashboardLiteStatsEnhanced';
 import { DashboardLiteQuickAccessEnhanced } from '@/components/lite/enhanced/DashboardLiteQuickAccessEnhanced';
 import { DashboardLiteLicenseStatus } from '@/components/lite/DashboardLiteLicenseStatus';
 import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSupport';
 import { useResponsive } from '@/hooks/useResponsive';
+
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import { PageTransition } from '@/components/ui/animations/page-transitions';
 import { IOSSpinner } from '@/components/ui/animations/loading-states';
 import SupportButton from '@/components/SupportButton';
-import { useNavigate } from 'react-router-dom';
 
-export const DashboardHome = () => {
+export const DashboardLite = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
   const { profile, user, hasPermission } = useAuth();
   const { isDesktop } = useResponsive();
-  const navigate = useNavigate();
   
   // Hook para carregar dados da empresa automaticamente
   const companyDataLoader = useCompanyDataLoader();
@@ -51,7 +52,7 @@ export const DashboardHome = () => {
     let debounceTimer: NodeJS.Timeout | null = null;
     
     const setupSubscription = () => {
-      subscription = supabase.channel('budget_changes_home').on('postgres_changes', {
+      subscription = supabase.channel('budget_changes_lite').on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'budgets',
@@ -86,8 +87,6 @@ export const DashboardHome = () => {
     };
   }, [isReady, user?.id, handleRefresh]);
 
-
-
   // Otimização para iOS: não renderizar nada até dados estarem prontos
   if (!isReady) {
     return (
@@ -113,33 +112,69 @@ export const DashboardHome = () => {
     );
   }
 
+  // Memoização do conteúdo principal para evitar re-renders desnecessários
+  const dashboardContent = useMemo(() => (
+    <PageTransition type="fadeScale">
+      <div className={`${isDesktop ? 'desktop-dashboard-layout' : 'p-4 space-y-6'}`}>
+        <div className={`${isDesktop ? 'desktop-dashboard-main' : ''}`}>
+          <DashboardLiteStatsEnhanced profile={profile} userId={user?.id} />
+          <DashboardLiteQuickAccessEnhanced onTabChange={setActiveTab} hasPermission={hasPermission} />
+        </div>
+        {isDesktop && (
+          <div className="desktop-dashboard-sidebar">
+            <DashboardLiteLicenseStatus profile={profile} />
+            <DashboardLiteHelpSupport />
+          </div>
+        )}
+        {!isDesktop && (
+          <>
+            <DashboardLiteLicenseStatus profile={profile} />
+            <DashboardLiteHelpSupport />
+          </>
+        )}
+      </div>
+    </PageTransition>
+  ), [profile, user?.id, hasPermission, isDesktop])
+
+  const renderContent = useCallback(() => {
+    
+    if (activeTab !== 'dashboard') {
+      return (
+        <PageTransition type="slideLeft" key={activeTab}>
+          <DashboardLiteContent 
+            budgets={budgets} 
+            loading={loading} 
+            error={error} 
+            onRefresh={handleRefresh} 
+            profile={profile} 
+            activeView={activeTab} 
+            userId={user.id} 
+            hasPermission={hasPermission} 
+            onNavigateBack={() => setActiveTab('dashboard')} 
+            onNavigateTo={(view, budgetId) => {
+              if (budgetId) {
+                console.log('Navigate to budget detail:', budgetId);
+              } else {
+                setActiveTab(view);
+              }
+            }} 
+            isiOSDevice={isiOSDevice} 
+          />
+        </PageTransition>
+      );
+    }
+    return dashboardContent;
+  }, [activeTab, budgets, loading, error, handleRefresh, profile, user.id, hasPermission, isiOSDevice, dashboardContent]);
+
   return (
     <AuthErrorBoundary>
       <BudgetErrorBoundary>
         <LayoutProvider>
-          <AdaptiveLayout>
-            <PageTransition type="fadeScale">
-              <div className={`${isDesktop ? 'desktop-dashboard-layout' : 'p-4 space-y-6'}`}>
-                <div className={`${isDesktop ? 'desktop-dashboard-main' : ''}`}>
-                  <DashboardLiteStatsEnhanced profile={profile} userId={user?.id} />
-                  <DashboardLiteQuickAccessEnhanced 
-                    hasPermission={hasPermission} 
-                  />
-                </div>
-                {isDesktop && (
-                  <div className="desktop-dashboard-sidebar">
-                    <DashboardLiteLicenseStatus profile={profile} />
-                    <DashboardLiteHelpSupport />
-                  </div>
-                )}
-                {!isDesktop && (
-                  <>
-                    <DashboardLiteLicenseStatus profile={profile} />
-                    <DashboardLiteHelpSupport />
-                  </>
-                )}
-              </div>
-            </PageTransition>
+          <AdaptiveLayout 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab}
+          >
+            {renderContent()}
             <SupportButton variant="floating" />
           </AdaptiveLayout>
         </LayoutProvider>

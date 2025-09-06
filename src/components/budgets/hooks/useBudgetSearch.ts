@@ -32,21 +32,14 @@ export const useBudgetSearch = (budgets: any[] = []) => {
   // Debounce search term for real-time search
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Manage isSearching state safely
-  useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      setIsSearching(true);
-    } else {
-      setIsSearching(false);
-    }
-  }, [debouncedSearchTerm]);
-
   // Enhanced search function with highlighting and relevance scoring
   const filteredBudgets = useMemo(() => {
     if (!debouncedSearchTerm.trim()) {
+      setIsSearching(false);
       return budgets;
     }
     
+    setIsSearching(true);
     const term = debouncedSearchTerm.toLowerCase().trim();
     const startTime = performance.now();
     
@@ -127,28 +120,19 @@ export const useBudgetSearch = (budgets: any[] = []) => {
     const endTime = performance.now();
     const searchTime = endTime - startTime;
     
+    // Store search performance metrics
+    setSearchPerformance({
+      searchTime,
+      totalResults: budgets.length,
+      filteredResults: searchResults.length,
+      averageScore: searchResults.length > 0 
+        ? searchResults.reduce((sum, item) => sum + (item._searchMeta?.score || 0), 0) / searchResults.length
+        : 0
+    });
+    
+    setIsSearching(false);
     return searchResults;
   }, [budgets, debouncedSearchTerm]);
-
-  // Update search performance after filtering
-  useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const startTime = performance.now();
-      // Simulate search time calculation
-      const endTime = performance.now();
-      const searchTime = endTime - startTime;
-      
-      setSearchPerformance({
-        searchTime,
-        totalResults: budgets.length,
-        filteredResults: filteredBudgets.length,
-        averageScore: filteredBudgets.length > 0 
-          ? filteredBudgets.reduce((sum, item) => sum + (item._searchMeta?.score || 0), 0) / filteredBudgets.length
-          : 0
-      });
-      setIsSearching(false);
-    }
-  }, [budgets.length, filteredBudgets.length, debouncedSearchTerm]);
 
   // Enhanced search term setter with immediate feedback
   const handleSearchTermChange = useCallback((value: string) => {

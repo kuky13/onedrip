@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Search, Plus, MoreVertical, Eye, Edit, Trash2, Share, Filter, Check, MessageCircle, FileText, Trash, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -137,8 +137,8 @@ export const BudgetsPage = () => {
           <h1 className="text-2xl font-bold mb-4">Acesso Negado</h1>
           <p className="text-muted-foreground mb-6">Você precisa estar logado para ver os orçamentos.</p>
           <Button onClick={() => navigate('/auth')}>Fazer Login</Button>
-        </div>
-      </div>
+        </ResponsiveContainer>
+      </ResponsiveContainer>
     );
   }
 
@@ -176,12 +176,12 @@ export const BudgetsPage = () => {
                   {filteredBudgets.length}
                 </span>
               </p>
-            </div>
+            </ResponsiveGrid>
           </div>
           
           <ActionButton
             action="primary"
-            onClick={() => navigate('/budgets/new')}
+            onClick={() => navigate('/dashboard')}
             icon={<Plus className="h-4 w-4" />}
             iconPosition="left"
             mobileText="Novo"
@@ -253,7 +253,7 @@ export const BudgetsPage = () => {
               </div>
             )}
           />
-        </ResponsiveContainer>
+         </ResponsiveContainer>
       </div>
 
       {/* Header Section */}
@@ -269,8 +269,8 @@ export const BudgetsPage = () => {
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <ResponsiveCard key={i} className="animate-pulse border-border/50">
-                <div className={cn(
+              <Card key={i} className="animate-pulse border-border/50">
+                <CardContent className={cn(
                   "p-6",
                   isDesktop && "desktop-content desktop-card-content"
                 )}>
@@ -285,7 +285,7 @@ export const BudgetsPage = () => {
                     <div className="h-4 bg-muted rounded w-40"></div>
                     <div className="h-12 bg-muted rounded-lg"></div>
                   </div>
-                </div>
+                </ResponsiveContainer>
               </ResponsiveCard>
             ))}
           </div>
@@ -306,7 +306,7 @@ export const BudgetsPage = () => {
             {!searchTerm && (
               <ActionButton 
                 action="primary"
-                onClick={() => navigate('/budgets/new')} 
+                onClick={() => navigate('/dashboard')} 
                 icon={<Plus className="h-4 w-4" />}
                 iconPosition="left"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -448,7 +448,7 @@ export const BudgetsPage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate(`/budgets/${budget.id}/edit`)}
+                        onClick={() => handleEdit(budget)}
                         className="flex flex-col items-center gap-1 p-2 h-auto text-muted-foreground hover:text-foreground"
                       >
                         <Edit className="h-5 w-5" />
@@ -466,13 +466,13 @@ export const BudgetsPage = () => {
                       </Button>
                     </div>
                   </div>
-                </ResponsiveContainer>
-              </ResponsiveCard>
+                </CardContent>
+              </Card>
             ))}
-          </ResponsiveGrid>
+          </div>
         )}
-      </ResponsiveContainer>
-      
+      </div>
+
       {/* Modals */}
       <EditBudgetModal 
         budget={editingBudget} 

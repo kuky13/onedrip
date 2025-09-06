@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppInfo } from '@/hooks/useAppConfig';
@@ -11,8 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NotificationIndicator } from '@/components/NotificationIndicator';
 
 interface TabletHeaderNavProps {
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
   onMenuToggle?: () => void;
 }
 
@@ -29,37 +28,30 @@ export const TabletHeaderNav = ({
   
   const { name, logo } = useAppInfo();
   const { isDesktop } = useResponsive();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [{
     id: 'dashboard',
     icon: Home,
-    label: 'Menu',
-    route: '/dashboard'
+    label: 'Menu'
   }, {
     id: 'budgets',
     icon: FileText,
-    label: 'Orçamentos',
-    route: '/budgets'
+    label: 'Orçamentos'
   }, {
     id: 'data-management',
     icon: Database,
-    label: 'Gestão de Dados',
-    route: '/data-management'
+    label: 'Gestão de Dados'
   }, {
     id: 'admin',
     icon: Shield,
     label: 'Admin',
-    permission: 'manage_users',
-    route: '/admin'
+    permission: 'manage_users'
   }, {
     id: 'settings',
     icon: Settings,
-    label: 'Configurações',
-    route: '/settings'
+    label: 'Configurações'
   }].filter(item => !item.permission || hasPermission(item.permission));
 
   // Handle scroll effect
@@ -71,12 +63,8 @@ export const TabletHeaderNav = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleTabChange = (tabId: string, route?: string) => {
-    if (route) {
-      navigate(route);
-    } else if (onTabChange) {
-      onTabChange(tabId);
-    }
+  const handleTabChange = (tabId: string) => {
+    onTabChange(tabId);
     setIsMobileMenuOpen(false);
   };
 
@@ -137,7 +125,7 @@ export const TabletHeaderNav = ({
           >
             {navItems.map((item, index) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.route || activeTab === item.id;
+              const isActive = activeTab === item.id;
               
               return (
                 <motion.div
@@ -149,7 +137,7 @@ export const TabletHeaderNav = ({
                   <Button 
                     variant={isActive ? "default" : "ghost"} 
                     size="sm" 
-                    onClick={() => handleTabChange(item.id, item.route)} 
+                    onClick={() => handleTabChange(item.id)} 
                     className={cn(
                       "gap-2 transition-all duration-300 hover:scale-105",
                       "px-3 py-2",
@@ -190,7 +178,7 @@ export const TabletHeaderNav = ({
           )}
           
           <Button 
-            onClick={() => navigate('/budgets/new')} 
+            onClick={() => handleTabChange('new-budget')} 
             size="sm" 
             className={cn(
               "gap-2 bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105",
@@ -243,7 +231,7 @@ export const TabletHeaderNav = ({
                     <Button
                       variant={isActive ? "default" : "ghost"}
                       size="sm"
-                      onClick={() => handleTabChange(item.id, item.route)}
+                      onClick={() => handleTabChange(item.id)}
                       className={cn(
                         "w-full justify-start gap-3 transition-all duration-300 hover:scale-[1.02]",
                         "px-4 py-3 text-left",
