@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,9 +22,7 @@ export const useShopProfile = () => {
   const { showSuccess, showError } = useToast();
   const queryClient = useQueryClient();
 
-  const [testShopProfile, setTestShopProfile] = useState<ShopProfile | null>(null);
-
-  const { data: shopProfile, isLoading, error } = useQuery({
+  const { data: shopProfile, isLoading } = useQuery({
     queryKey: ['shop-profile', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -47,27 +45,6 @@ export const useShopProfile = () => {
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
-
-  // Para teste: se não conseguir carregar do Supabase, usar dados de teste
-  useEffect(() => {
-    if (!isLoading && !shopProfile && error && user?.id) {
-      console.log('[useShopProfile] Usando dados de teste devido ao erro:', error);
-      const testData: ShopProfile = {
-        id: 'test-shop-001',
-        user_id: user.id,
-        shop_name: 'TechRepair Pro',
-        address: 'Rua das Flores, 123 - Centro - São Paulo/SP',
-        contact_phone: '(11) 98765-4321',
-        cnpj: '12.345.678/0001-90',
-        logo_url: '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      setTestShopProfile(testData);
-    } else if (shopProfile) {
-      setTestShopProfile(null);
-    }
-  }, [isLoading, shopProfile, error, user?.id]);
 
   const createOrUpdateMutation = useMutation({
     mutationFn: async (profileData: Partial<ShopProfile>) => {
@@ -269,7 +246,7 @@ export const useShopProfile = () => {
   });
 
   return {
-    shopProfile: shopProfile || testShopProfile,
+    shopProfile,
     isLoading,
     saveProfile: createOrUpdateMutation.mutate,
     isSaving: createOrUpdateMutation.isPending,

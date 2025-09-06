@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { SecurityValidation } from '@/utils/securityValidation';
-import { canExecuteOnlineOperation, useNetworkStatus } from '@/utils/networkUtils';
 
 interface AuthState {
   user: User | null;
@@ -31,8 +30,6 @@ interface AuthResponse {
  * Substitui useAuth e useSecureAuth com melhor performance e segurança
  */
 export const useUnifiedAuth = () => {
-  const networkStatus = useNetworkStatus();
-  
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     session: null,
@@ -100,14 +97,6 @@ export const useUnifiedAuth = () => {
 
   // Função de login seguro
   const signIn = useCallback(async ({ email, password }: LoginCredentials): Promise<AuthResponse> => {
-    // Verificar conectividade antes de tentar login
-    if (!canExecuteOnlineOperation(networkStatus)) {
-      return {
-        success: false,
-        error: 'Operação requer conexão com a internet. Verifique sua conectividade.'
-      };
-    }
-
     // Verificar rate limiting
     if (!checkRateLimit('login')) {
       await logSecurityEvent('LOGIN_RATE_LIMITED', false, { email });
@@ -158,14 +147,6 @@ export const useUnifiedAuth = () => {
 
   // Função de registro seguro
   const signUp = useCallback(async ({ email, password, name }: SignUpCredentials): Promise<AuthResponse> => {
-    // Verificar conectividade antes de tentar registro
-    if (!canExecuteOnlineOperation(networkStatus)) {
-      return {
-        success: false,
-        error: 'Operação requer conexão com a internet. Verifique sua conectividade.'
-      };
-    }
-
     // Verificar rate limiting
     if (!checkRateLimit('signup')) {
       await logSecurityEvent('SIGNUP_RATE_LIMITED', false, { email });

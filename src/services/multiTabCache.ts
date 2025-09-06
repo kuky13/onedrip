@@ -22,12 +22,9 @@ interface CacheMessage {
 
 class MultiTabCache {
   private cache = new Map<string, CacheEntry>();
-  private channel: BroadcastChannel | null = null;
+  private channel: BroadcastChannel;
   private readonly config = ROUTE_CONFIG.cache;
   private listeners = new Set<(key: string, data: any) => void>();
-  private isDestroyed = false;
-  private reconnectAttempts = 0;
-  private readonly maxReconnectAttempts = 3;
 
   private checkVersion() {
     // Verificar se há mudança de versão e limpar cache se necessário
@@ -40,75 +37,37 @@ class MultiTabCache {
   }
 
   constructor() {
-    this.initializeChannel();
+    this.channel = new BroadcastChannel(this.config.channelName);
+    this.setupChannelListener();
     this.startCleanupTimer();
     this.checkVersion();
   }
 
-  private initializeChannel() {
-    try {
-      if (this.isDestroyed) return;
-      
-      this.channel = new BroadcastChannel(this.config.channelName);
-      this.setupChannelListener();
-      this.reconnectAttempts = 0;
-      console.log('✅ BroadcastChannel inicializado com sucesso');
-    } catch (error) {
-      console.warn('⚠️ Erro ao inicializar BroadcastChannel:', error);
-      this.channel = null;
-      
-      // Tentar reconectar após um delay
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.reconnectAttempts++;
-        setTimeout(() => {
-          console.log(`🔄 Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-          this.initializeChannel();
-        }, 1000 * this.reconnectAttempts);
-      }
-    }
-  }
-
   private setupChannelListener() {
-    if (!this.channel) return;
-    
-    try {
-      this.channel.addEventListener('message', (event: MessageEvent<CacheMessage>) => {
-        try {
-          const { type, key, data, timestamp } = event.data;
-          
-          // Ignorar mensagens antigas (mais de 1 segundo)
-          if (Date.now() - timestamp > 1000) return;
+    this.channel.addEventListener('message', (event: MessageEvent<CacheMessage>) => {
+      const { type, key, data, timestamp } = event.data;
+      
+      // Ignorar mensagens antigas (mais de 1 segundo)
+      if (Date.now() - timestamp > 1000) return;
 
-          switch (type) {
-            case 'invalidate':
-              if (key) {
-                this.cache.delete(key);
-                this.notifyListeners(key, null);
-              }
-              break;
-            case 'update':
-              if (key && data) {
-                this.setLocal(key, data.data, data.ttl);
-                this.notifyListeners(key, data.data);
-              }
-              break;
-            case 'clear':
-              this.cache.clear();
-              break;
+      switch (type) {
+        case 'invalidate':
+          if (key) {
+            this.cache.delete(key);
+            this.notifyListeners(key, null);
           }
-        } catch (error) {
-          console.warn('⚠️ Erro ao processar mensagem do BroadcastChannel:', error);
-        }
-      });
-      
-      // Adicionar listener para erros do canal
-      this.channel.addEventListener('messageerror', (event) => {
-        console.warn('⚠️ Erro de mensagem no BroadcastChannel:', event);
-      });
-      
-    } catch (error) {
-      console.warn('⚠️ Erro ao configurar listener do BroadcastChannel:', error);
-    }
+          break;
+        case 'update':
+          if (key && data) {
+            this.setLocal(key, data.data, data.ttl);
+            this.notifyListeners(key, data.data);
+          }
+          break;
+        case 'clear':
+          this.cache.clear();
+          break;
+      }
+    });
   }
 
   private startCleanupTimer() {
@@ -151,29 +110,9 @@ class MultiTabCache {
       try {
         listener(key, data);
       } catch (error) {
-        console.warn('Erro ao notificar listener:', error);
+        console.error('Erro ao notificar listener do cache:', error);
       }
     });
-  }
-
-  private postMessage(message: CacheMessage) {
-    if (!this.channel || this.isDestroyed) {
-      console.warn('⚠️ BroadcastChannel não disponível para envio de mensagem');
-      return;
-    }
-    
-    try {
-      this.channel.postMessage(message);
-    } catch (error) {
-      console.warn('⚠️ Erro ao enviar mensagem via BroadcastChannel:', error);
-      
-      // Se o canal foi fechado, tentar reinicializar
-      if (error instanceof DOMException && error.name === 'InvalidStateError') {
-        console.log('🔄 Canal fechado, tentando reinicializar...');
-        this.channel = null;
-        this.initializeChannel();
-      }
-    }
   }
 
   /**
@@ -183,7 +122,7 @@ class MultiTabCache {
     this.setLocal(key, data, ttl);
     
     // Notificar outras abas
-    this.postMessage({
+    this.channel.postMessage({
       type: 'update',
       key,
       data: { data, ttl },
@@ -227,7 +166,7 @@ class MultiTabCache {
   invalidate(key: string): void {
     this.cache.delete(key);
     
-    this.postMessage({
+    this.channel.postMessage({
       type: 'invalidate',
       key,
       timestamp: Date.now()
@@ -240,7 +179,7 @@ class MultiTabCache {
   clear(): void {
     this.cache.clear();
     
-    this.postMessage({
+    this.channel.postMessage({
       type: 'clear',
       timestamp: Date.now()
     });
@@ -283,23 +222,12 @@ class MultiTabCache {
   }
 
   /**
-   * Destrói o cache e limpa recursos
+   * Destrói o cache e fecha o canal
    */
   destroy(): void {
-    this.isDestroyed = true;
     this.cache.clear();
     this.listeners.clear();
-    
-    if (this.channel) {
-      try {
-        this.channel.close();
-        console.log('✅ BroadcastChannel fechado com sucesso');
-      } catch (error) {
-        console.warn('⚠️ Erro ao fechar BroadcastChannel:', error);
-      } finally {
-        this.channel = null;
-      }
-    }
+    this.channel.close();
   }
 }
 

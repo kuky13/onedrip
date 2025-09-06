@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
@@ -43,8 +44,6 @@ import SuportePage from "./pages/SuportePage";
 
 import { CompanyBrandingSettings } from "./components/CompanyBrandingSettings";
 import { useAutoRedirect } from "./hooks/useAutoRedirect";
-import { OrcamentoPage } from "./pages/orcamento/OrcamentoPage";
-import { EmpresaPage } from '@/pages/EmpresaPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +94,20 @@ const AppContent = () => {
       <ReloadMonitor />
       <SecurityHeaders />
       <Toaster />
+      <Sonner
+        position="top-right"
+        expand={false}
+        richColors
+        closeButton
+        duration={4000}
+        toastOptions={{
+          style: {
+            background: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            border: '1px solid hsl(var(--border))',
+          },
+        }}
+      />
       <IOSRedirectHandler />
       
       {/* Modal de aceitação de termos - apenas para usuários logados */}
@@ -222,22 +235,6 @@ const AppContent = () => {
           element={
             <UnifiedProtectionGuard>
               <NotificationsPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/orcamento/*" 
-          element={
-            <UnifiedProtectionGuard>
-              <OrcamentoPage />
-            </UnifiedProtectionGuard>
-          } 
-        />
-        <Route 
-          path="/empresa" 
-          element={
-            <UnifiedProtectionGuard>
-              <EmpresaPage />
             </UnifiedProtectionGuard>
           } 
         />

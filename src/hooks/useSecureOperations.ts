@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/useToast';
 import { setSecureItem, getSecureItem } from '@/utils/secureStorage';
-import { canExecuteOnlineOperation, useNetworkStatus } from '@/utils/networkUtils';
 
 interface ValidationResult {
   isValid: boolean;
@@ -25,7 +24,6 @@ interface OperationOptions {
  */
 export const useSecureOperations = () => {
   const { showError } = useToast();
-  const networkStatus = useNetworkStatus();
 
   // Função para validar entrada
   const validateInput = useCallback(async (
@@ -156,14 +154,6 @@ export const useSecureOperations = () => {
     severity: 'low' | 'medium' | 'high' = 'medium'
   ) => {
     try {
-      // Verificar conectividade antes de tentar log
-      const canExecute = await canExecuteOnlineOperation(networkStatus);
-      if (!canExecute) {
-        console.log('🌐 Offline - evento de segurança será logado localmente:', eventType);
-        // TODO: Implementar queue local para logs offline
-        return;
-      }
-
       await supabase.rpc('log_security_event', {
         p_event_type: eventType,
         p_details: {
@@ -175,23 +165,12 @@ export const useSecureOperations = () => {
         p_severity: severity
       });
     } catch (error) {
-      // Verificar se é erro de conectividade
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        console.log('🌐 Erro de conectividade - evento de segurança não foi logado:', eventType);
-      } else {
-        console.warn('Falha ao registrar evento de segurança:', error);
-      }
+      console.warn('Falha ao registrar evento de segurança:', error);
     }
-  }, [networkStatus]);
+  }, []);
 
   // Função para verificar permissões do usuário
   const verifyPermissions = useCallback(async (options: OperationOptions = {}) => {
-    // Verificar conectividade antes de operações que requerem rede
-    const canExecute = await canExecuteOnlineOperation(networkStatus);
-    if (!canExecute && (options.requireAdmin || options.requireEmailConfirmed)) {
-      throw new Error('Operação requer conexão com a internet');
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -203,9 +182,6 @@ export const useSecureOperations = () => {
     }
 
     if (options.requireAdmin) {
-      if (!canExecute) {
-        throw new Error('Verificação de permissão de admin requer conexão');
-      }
       const { data: isAdmin } = await supabase.rpc('is_current_user_admin');
       if (!isAdmin) {
         throw new Error('Permissão de administrador necessária');
@@ -213,7 +189,7 @@ export const useSecureOperations = () => {
     }
 
     return user;
-  }, [networkStatus]);
+  }, []);
 
   // Função wrapper para operações seguras
   const executeSecureOperation = useCallback(async <T>(
@@ -295,12 +271,6 @@ export const useSecureOperations = () => {
     options: OperationOptions = {}
   ): Promise<{ success: boolean; data?: T; error?: string }> => {
     return executeSecureOperation(async () => {
-      // Verificar conectividade antes de operações de banco
-      const canExecute = await canExecuteOnlineOperation(networkStatus);
-      if (!canExecute) {
-        throw new Error('Operação de banco de dados requer conexão com a internet');
-      }
-
       const query = supabase.from(tableName);
       const result = await queryBuilder(query);
       
@@ -310,7 +280,7 @@ export const useSecureOperations = () => {
 
       return result.data as T;
     }, `${operation}_${tableName}`, options);
-  }, [executeSecureOperation, networkStatus]);
+  }, [executeSecureOperation]);
 
   // Função para chamar RPCs de forma segura (versão simplificada)
   const secureRPC = useCallback(async <T>(
@@ -319,12 +289,6 @@ export const useSecureOperations = () => {
     options: OperationOptions = {}
   ): Promise<{ success: boolean; data?: T; error?: string }> => {
     return executeSecureOperation(async () => {
-      // Verificar conectividade antes de chamadas RPC
-      const canExecute = await canExecuteOnlineOperation(networkStatus);
-      if (!canExecute) {
-        throw new Error('Chamada RPC requer conexão com a internet');
-      }
-
       // Chamar RPC diretamente sem verificações de tipo
       const response = await supabase.rpc(rpcName as any, params);
       
@@ -334,7 +298,7 @@ export const useSecureOperations = () => {
 
       return response.data as T;
     }, `rpc_${rpcName}`, options);
-  }, [executeSecureOperation, networkStatus]);
+  }, [executeSecureOperation]);
 
   // Função para operações em lote
   const secureBatchOperation = useCallback(async <T>(

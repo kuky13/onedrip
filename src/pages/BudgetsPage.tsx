@@ -137,8 +137,8 @@ export const BudgetsPage = () => {
           <h1 className="text-2xl font-bold mb-4">Acesso Negado</h1>
           <p className="text-muted-foreground mb-6">Você precisa estar logado para ver os orçamentos.</p>
           <Button onClick={() => navigate('/auth')}>Fazer Login</Button>
-        </div>
-      </div>
+        </ResponsiveContainer>
+      </ResponsiveContainer>
     );
   }
 
@@ -176,7 +176,7 @@ export const BudgetsPage = () => {
                   {filteredBudgets.length}
                 </span>
               </p>
-            </div>
+            </ResponsiveGrid>
           </div>
           
           <ActionButton
@@ -285,8 +285,8 @@ export const BudgetsPage = () => {
                     <div className="h-4 bg-muted rounded w-40"></div>
                     <div className="h-12 bg-muted rounded-lg"></div>
                   </div>
-                </CardContent>
-              </Card>
+                </ResponsiveContainer>
+              </ResponsiveCard>
             ))}
           </div>
         ) : filteredBudgets.length === 0 ? (
@@ -466,12 +466,12 @@ export const BudgetsPage = () => {
                       </Button>
                     </div>
                   </div>
-                 </ResponsiveContainer>
-              </ResponsiveCard>
+                </CardContent>
+              </Card>
             ))}
-          </ResponsiveGrid>
+          </div>
         )}
-      </ResponsiveContainer>
+      </div>
 
       {/* Modals */}
       <EditBudgetModal 
